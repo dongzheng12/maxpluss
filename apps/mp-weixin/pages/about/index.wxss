@@ -1,0 +1,29 @@
+.about-card {
+  padding: 32rpx 28rpx;
+}
+
+.about-paragraph {
+  font-size: 30rpx;
+  line-height: 1.9;
+  color: #3d4a63;
+  text-align: justify;
+}
+
+.about-paragraph + .about-paragraph {
+  margin-top: 24rpx;
+}
+
+.about-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 40rpx 0 24rpx;
+  font-size: 24rpx;
+  color: #b0b8c1;
+}
+
+.about-icp {
+  font-size: 22rpx;
+  color: #b0b8c1;
+}

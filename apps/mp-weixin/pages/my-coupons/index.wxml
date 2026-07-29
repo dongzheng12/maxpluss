@@ -1,0 +1,53 @@
+<view class="page-shell">
+  <!-- 4 tab -->
+  <view class="coupons-tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="coupons-tab {{activeTab === item.key ? 'coupons-tab-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchTab"
+    >
+      {{item.label}}
+    </view>
+  </view>
+
+  <!-- loading -->
+  <view wx:if="{{loading}}" class="coupons-empty">加载中...</view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{items.length === 0}}" class="coupons-empty">
+    <view class="coupons-empty-icon">🎟</view>
+    <view class="coupons-empty-text">暂无优惠券</view>
+  </view>
+
+  <!-- 列表 -->
+  <view wx:else class="coupons-list">
+    <view wx:for="{{items}}" wx:key="id" class="coupon-card coupon-card-{{activeTab}}" hover-class="coupon-card-hover" data-id="{{item.id}}" bindtap="onCouponTap">
+      <view class="coupon-card-left">
+        <view class="coupon-card-face">{{item.faceValue}}</view>
+        <view wx:if="{{item.minAmount > 0}}" class="coupon-card-min">满 ¥{{item.minAmountFmt}} 可用</view>
+      </view>
+      <view class="coupon-card-divider"></view>
+      <view class="coupon-card-right">
+        <view class="coupon-card-name">{{item.name}}</view>
+        <view class="coupon-card-scope">{{item.scopeLabel}}</view>
+        <view class="coupon-card-meta">
+          <block wx:if="{{activeTab === 'AVAILABLE'}}">
+            <text>到期 {{item.expiresAtFmt}}</text>
+            <text wx:if="{{item.expiringSoon}}" class="coupon-card-warn"> · 即将到期</text>
+          </block>
+          <block wx:elif="{{activeTab === 'USED'}}">
+            <text>已用 {{item.usedAtFmt}}</text>
+          </block>
+          <block wx:elif="{{activeTab === 'EXPIRED'}}">
+            <text>{{item.expiresAtFmt}} 过期</text>
+          </block>
+          <block wx:else>
+            <text>已失效</text>
+          </block>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

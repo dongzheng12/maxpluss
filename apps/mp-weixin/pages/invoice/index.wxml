@@ -1,0 +1,19 @@
+<view class="page-shell">
+  <view class="section-card invoice-card">
+    <view class="section-title">发票类型</view>
+    <view class="invoice-type-row">
+      <view class="invoice-type-btn {{titleType === 'personal' ? 'active' : ''}}" data-type="personal" bindtap="chooseType">个人</view>
+      <view class="invoice-type-btn {{titleType === 'company' ? 'active' : ''}}" data-type="company" bindtap="chooseType">企业</view>
+    </view>
+  </view>
+
+  <view class="section-card invoice-card">
+    <view class="section-title">发票信息</view>
+    <input class="invoice-input" placeholder="发票抬头（必填）" value="{{title}}" bindinput="onTitleInput" />
+    <input wx:if="{{titleType === 'company'}}" class="invoice-input" placeholder="纳税人识别号（企业必填）" value="{{taxNo}}" bindinput="onTaxNoInput" />
+    <input class="invoice-input" placeholder="收票邮箱（必填）" value="{{email}}" bindinput="onEmailInput" type="text" />
+    <textarea class="invoice-textarea" placeholder="备注信息（选填）" value="{{remark}}" bindinput="onRemarkInput"></textarea>
+  </view>
+
+  <view class="primary-btn {{submitting ? 'disabled' : ''}}" bindtap="submit">{{submitting ? '提交中...' : '提交申请'}}</view>
+</view>

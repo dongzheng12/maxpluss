@@ -1,0 +1,103 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/register/index",
+    "pages/standards/index",
+    "pages/committee/index",
+    "pages/graph/index",
+    "pages/industry/index",
+    "pages/outline/index",
+    "pages/ics/index",
+    "pages/detail/index",
+    "pages/compare/index",
+    "pages/compare-launch/index",
+    "pages/compare-sections/index",
+    "pages/compare-result/index",
+    "pages/report/index",
+    "pages/workspace/index",
+    "pages/chat/index",
+    "pages/profile/index",
+    "pages/membership/index",
+    "pages/membership-benefits/index",
+    "pages/payment/index",
+    "pages/orders/index",
+    "pages/invoice/index",
+    "pages/booking/index",
+    "pages/booking-records/index",
+    "pages/favorites/index",
+    "pages/settings/index",
+    "pages/my-member/index",
+    "pages/my-coupons/index",
+    "pages/certification/index",
+    "pages/training/index",
+    "pages/scan/index",
+    "pages/referral/index",
+    "pages/notification-settings/index",
+    "pages/about/index",
+    "pages/about/terms",
+    "pages/about/privacy",
+    "pages/bind-phone/index",
+    "pages/workbench/index",
+    "pages/expert-vote/index",
+    "pages/expert-vote/edit/index",
+    "pages/expert-vote/detail/index",
+    "pages/expert-vote/meeting/index",
+    "pages/draft-center/index",
+    "pages/notice/detail/index",
+    "pages/login/index",
+    "pages/enterprise-apply/index",
+    "pages/standard-execution/tasks/index",
+    "pages/standard-execution/task-detail/index",
+    "pages/standard-execution/submit/index",
+    "pages/standard-execution/quiz/index",
+    "pages/standard-execution/records/index",
+    "pages/enterprise-home/index",
+    "pages/change-password/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "标准小智",
+    "navigationBarBackgroundColor": "#f5f6f8",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f6f8",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#9eacbc",
+    "selectedColor": "#3b6288",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "assets/tabbar/home-default.png",
+        "selectedIconPath": "assets/tabbar/home-selected.png"
+      },
+      {
+        "pagePath": "pages/chat/index",
+        "text": "小智",
+        "iconPath": "assets/tabbar/icon-default.png",
+        "selectedIconPath": "assets/tabbar/icon-selected.png"
+      },
+      {
+        "pagePath": "pages/compare/index",
+        "text": "比对",
+        "iconPath": "assets/tabbar/compare-default.png",
+        "selectedIconPath": "assets/tabbar/compare-selected.png"
+      },
+      {
+        "pagePath": "pages/workspace/index",
+        "text": "工作台",
+        "iconPath": "assets/tabbar/workspace-default.png",
+        "selectedIconPath": "assets/tabbar/workspace-selected.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/tabbar/profile-default.png",
+        "selectedIconPath": "assets/tabbar/profile-selected.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

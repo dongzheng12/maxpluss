@@ -1,0 +1,11 @@
+.upload-card, .compare-mode-card, .compare-price-card, .compare-source-card { padding: 24rpx; margin-bottom: 18rpx; }
+.upload-box { min-height: 220rpx; border: 2rpx dashed #69a0ff; border-radius: 24rpx; background: #f8fbff; color: #7f8898; display: flex; align-items: center; justify-content: center; text-align: center; white-space: pre-line; font-size: 30rpx; line-height: 1.7; }
+.upload-file-card { min-height: 132rpx; border-radius: 24rpx; background: #edf3ff; display: flex; align-items: center; justify-content: space-between; padding: 0 26rpx; }
+.upload-file-name { font-size: 32rpx; font-weight: 700; color: #1f2a44; margin-bottom: 8rpx; }
+.upload-remove { width: 56rpx; height: 56rpx; border-radius: 999rpx; color: #9aa3b2; display: flex; align-items: center; justify-content: center; font-size: 44rpx; }
+.compare-source-title { font-size: 34rpx; font-weight: 700; color: #2b63f6; margin-bottom: 10rpx; }
+.mode-item { padding: 24rpx; border-radius: 24rpx; border: 1rpx solid #d8dfea; margin-top: 16rpx; }
+.mode-item.active { background: #edf3ff; border-color: #2b63f6; }
+.mode-title { font-size: 34rpx; font-weight: 700; margin-bottom: 10rpx; }
+.btn-disabled { opacity: 0.5; pointer-events: none; }
+.pair-limit-tip { padding: 20rpx 24rpx; background: #e6f4ff; color: #0958d9; font-size: 26rpx; line-height: 1.6; border-radius: 16rpx; margin-bottom: 18rpx; }

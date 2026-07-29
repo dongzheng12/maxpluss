@@ -1,0 +1,130 @@
+<view class="page">
+  <view wx:if="{{notLoggedIn}}" class="empty">
+    <view class="empty-text">请先登录后查看专家评审投票申请</view>
+    <button class="primary-btn" bindtap="goLogin">前往登录</button>
+  </view>
+
+  <view wx:elif="{{loading}}" class="loading">加载中...</view>
+
+  <block wx:else>
+    <view wx:if="{{items.length > 0}}" class="header-actions">
+      <button class="primary-btn block" bindtap="goCreate">+ 发起专家评审投票</button>
+    </view>
+
+    <view wx:if="{{items.length === 0}}" class="landing">
+      <!-- 顶部主视觉 -->
+      <view class="landing-hero">
+        <view class="landing-title">专家评审投票</view>
+        <view class="landing-subtitle">{{landingSubtitle}}</view>
+        <button class="primary-btn block large" bindtap="goCreate">发起专家评审投票</button>
+        <view class="landing-hero-tip">按专家数量计费，提交申请后生成订单。</view>
+      </view>
+
+      <!-- 服务亮点（垂直 3 卡） -->
+      <view class="landing-feature">
+        <view class="feature-num">01</view>
+        <view class="feature-content">
+          <view class="feature-title">专家组织</view>
+          <view class="feature-desc">按行业和专业方向协助组织专家</view>
+        </view>
+      </view>
+      <view class="landing-feature">
+        <view class="feature-num">02</view>
+        <view class="feature-content">
+          <view class="feature-title">线上评审</view>
+          <view class="feature-desc">通过腾讯会议开展评审与投票</view>
+        </view>
+      </view>
+      <view class="landing-feature">
+        <view class="feature-num">03</view>
+        <view class="feature-content">
+          <view class="feature-title">文件交付</view>
+          <view class="feature-desc">会后形成最终确认文件</view>
+        </view>
+      </view>
+
+      <!-- 服务流程 横向滚动 5 步 -->
+      <view class="landing-process">
+        <view class="process-title">服务流程</view>
+        <scroll-view class="process-scroll" scroll-x>
+          <view class="process-list">
+            <view class="process-item">
+              <view class="process-num">1</view>
+              <view class="process-text">提交申请</view>
+            </view>
+            <view class="process-arrow">→</view>
+            <view class="process-item">
+              <view class="process-num">2</view>
+              <view class="process-text">支付</view>
+            </view>
+            <view class="process-arrow">→</view>
+            <view class="process-item">
+              <view class="process-num">3</view>
+              <view class="process-text">组织专家</view>
+            </view>
+            <view class="process-arrow">→</view>
+            <view class="process-item">
+              <view class="process-num">4</view>
+              <view class="process-text">线上会议</view>
+            </view>
+            <view class="process-arrow">→</view>
+            <view class="process-item">
+              <view class="process-num">5</view>
+              <view class="process-text">文件交付</view>
+            </view>
+          </view>
+        </scroll-view>
+        <view class="process-summary">{{processSummary}}</view>
+      </view>
+
+      <!-- 底部 CTA -->
+      <view class="landing-cta">
+        <button class="primary-btn block large" bindtap="goCreate">发起专家评审投票</button>
+        <view class="cta-hint">{{ctaHint}}</view>
+      </view>
+    </view>
+
+    <view wx:else class="list">
+      <view wx:for="{{items}}" wx:key="requestNo" class="card">
+        <view class="card-head">
+          <text class="title">{{item.projectName}}</text>
+          <view class="tag {{item.statusClass}}">{{item.statusLabel}}</view>
+        </view>
+
+        <view class="meta-row">
+          <text class="meta-label">标准/项目</text>
+          <text class="meta-value">{{item.targetName}}</text>
+        </view>
+        <view class="meta-row">
+          <text class="meta-label">类型 / 专家数</text>
+          <text class="meta-value">{{item.projectType}} · {{item.expertCount}} 位</text>
+        </view>
+        <view class="meta-row" wx:if="{{item.amountYuan !== '-'}}">
+          <text class="meta-label">金额</text>
+          <text class="meta-value">¥{{item.amountYuan}}</text>
+        </view>
+        <view class="meta-row" wx:if="{{item.desiredDateText}}">
+          <text class="meta-label">期望会议日期</text>
+          <text class="meta-value">{{item.desiredDateText}}</text>
+        </view>
+        <view class="meta-row">
+          <text class="meta-label">申请编号</text>
+          <text class="meta-value mono">{{item.requestNo}}</text>
+        </view>
+        <view class="meta-row">
+          <text class="meta-label">提交时间</text>
+          <text class="meta-value">{{item.createdAtText}}</text>
+        </view>
+
+        <view class="actions">
+          <button wx:if="{{item.showEdit}}" class="primary-btn" data-no="{{item.requestNo}}" bindtap="goEdit">继续填写</button>
+          <button wx:if="{{item.showPay}}" class="primary-btn" data-no="{{item.requestNo}}" bindtap="goPay">去支付</button>
+          <button wx:if="{{item.showMeetingBtn}}" class="primary-btn" data-no="{{item.requestNo}}" bindtap="goMeeting">查看会议</button>
+          <button wx:if="{{item.showDownload}}" class="primary-btn" data-no="{{item.requestNo}}" bindtap="goDownload">下载最终交付文件</button>
+          <button wx:if="{{item.showDetail}}" class="ghost-btn" data-no="{{item.requestNo}}" bindtap="goDetail">查看</button>
+          <button wx:if="{{item.showEdit}}" class="danger-btn" data-no="{{item.requestNo}}" bindtap="deleteDraft">删除草稿</button>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

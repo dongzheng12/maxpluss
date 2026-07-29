@@ -1,0 +1,8 @@
+<view class="page-shell">
+  <view class="coming-soon-card section-card">
+    <view class="coming-icon">RZ</view>
+    <view class="coming-title">认证服务</view>
+    <view class="coming-desc">敬请期待</view>
+    <view class="coming-sub">认证咨询、体系认证、产品认证等服务即将上线</view>
+  </view>
+</view>

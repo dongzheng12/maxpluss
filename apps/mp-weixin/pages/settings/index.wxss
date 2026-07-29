@@ -1,0 +1,6 @@
+.settings-card { padding: 24rpx; margin-bottom: 18rpx; }
+.settings-row { min-height: 92rpx; display: flex; align-items: center; justify-content: space-between; border-top: 1rpx solid #edf0f5; font-size: 30rpx; color: #4e596d; }
+.settings-row:first-of-type { border-top: 0; }
+.settings-switch-row { min-height: 124rpx; display: flex; align-items: center; justify-content: space-between; gap: 24rpx; border-top: 1rpx solid #edf0f5; }
+.settings-switch-row:first-of-type { border-top: 0; }
+.settings-label { font-size: 30rpx; font-weight: 700; color: #1f2a44; margin-bottom: 8rpx; }

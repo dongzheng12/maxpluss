@@ -1,0 +1,205 @@
+<view class="page-shell">
+
+  <!-- ═══ 首页 ═══ -->
+  <view wx:if="{{step === 'home'}}">
+    <view class="scan-hero">
+      <view class="scan-hero-title">扫一扫</view>
+      <view class="scan-hero-sub">看看什么值得买？</view>
+    </view>
+
+    <!-- 拍照入口 -->
+    <view class="section-card scan-entry" bindtap="takePhoto">
+      <view class="cam-icon">
+        <view class="cam-body"><view class="cam-lens"></view></view>
+        <view class="cam-top"></view>
+      </view>
+      <view class="scan-entry-text">
+        <view class="scan-entry-title">拍照识别</view>
+        <view class="meta-text">拍摄商品包装，自动识别匹配标准</view>
+      </view>
+      <text class="list-arrow">›</text>
+    </view>
+
+    <!-- 查询记录 -->
+    <view wx:if="{{history.length > 0}}" class="section-card" style="padding:24rpx 0 0">
+      <view class="row-between" style="padding:0 28rpx 16rpx">
+        <view class="section-title" style="margin:0">查询记录</view>
+        <view class="meta-text" style="font-size:24rpx" bindtap="clearHistory">清空</view>
+      </view>
+      <view wx:for="{{history}}" wx:key="key" class="hist-wrap"
+        data-index="{{index}}"
+        bindtouchstart="onHistoryTouchStart" bindtouchmove="onHistoryTouchMove">
+        <view class="hist-card {{historySwipedIdx === index ? 'hist-swiped' : ''}}">
+          <view class="hist-body" bindtap="selectHistory" data-index="{{index}}">
+            <!-- 识别中 -->
+            <block wx:if="{{item.status === 'pending'}}">
+              <view class="hist-name hist-pending">识别中…</view>
+              <view class="hist-sub">{{item.time}}</view>
+            </block>
+            <!-- 失败 -->
+            <block wx:elif="{{item.status === 'failed'}}">
+              <view class="hist-name hist-failed">识别失败</view>
+              <view class="hist-sub">{{item.error || '未知错误'}} · {{item.time}}</view>
+            </block>
+            <!-- 正常结果 -->
+            <block wx:else>
+              <view class="hist-name">{{item.recognized || '未知商品'}}</view>
+              <view class="hist-standard">{{item.standards[0].name || item.standards[0].code || item.name || '未知标准'}}</view>
+              <view class="hist-meta-row">
+                <view class="hist-chip hist-chip-{{item.recognitionMode === 'exact' ? 'good' : (item.recognitionMode === 'category' ? 'mid' : 'weak')}}">{{item.recognitionMode === 'exact' ? '已找到标准' : (item.recognitionMode === 'category' ? '类别关联' : '通用参考')}}</view>
+                <view class="hist-sub">{{item.standards[0].code || item.code || ''}} · {{item.matchSourceLabel || '综合匹配'}} · {{item.time}}</view>
+              </view>
+            </block>
+          </view>
+        </view>
+        <view class="hist-del {{historySwipedIdx === index ? 'hist-del-show' : ''}}" catchtap="deleteHistory" data-key="{{item.key || item.code}}">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ═══ 加载中（拍照三步 / 查询 spinner）═══ -->
+  <view wx:if="{{step === 'loading'}}" class="loading-center">
+    <!-- 三步进度（仅拍照） -->
+    <block wx:if="{{loadingMode === 'scan'}}">
+      <view class="progress-bar">
+        <view class="progress-step {{loadingStep >= 0 ? 'ps-on' : ''}} {{loadingStep > 0 ? 'ps-ok' : ''}}">
+          <view class="ps-dot">{{loadingStep > 0 ? '✓' : '1'}}</view>
+          <text class="ps-label">识别商品</text>
+        </view>
+        <view class="ps-line {{loadingStep >= 1 ? 'ps-line-ok' : ''}}"></view>
+        <view class="progress-step {{loadingStep >= 1 ? 'ps-on' : ''}} {{loadingStep > 1 ? 'ps-ok' : ''}}">
+          <view class="ps-dot">{{loadingStep > 1 ? '✓' : '2'}}</view>
+          <text class="ps-label">提取文字</text>
+        </view>
+        <view class="ps-line {{loadingStep >= 2 ? 'ps-line-ok' : ''}}"></view>
+        <view class="progress-step {{loadingStep >= 2 ? 'ps-on' : ''}} {{loadingStep > 2 ? 'ps-ok' : ''}}">
+          <view class="ps-dot">{{loadingStep > 2 ? '✓' : '3'}}</view>
+          <text class="ps-label">匹配标准</text>
+        </view>
+      </view>
+    </block>
+    <view class="loading-anim" wx:if="{{loadingStep < 3 && loadingMode === 'scan'}}"></view>
+    <view class="loading-anim" wx:if="{{loadingMode === 'query'}}"></view>
+    <view class="loading-ok" wx:if="{{loadingStep >= 3 && loadingMode === 'scan'}}">✓</view>
+    <text class="loading-label">{{loadingText}}</text>
+  </view>
+
+  <!-- ═══ 错误 ═══ -->
+  <view wx:if="{{step === 'error'}}" class="loading-center">
+    <view class="err-dot">!</view>
+    <view class="err-msg">{{error}}</view>
+    <view class="primary-btn" style="width:70%;margin-bottom:16rpx" bindtap="takePhoto">重新拍照</view>
+    <view class="secondary-btn" style="width:70%" bindtap="goBack">返回首页</view>
+  </view>
+
+  <!-- ═══ 结果页（5 段）═══ -->
+  <view wx:if="{{step === 'result'}}">
+    <view class="topbar">
+      <view class="topbar-title">识别结果</view>
+    </view>
+
+    <!-- ① 商品识别结果 -->
+    <view class="section-card conclusion-card conclusion-{{conclusionTone}}">
+      <view class="conclusion-product">{{recognized}}</view>
+      <view class="conclusion-line">{{conclusionTitle}}</view>
+    </view>
+
+    <!-- ② 购买建议（主结论卡） -->
+    <view class="section-card advice-main-card advice-main-{{purchaseAdvice.level || 'weak'}}" wx:if="{{purchaseAdvice}}">
+      <view class="advice-kicker">购买建议</view>
+      <view class="advice-main-title">{{purchaseAdvice.label || '仅作参考'}}</view>
+      <view class="advice-main-sub">
+        <text class="confidence-inline confidence-inline-{{confidenceLevel}}">识别把握：{{confidenceLevel === 'high' ? '高' : confidenceLevel === 'mid' ? '中' : '低'}}</text>
+      </view>
+      <view class="advice-main-body" wx:if="{{purchaseAdvice.conclusion}}">{{purchaseAdvice.conclusion}}</view>
+      <view class="advice-main-basis" wx:if="{{purchaseAdvice.basis}}">依据：{{purchaseAdvice.basis}}</view>
+    </view>
+
+    <!-- ③ 识别依据 -->
+    <view class="section-card evidence-card">
+      <view class="section-title" style="margin-bottom:18rpx">识别依据</view>
+      <view class="evidence-row">
+        <text class="evidence-label">匹配方式</text>
+        <text class="evidence-value">{{matchSourceLabel || '综合匹配'}}</text>
+      </view>
+      <view class="evidence-row" wx:if="{{ocrPreview}}">
+        <text class="evidence-label">包装文字</text>
+        <text class="evidence-value evidence-value-multi">{{ocrPreview}}</text>
+      </view>
+      <view class="evidence-row" wx:if="{{confidencePct > 0}}">
+        <text class="evidence-label">图像置信度</text>
+        <view class="conf-bar conf-bar-inline"><view class="conf-fill" style="width:{{confidencePct}}%"></view></view>
+        <text class="conf-pct">{{confidencePct}}%</text>
+      </view>
+    </view>
+
+    <!-- ④ 相关标准 / 标准图谱 -->
+    <!-- 图谱（有 standards 就展示，三态一致） -->
+    <view class="section-card" style="padding:28rpx;margin-bottom:20rpx" wx:if="{{graphNodes.length > 0}}">
+      <view class="section-title" style="margin-bottom:24rpx">{{recognitionMode === 'exact' ? '关联标准' : '相关标准'}}</view>
+      <view class="graph-container">
+        <view wx:for="{{graphNodes}}" wx:key="code" class="graph-line"
+          style="transform:rotate({{item.angleDeg}}deg);width:{{item.lineLen}}rpx"></view>
+        <view class="graph-center-node">
+          <text class="graph-center-text">{{recognized}}</text>
+        </view>
+        <view wx:for="{{graphNodes}}" wx:key="code" class="graph-std-node"
+          style="transform:translate({{item.x}}rpx,{{item.y}}rpx)"
+          bindtap="onStdNodeTap" data-code="{{item.code}}">
+          <text class="std-node-code">{{item.code}}</text>
+          <text class="std-node-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+    <!-- category / general 提示 -->
+    <view class="section-card category-warn" wx:if="{{recognitionMode === 'category' && standards.length > 0}}">
+      <text class="category-warn-icon">!</text>
+      <text class="category-warn-text">以下为按类别关联到的相关标准，建议结合包装上的执行标准核对</text>
+    </view>
+    <!-- 标准列表（三态统一，有 standards 就展示） -->
+    <view class="section-card" style="padding:8rpx 28rpx;margin-bottom:20rpx" wx:if="{{standards.length > 0}}">
+      <view wx:for="{{standards}}" wx:key="code" class="std-list-row" bindtap="onStdNodeTap" data-code="{{item.code}}">
+        <view class="std-list-left">
+          <view class="std-list-code">{{item.code}}</view>
+          <view class="std-list-name">{{item.name}}</view>
+        </view>
+        <view class="tag {{item.status === '现行' ? 'tag-green' : item.status === '废止' ? 'tag-orange' : 'tag-blue'}}">{{item.status}}</view>
+      </view>
+    </view>
+    <!-- 通用方向（riskDirections 非空时展示） -->
+    <view class="section-card directions-card" wx:if="{{riskDirections.length > 0}}">
+      <view class="section-title" style="margin-bottom:14rpx">这一类商品通常需要关注</view>
+      <view wx:for="{{riskDirections}}" wx:key="index" class="direction-row">
+        <view class="direction-bullet">·</view>
+        <view class="direction-text">{{item}}</view>
+      </view>
+    </view>
+
+    <!-- ⑤ 风险提示 -->
+    <view class="section-card risk-card">
+      <view class="section-title" style="margin-bottom:14rpx">风险提示</view>
+      <view class="risk-row">请以商品包装上印刷的产品执行标准为准</view>
+      <view class="risk-row" wx:if="{{topStandard && topStandard.status === '废止'}}" style="color:#d97706">首个匹配标准已废止，建议核对包装最新执行标准</view>
+      <view class="risk-row" wx:if="{{recognitionMode === 'general'}}">当前结果仅作参考，建议补充清晰包装文字重新识别</view>
+      <view class="risk-row" wx:if="{{recognitionMode === 'category'}}">类别关联结果仅供参考，标准全文请通过官方渠道获取</view>
+    </view>
+
+    <!-- ⑥ 后续动作 -->
+    <view style="padding:0 24rpx 32rpx">
+      <view class="primary-btn" bindtap="goBack">扫描其他商品</view>
+      <view class="secondary-action-row">
+        <text class="secondary-action" bindtap="goBack">查看历史记录</text>
+        <text class="secondary-action" wx:if="{{recognitionMode === 'general'}}" bindtap="takePhoto">重新拍摄</text>
+      </view>
+      <!-- 全库比对弱引导（非主动作） -->
+      <view class="section-card offer-card" wx:if="{{serviceOffer}}" bindtap="onServiceOfferTap" style="margin-top:20rpx">
+        <view class="offer-body">上传包装 / 规格书做深入合规审查</view>
+        <view class="offer-cta" wx:if="{{serviceOffer.cta}}">{{serviceOffer.cta.text}} ›</view>
+      </view>
+    </view>
+
+    <view class="meta-text" style="text-align:center;padding:0 24rpx 24rpx;font-size:22rpx">以上信息仅供参考，标准全文请通过官方渠道获取</view>
+    <view class="ai-disclaimer">内容由 AI 生成，仅供参考</view>
+  </view>
+
+</view>

@@ -1,0 +1,109 @@
+.page { background: #f5f5f7; min-height: 100vh; padding-bottom: 40rpx; }
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 20rpx 32rpx;
+  border-bottom: 1rpx solid #eee;
+}
+.top-bar-title { font-size: 30rpx; font-weight: 600; color: #1a1a1a; }
+.top-bar-action { font-size: 26rpx; color: #1677ff; padding: 8rpx 0 8rpx 24rpx; }
+
+.tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1rpx solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+}
+.tab-active {
+  color: #1677ff;
+  font-weight: 600;
+  border-bottom: 4rpx solid #1677ff;
+}
+
+.list { padding: 16rpx; }
+
+.card {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.04);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #222;
+  flex: 1;
+}
+.card-overdue {
+  color: #fff;
+  background: #f5222d;
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  margin-left: 12rpx;
+}
+
+.card-meta {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 40rpx;
+}
+.meta-label { color: #999; }
+.meta-value { color: #444; }
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+.status {
+  font-size: 24rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background: #f0f0f0;
+  color: #666;
+}
+.status-PENDING { background: #fff7e6; color: #fa8c16; }
+.status-IN_PROGRESS { background: #e6f4ff; color: #1677ff; }
+.status-PENDING_REVIEW { background: #fff7e6; color: #fa8c16; }
+.status-REJECTED { background: #fff1f0; color: #f5222d; }
+.status-COMPLETED { background: #f6ffed; color: #52c41a; }
+
+.arrow { color: #ccc; font-size: 32rpx; }
+
+.empty {
+  text-align: center;
+  padding: 200rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.footer {
+  text-align: center;
+  padding: 24rpx 0;
+  color: #ccc;
+  font-size: 24rpx;
+}

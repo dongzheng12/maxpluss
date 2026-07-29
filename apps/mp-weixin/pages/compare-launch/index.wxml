@@ -1,0 +1,72 @@
+<view class="page-shell">
+  <!-- 比对模式选择 -->
+  <view class="section-card compare-mode-card">
+    <view class="section-title">比对模式</view>
+    <view class="mode-item {{mode === 'library' ? 'active' : ''}}" bindtap="switchMode" data-mode="library">
+      <view class="mode-title">全库相似度分析</view>
+      <view class="meta-text">{{copy.libraryDesc}}</view>
+    </view>
+    <view class="mode-item {{mode === 'pair' ? 'active' : ''}}" bindtap="switchMode" data-mode="pair">
+      <view class="mode-title">1 对 1 精准比对</view>
+      <view class="meta-text">{{copy.pairDesc}}</view>
+    </view>
+  </view>
+
+  <!-- 全库相似度分析：只上传一个文档 -->
+  <block wx:if="{{mode === 'library'}}">
+    <view class="section-card upload-card">
+      <view class="section-title">上传待评估文档</view>
+      <view wx:if="{{fileA}}" class="upload-file-card">
+        <view>
+          <view class="upload-file-name">{{fileA.name}}</view>
+          <view class="meta-text">{{fileA.sizeLabel}}</view>
+        </view>
+        <view class="upload-remove" bindtap="removeFileA">x</view>
+      </view>
+      <view wx:else class="upload-box" bindtap="chooseFileA">{{copy.uploadHint}}</view>
+    </view>
+  </block>
+
+  <!-- 1v1 比对：上传两个文档 -->
+  <block wx:if="{{mode === 'pair'}}">
+    <view class="section-card pair-limit-tip">
+      适合中短篇文档比对。系统将优先分析前 10 万字内容，超出部分暂不参与本次比对；扫描件或结构复杂文档可能处理较慢，失败不消耗权益。
+    </view>
+    <view class="section-card upload-card">
+      <view class="section-title">文档 A（标准一）</view>
+      <view wx:if="{{fileA}}" class="upload-file-card">
+        <view>
+          <view class="upload-file-name">{{fileA.name}}</view>
+          <view class="meta-text">{{fileA.sizeLabel}}</view>
+        </view>
+        <view class="upload-remove" bindtap="removeFileA">x</view>
+      </view>
+      <view wx:else class="upload-box" bindtap="chooseFileA">{{copy.uploadHint}}</view>
+    </view>
+
+    <view class="section-card upload-card">
+      <view class="section-title">文档 B（标准二）</view>
+      <view wx:if="{{fileB}}" class="upload-file-card">
+        <view>
+          <view class="upload-file-name">{{fileB.name}}</view>
+          <view class="meta-text">{{fileB.sizeLabel}}</view>
+        </view>
+        <view class="upload-remove" bindtap="removeFileB">x</view>
+      </view>
+      <view wx:else class="upload-box" bindtap="chooseFileB">{{copy.uploadHint}}</view>
+    </view>
+  </block>
+
+  <!-- 计费 -->
+  <view class="section-card compare-price-card">
+    <view class="section-title">计费说明</view>
+    <view class="meta-text">{{priceNote}}</view>
+  </view>
+
+  <view class="primary-btn {{submitted ? 'btn-disabled' : ''}}" bindtap="goNext" wx:if="{{mode === 'pair'}}">开始1对1比对</view>
+  <view class="primary-btn {{submitting || submitted ? 'btn-disabled' : ''}}" bindtap="startLibraryCompare" wx:if="{{mode === 'library'}}">
+    {{submitted ? '已提交' : submitting ? '正在分析中...' : '开始全库相似度分析'}}
+  </view>
+
+  <view class="ai-disclaimer">内容由 AI 生成，仅供参考</view>
+</view>

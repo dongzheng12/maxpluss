@@ -1,0 +1,221 @@
+<view class="page-shell">
+  <!-- ── 一级 Tab 切换条 ── -->
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'keyword' ? 'active' : ''}}"
+      data-tab="keyword" bindtap="switchTab">关键词搜索</view>
+    <view class="tab-item {{activeTab === 'industry' ? 'active' : ''}}"
+      data-tab="industry" bindtap="switchTab">按行业推荐</view>
+  </view>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- ═══ keyword Tab ═══ -->
+  <!-- ════════════════════════════════════════════ -->
+  <block wx:if="{{activeTab === 'keyword'}}">
+    <!-- 搜索栏 -->
+    <view class="search-shell">
+      <text class="search-icon">⌕</text>
+      <input class="search-input" placeholder="搜索标准编号、名称或关键词" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="onSearch" />
+    </view>
+
+    <!-- 搜索前的空状态 -->
+    <view wx:if="{{!searched && !loading}}" class="empty-state">
+      <view class="empty-illustration">
+        <view class="empty-circle">
+          <text class="empty-glyph">⌕</text>
+        </view>
+      </view>
+      <view class="empty-text-main">输入标准号或名称开始搜索</view>
+    </view>
+
+    <!-- 搜索后：左侧分类 + 右侧内容 -->
+    <view wx:if="{{searched}}" class="content-layout">
+      <!-- 左侧分类 -->
+      <scroll-view scroll-y class="cat-sidebar">
+        <view wx:for="{{catList}}" wx:key="key"
+          wx:if="{{item.key === 'all' || catCounts[item.key] > 0}}"
+          class="cat-item {{activeCat === item.key ? 'active' : ''}}"
+          data-key="{{item.key}}" bindtap="switchCat">
+          <text class="cat-label">{{item.label}}</text>
+          <text wx:if="{{catCounts[item.key]}}" class="cat-count">{{catCounts[item.key]}}</text>
+        </view>
+      </scroll-view>
+
+      <!-- 右侧：状态栏 + 列表 -->
+      <scroll-view scroll-y class="result-main" bindscrolltolower="onReachBottom">
+        <!-- 顶部状态筛选 -->
+        <view wx:if="{{statusList.length}}" class="status-bar">
+          <view class="status-chip {{activeStatus === '' ? 'active' : ''}}"
+            data-status="" bindtap="switchStatus">
+            全部
+          </view>
+          <view wx:for="{{statusList}}" wx:key="name"
+            class="status-chip {{activeStatus === item.name ? 'active' : ''}}"
+            data-status="{{item.name}}" bindtap="switchStatus">
+            {{item.name}}<text class="status-count">({{item.count}})</text>
+          </view>
+        </view>
+
+        <!-- 排序 + 结果计数 -->
+        <view class="result-toolbar">
+          <view class="result-count">共 {{total}} 条</view>
+          <picker mode="selector" range="{{sortOptionLabels}}" value="{{sortIndex}}" bindchange="onSortPick">
+            <view class="sort-trigger">
+              <text class="sort-trigger-text">{{sortOptionLabels[sortIndex]}}</text>
+              <text class="sort-trigger-icon">▾</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 标准列表 -->
+        <block wx:for="{{standards}}" wx:key="code">
+          <view class="section-card standard-card" bindtap="openDetail" data-code="{{item.code}}">
+            <view class="standard-tags">
+              <text wx:if="{{item.matchTypeLabel}}" class="tag tag-{{item.matchTypeTone}}">{{item.matchTypeLabel}}</text>
+              <text class="tag tag-{{item.statusTone}}">{{item.status}}</text>
+              <text class="tag tag-blue">{{item.typeLabel}}</text>
+            </view>
+            <view class="standard-code">{{item.code}}</view>
+            <view class="standard-title">{{item.title}}</view>
+            <view class="standard-meta">
+              <text wx:if="{{item.publishDate}}">发布 {{item.publishDate}}</text>
+              <text wx:if="{{item.implementDate}}">实施 {{item.implementDate}}</text>
+            </view>
+            <view class="standard-link-row">
+              <view class="standard-link-pill" data-code="{{item.code}}" catchtap="toggleFavorite">收藏</view>
+              <view class="standard-link-pill" data-code="{{item.code}}" catchtap="openGraph">标准图谱</view>
+            </view>
+          </view>
+        </block>
+
+        <!-- 加载中 -->
+        <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+
+        <!-- 没有更多 -->
+        <view wx:if="{{noMore && standards.length}}" class="loading-tip end-tip">已加载全部</view>
+
+        <!-- 搜索无结果 -->
+        <view wx:if="{{!standards.length && !loading}}" class="section-card empty-card">没有匹配到标准，请更换关键词或分类。</view>
+      </scroll-view>
+    </view>
+  </block>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- ═══ industry Tab(包在 .ind-pane 防 class 冲突) ═══ -->
+  <!-- ════════════════════════════════════════════ -->
+  <block wx:if="{{activeTab === 'industry'}}">
+    <view class="ind-pane">
+      <!-- 搜索 + 行业选择 -->
+      <view class="section-card search-card">
+        <view class="search-bar">
+          <view class="search-input-wrap">
+            <text class="search-icon-glyph">⌕</text>
+            <input class="search-input" placeholder="搜索行业名称" value="{{indKeyword}}" bindinput="onIndKeywordInput" confirm-type="search" bindconfirm="indSearch" />
+          </view>
+          <picker mode="selector" range="{{industryLabels}}" value="{{selectedIndustryIndex}}" bindchange="onIndustryPick">
+            <view class="search-ind-trigger">
+              <text class="ind-trigger-text">{{selectedIndustryIndex >= 0 ? industryLabels[selectedIndustryIndex] : '行业'}}</text>
+              <text class="ind-trigger-icon">▾</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 热门标签 -->
+        <view class="hot-section">
+          <view class="hot-label">热门行业</view>
+          <view class="hot-tags">
+            <view wx:for="{{hotTags}}" wx:key="*this" class="hot-tag" data-tag="{{item}}" bindtap="tapHotTag">{{item}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 统计卡片 -->
+      <view wx:if="{{indResult}}" class="stats-row">
+        <view class="stat-box">
+          <view class="stat-num total">{{indResult.total}}</view>
+          <view class="stat-desc">标准覆盖</view>
+        </view>
+        <view class="stat-box">
+          <view class="stat-num mandatory">{{indResult.mandatory.length}}</view>
+          <view class="stat-desc">强制标准</view>
+        </view>
+        <view class="stat-box">
+          <view class="stat-num recommended">{{indResult.recommended.length}}</view>
+          <view class="stat-desc">推荐标准</view>
+        </view>
+      </view>
+
+      <!-- 类型筛选 -->
+      <view wx:if="{{indTypeList.length > 1}}" class="section-card filter-card">
+        <scroll-view scroll-x enable-flex class="filter-scroll">
+          <view class="filter-row">
+            <view wx:for="{{indTypeList}}" wx:key="name"
+              class="filter-chip {{indActiveType === item.name || (!indActiveType && item.name === '全部') ? 'active' : ''}}"
+              data-type="{{item.name}}" data-key="{{item.key}}" bindtap="tapIndType">
+              {{item.name}}<text class="filter-count">({{item.count}})</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <!-- 标准列表 -->
+      <view wx:if="{{indResult}}" class="section-card list-card">
+        <view class="list-head">
+          <text class="list-title">{{indActiveType || '全部'}}标准</text>
+          <text class="list-badge">{{indFilteredList.length}} 条</text>
+        </view>
+        <block wx:for="{{indPagedList}}" wx:key="code">
+          <view class="std-item" data-code="{{item.code}}" bindtap="openDetail">
+            <view class="std-left">
+              <view class="std-code">{{item.code}}</view>
+              <view class="std-name">{{item.name}}</view>
+            </view>
+            <view class="std-right">
+              <view wx:if="{{item.status}}" class="std-status {{item.status === '现行' ? 'status-active' : item.status === '即将实施' ? 'status-upcoming' : ''}}">{{item.status}}</view>
+              <view class="std-dates">
+                <text wx:if="{{item.pub_date || item.publish_date}}" class="std-date">发布 {{item.pub_date || item.publish_date}}</text>
+                <text wx:if="{{item.impl_date || item.implement_date}}" class="std-date">实施 {{item.impl_date || item.implement_date}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+        <view wx:if="{{indPagedList.length === 0}}" class="empty-inline">没有匹配的标准</view>
+      </view>
+
+      <!-- 分页 -->
+      <view wx:if="{{indTotalPages > 1}}" class="pagination">
+        <view class="page-btn {{indPage <= 1 ? 'disabled' : ''}}" bindtap="indPrevPage">
+          <text class="page-arrow">‹</text>
+        </view>
+        <text class="page-info">{{indPage}} / {{indTotalPages}}</text>
+        <view class="page-btn {{indPage >= indTotalPages ? 'disabled' : ''}}" bindtap="indNextPage">
+          <text class="page-arrow" style="transform:rotate(180deg)">‹</text>
+        </view>
+      </view>
+
+      <!-- 空状态(industry 专用,使用 ind- 前缀防止跟 keyword Tab 的 .empty-state 冲突) -->
+      <view wx:if="{{!indResult && !indLoading && !indError}}" class="ind-empty-state">
+        <view class="empty-illustration">
+          <view class="empty-circle">
+            <text class="empty-glyph">⌕</text>
+          </view>
+        </view>
+        <view class="empty-text-main">输入或选择行业，查看适用标准</view>
+        <view class="empty-text-sub">覆盖 24 个行业分类</view>
+      </view>
+
+      <!-- 错误 -->
+      <view wx:if="{{indError}}" class="error-toast">
+        <text class="error-icon">!</text>
+        <text>{{indError}}</text>
+      </view>
+
+      <!-- Loading 蒙层 -->
+      <view wx:if="{{indLoading}}" class="loading-overlay">
+        <view class="loading-spinner-wrap">
+          <view class="loading-spinner"></view>
+          <text class="loading-text">正在搜索标准…</text>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

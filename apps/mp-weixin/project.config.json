@@ -1,0 +1,47 @@
+{
+  "appid": "wxbcda91ae07a75f66",
+  "projectname": "biaozhun-xiaozhi-mp",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": false,
+    "postcss": true,
+    "minified": false,
+    "ignoreDevUnusedFiles": false,
+    "compileHotReLoad": false,
+    "useStaticServer": false,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": true,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "simulatorType": "wechat",
+  "libVersion": "3.3.5",
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "scripts" },
+      { "type": "suffix", "value": ".md" },
+      { "type": "glob", "value": "**/*.test.js" },
+      { "type": "glob", "value": "**/*.spec.js" }
+    ],
+    "include": []
+  },
+  "editorSetting": {}
+}

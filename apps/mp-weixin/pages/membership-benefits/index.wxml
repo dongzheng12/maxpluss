@@ -1,0 +1,65 @@
+<view class="page-shell">
+  <view class="page-title">会员权益对照</view>
+  <view class="page-desc">各功能在不同会员等级下的使用权限</view>
+
+  <block wx:for="{{sections}}" wx:key="title">
+    <view class="section-card benefit-section">
+      <view class="section-title">{{item.title}}</view>
+      <view wx:if="{{item.subtitle}}" class="meta-text" style="margin-bottom:16rpx">{{item.subtitle}}</view>
+
+      <!-- 表头 -->
+      <view class="benefit-row benefit-header">
+        <view class="benefit-cell cell-name">功能</view>
+        <view class="benefit-cell cell-val cell-visitor">{{columns[0].label}}</view>
+        <view class="benefit-cell cell-val">{{columns[1].label}}</view>
+        <view class="benefit-cell cell-val cell-personal">{{columns[2].label}}</view>
+        <view class="benefit-cell cell-val cell-pro">{{columns[3].label}}</view>
+      </view>
+
+      <!-- 数据行 -->
+      <block wx:for="{{item.items}}" wx:for-item="row" wx:key="name">
+        <view class="benefit-row">
+          <view class="benefit-cell cell-name">{{row.name}}</view>
+          <view class="benefit-cell cell-val cell-visitor {{row.visitor === 'Y' ? 'val-yes' : 'val-no'}}">
+            {{row.visitor === 'Y' ? '✓' : row.visitor === '-' ? '✗' : row.visitor}}
+          </view>
+          <view class="benefit-cell cell-val {{row.free === 'Y' ? 'val-yes' : row.free === '-' ? 'val-no' : 'val-limit'}}">
+            {{row.free === 'Y' ? '✓' : row.free === '-' ? '✗' : row.free}}
+          </view>
+          <view class="benefit-cell cell-val cell-personal {{row.personal === 'Y' || row.personal === '不限' ? 'val-yes' : row.personal === '-' ? 'val-no' : 'val-limit'}}">
+            {{row.personal === 'Y' ? '✓' : row.personal === '-' ? '✗' : row.personal}}
+          </view>
+          <view class="benefit-cell cell-val cell-pro {{row.pro === 'Y' || row.pro === '不限' ? 'val-yes' : row.pro === '-' ? 'val-no' : 'val-limit'}}">
+            {{row.pro === 'Y' ? '✓' : row.pro === '-' ? '✗' : row.pro}}
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <!-- 价格对照 -->
+  <view class="section-card price-compare">
+    <view class="price-row">
+      <view class="price-item">
+        <view class="price-label">免费用户</view>
+        <view class="price-val">¥0</view>
+      </view>
+      <view class="price-item price-personal">
+        <view class="price-label">个人会员</view>
+        <view class="price-val">{{personalPriceText}}</view>
+      </view>
+      <view class="price-item price-pro">
+        <view class="price-label">专业会员</view>
+        <view class="price-val">{{proPriceText}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 说明 -->
+  <view class="section-card notes-card">
+    <view class="section-title">说明</view>
+    <view wx:for="{{notes}}" wx:key="*this" class="note-item">· {{item}}</view>
+  </view>
+
+  <view class="bottom-spacer"></view>
+</view>

@@ -1,0 +1,61 @@
+<view class="page-shell">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+
+  <block wx:if="{{standard}}">
+    <!-- 头部卡片 -->
+    <view class="detail-card section-card">
+      <view class="standard-tags">
+        <text class="tag tag-{{standard.statusTone}}">{{standard.status}}</text>
+        <text class="tag tag-blue">{{standard.typeLabel}}</text>
+        <block wx:for="{{standard.typeTags}}" wx:key="*this">
+          <text class="tag tag-gray">{{item}}</text>
+        </block>
+      </view>
+      <view class="detail-code">{{standard.code}}</view>
+      <view class="detail-title">{{standard.title}}</view>
+    </view>
+
+    <!-- 范围 -->
+    <view wx:if="{{standard.scope}}" class="section-card detail-info-card">
+      <view class="section-title">范围</view>
+      <view class="detail-scope">{{standard.scope}}</view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="section-card detail-info-card">
+      <view class="section-title">基本信息</view>
+      <view wx:if="{{standard.publishDate}}" class="detail-row"><text>发布日期</text><text>{{standard.publishDate}}</text></view>
+      <view wx:if="{{standard.implementDate}}" class="detail-row"><text>实施日期</text><text>{{standard.implementDate}}</text></view>
+      <view class="detail-row"><text>标准性质</text><text>{{standard.isMandatory ? '强制性' : '推荐性'}}</text></view>
+      <view wx:if="{{standard.icsCode}}" class="detail-row"><text>ICS 分类</text><text>{{standard.icsCode}}{{standard.icsName ? ' ' + standard.icsName : ''}}</text></view>
+      <view wx:if="{{standard.ccs}}" class="detail-row"><text>CCS 分类</text><text>{{standard.ccs}}{{standard.ccsName ? ' ' + standard.ccsName : ''}}</text></view>
+      <view wx:if="{{standard.tcCommittee}}" class="detail-row"><text>归口单位</text><text>{{standard.tcCommittee}}</text></view>
+      <view wx:if="{{standard.draftingOrg}}" class="detail-row"><text>起草单位</text><text>{{standard.draftingOrg}}</text></view>
+      <view wx:if="{{standard.seriesBase}}" class="detail-row"><text>系列编号</text><text>{{standard.seriesBase}}</text></view>
+    </view>
+
+    <!-- 关联关系摘要（扫一扫进入时隐藏；图谱无节点时隐藏）-->
+    <view wx:if="{{standard.hasGraphNode && !hideActions}}" class="section-card detail-link-card" bindtap="goGraph">
+      <view class="row-between">
+        <view class="section-title no-margin">标准知识图谱</view>
+        <text class="list-arrow">›</text>
+      </view>
+      <view class="detail-link-title">共 {{standard.relationCount}} 个关联标准</view>
+      <view class="detail-link-desc">
+        <text wx:if="{{standard.hasSeries}}">包含系列标准 </text>
+        <text wx:if="{{standard.hasVersions}}">包含历史版本 </text>
+        点击查看完整图谱
+      </view>
+    </view>
+
+    <!-- 底部操作栏（扫一扫进入时隐藏；查看知识图谱仅当有节点时显示）-->
+    <view class="detail-action-bar is-national" wx:if="{{!hideActions}}">
+      <view class="detail-mini-action {{standard.isFavorite ? 'active' : ''}}" bindtap="toggleFavorite">{{standard.isFavorite ? '★ 已收藏' : '☆ 收藏'}}</view>
+      <view wx:if="{{standard.hasGraphNode}}" class="primary-action" bindtap="goGraph">查看知识图谱</view>
+    </view>
+  </block>
+
+  <!-- 未找到 -->
+  <view wx:if="{{!standard && !loading}}" class="section-card empty-card">未找到该标准信息</view>
+</view>

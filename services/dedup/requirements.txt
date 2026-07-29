@@ -1,0 +1,16 @@
+fastapi>=0.104
+uvicorn>=0.24
+datasketch>=1.6
+jieba>=0.42
+numpy>=1.24
+scipy>=1.11
+scikit-learn>=1.3
+PyMuPDF==1.23.9
+Pillow>=10.0
+pyzbar>=0.1.9
+opencv-python-headless>=4.8
+pysqlite3-binary>=0.5  # CentOS 7 系统 SQLite 3.7.17 不支持 partial index，需要新版
+python-multipart>=0.0.6  # FastAPI form data 必须
+python-dotenv>=1.0       # .env 文件加载
+httpx>=0.27              # OCR / scan-recognize 调用外部服务
+pyahocorasick>=2.0       # 品牌名 Aho-Corasick 多模式匹配加速

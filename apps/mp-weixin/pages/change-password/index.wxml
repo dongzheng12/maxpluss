@@ -1,0 +1,37 @@
+<view class="cp-page">
+  <view class="cp-card">
+    <view class="cp-tip" wx:if="{{force}}">
+      当前账号使用临时密码登录，请先修改密码后继续使用企业版。
+    </view>
+    <view class="cp-group">
+      <text class="cp-label">旧密码</text>
+      <input
+        class="cp-input"
+        password="{{true}}"
+        placeholder="请输入当前密码"
+        placeholder-style="color:#999999"
+        value="{{oldPassword}}"
+        bindinput="onOldInput"
+      />
+    </view>
+    <view class="cp-group">
+      <text class="cp-label">新密码</text>
+      <input
+        class="cp-input"
+        password="{{true}}"
+        placeholder="至少 6 位"
+        placeholder-style="color:#999999"
+        value="{{newPassword}}"
+        bindinput="onNewInput"
+      />
+    </view>
+    <button
+      class="cp-submit"
+      bindtap="submit"
+      loading="{{submitting}}"
+      disabled="{{!oldPassword || !newPassword || submitting}}"
+    >
+      {{submitting ? '提交中...' : '确认修改'}}
+    </button>
+  </view>
+</view>

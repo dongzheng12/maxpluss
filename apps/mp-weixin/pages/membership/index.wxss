@@ -1,0 +1,47 @@
+.membership-page { position: relative; }
+.plan-list { padding-bottom: 20rpx; }
+.plan-card { padding: 24rpx; margin-bottom: 18rpx; border-width: 2rpx; }
+.plan-card.selected { background: #edf3ff; border-color: #2b63f6; }
+.plan-name { font-size: 40rpx; font-weight: 700; }
+.plan-promo-banner { background: linear-gradient(90deg, #ff4d4f, #ff7a45); color: #fff; font-size: 24rpx; font-weight: 600; text-align: center; padding: 6rpx 0; border-radius: 8rpx; margin-bottom: 16rpx; }
+.plan-price-row { display: flex; align-items: center; gap: 12rpx; margin: 18rpx 0 4rpx; }
+.plan-origin { color: #b0b0b0; font-size: 28rpx; text-decoration: line-through; }
+.plan-discount-tag { background: #ff4d4f; color: #fff; font-size: 22rpx; font-weight: 600; padding: 2rpx 12rpx; border-radius: 6rpx; }
+.plan-current-price-row { display: flex; align-items: flex-end; margin-bottom: 14rpx; }
+.plan-price { font-size: 56rpx; font-weight: 700; color: #2b63f6; }
+.plan-price-unit { font-size: 28rpx; color: #8c8c8c; margin-bottom: 8rpx; }
+.plan-feature { color: #4d596f; font-size: 30rpx; line-height: 1.8; }
+.plan-note { margin-top: 14rpx; padding-top: 14rpx; border-top: 1rpx solid #edf0f5; color: #7f8898; font-size: 24rpx; line-height: 1.6; }
+.member-note-card { padding: 24rpx; margin-bottom: 18rpx; }
+.member-note-text { font-size: 26rpx; color: #667389; line-height: 1.7; margin-top: 10rpx; }
+.member-note-text:first-of-type { margin-top: 0; }
+
+/* 已是专业会员 */
+.already-pro-card { padding: 80rpx 40rpx; text-align: center; }
+.already-pro-icon { width: 120rpx; height: 120rpx; border-radius: 999rpx; margin: 0 auto 24rpx; background: #daf5e4; color: #17a34a; display: flex; align-items: center; justify-content: center; font-size: 60rpx; font-weight: 700; }
+.already-pro-title { font-size: 38rpx; font-weight: 700; margin-bottom: 12rpx; }
+
+/* 升级提示 */
+.upgrade-tip { padding: 16rpx 24rpx; margin-bottom: 18rpx; background: #fff8e0; }
+
+/* 联系销售价格 */
+.plan-price-contact {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #722ed1;
+}
+
+/* 权益对照表入口 */
+.benefits-entry {
+  padding: 24rpx;
+  margin-bottom: 18rpx;
+  background: linear-gradient(135deg, #f0f5ff 0%, #e6f0ff 100%);
+  border: 2rpx solid #d6e4ff;
+}
+
+/* 底部占位 */
+.bottom-spacer { height: 140rpx; }
+
+/* 底部浮动按钮 */
+.floating-btn-wrap { position: fixed; left: 0; right: 0; bottom: 0; padding: 20rpx 28rpx; padding-bottom: calc(20rpx + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -4rpx 16rpx rgba(0,0,0,0.06); z-index: 100; box-sizing: border-box; }
+.floating-btn { width: 100%; }

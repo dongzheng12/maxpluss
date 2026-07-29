@@ -1,0 +1,31 @@
+/* ── 等级卡片 ── */
+.tier-card { margin-bottom: 20rpx; padding: 40rpx 32rpx; border-radius: 28rpx; color: #fff; }
+.tier-card.free { background: linear-gradient(135deg, #9aa3b2 0%, #7f8898 100%); }
+.tier-card.personal { background: linear-gradient(135deg, #4b8bff 0%, #2b63f6 100%); }
+.tier-card.pro { background: linear-gradient(135deg, #f7c948 0%, #f7a000 100%); }
+.tier-badge { font-size: 44rpx; font-weight: 700; margin-bottom: 12rpx; }
+.tier-expire { font-size: 28rpx; opacity: 0.9; }
+
+/* ── 权益列表 ── */
+.features-card { padding: 24rpx; margin-bottom: 20rpx; }
+.features-list { margin-top: 12rpx; }
+.feat-row { display: flex; align-items: center; gap: 12rpx; font-size: 30rpx; color: #4d596f; line-height: 2; }
+.feat-check { color: #16a34a; font-weight: 700; }
+.feat-disabled { opacity: 0.5; }
+.feat-x { color: #d9d9d9; font-weight: 700; }
+
+/* ── 操作区 ── */
+.action-card { padding: 24rpx; margin-bottom: 20rpx; }
+.action-title { font-size: 36rpx; font-weight: 700; margin-bottom: 12rpx; }
+
+.upgrade-banner { padding: 20rpx 24rpx; border-radius: 20rpx; background: linear-gradient(135deg, #fff8e0 0%, #fff2cc 100%); display: flex; align-items: center; justify-content: space-between; }
+.upgrade-copy { flex: 1; }
+.upgrade-title { font-size: 30rpx; font-weight: 700; color: #b87e00; margin-bottom: 6rpx; }
+.upgrade-desc { font-size: 24rpx; color: #c59b2e; }
+
+.pro-max { font-size: 28rpx; color: #f7a000; font-weight: 600; text-align: center; padding: 20rpx 0; }
+
+/* ── 说明 ── */
+.note-card { padding: 24rpx; }
+.note-text { font-size: 26rpx; color: #667389; line-height: 1.7; margin-top: 10rpx; }
+.note-text:first-of-type { margin-top: 0; }

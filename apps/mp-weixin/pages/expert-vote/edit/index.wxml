@@ -1,0 +1,294 @@
+<view class="page">
+  <!-- 顶部步骤条 -->
+  <view class="step-header">
+    <view class="step-num">{{step + 1}}/{{stepLabels.length}}</view>
+    <view class="step-name">{{stepLabels[step]}}</view>
+    <view class="step-bar">
+      <view class="step-bar-inner" style="width: {{(step + 1) * 100 / stepLabels.length}}%"></view>
+    </view>
+  </view>
+
+  <!-- Step 1：项目信息 -->
+  <view wx:if="{{step === 0}}">
+    <!-- 申请人信息 -->
+    <view class="card">
+      <view class="card-title">申请人信息</view>
+
+      <view class="field">
+        <view class="label">申请人姓名 <text class="req">*</text></view>
+        <input class="input" placeholder="请输入真实姓名" value="{{contactName}}" data-field="contactName" bindinput="onInput" maxlength="50" />
+      </view>
+
+      <view class="field">
+        <view class="label">申请人电话 <text class="req">*</text></view>
+        <input class="input" type="number" placeholder="请输入手机号" value="{{contactPhone}}" data-field="contactPhone" bindinput="onInput" maxlength="11" />
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">项目信息</view>
+
+      <view class="field">
+        <view class="label">评审项目名称 <text class="req">*</text></view>
+        <input class="input" placeholder="如《XXX 团体标准》专家审查会" value="{{projectName}}" data-field="projectName" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <view class="label">项目类型 <text class="req">*</text></view>
+        <picker range="{{PROJECT_TYPES}}" value="{{projectTypeIdx < 0 ? 0 : projectTypeIdx}}" bindchange="pickProjectType">
+          <view class="picker">{{projectTypeIdx < 0 ? '请选择' : PROJECT_TYPES[projectTypeIdx]}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="label">标准类型 <text class="req">*</text></view>
+        <picker range="{{STANDARD_TYPES}}" value="{{standardTypeIdx < 0 ? 0 : standardTypeIdx}}" bindchange="pickStandardType">
+          <view class="picker">{{standardTypeIdx < 0 ? '请选择' : STANDARD_TYPES[standardTypeIdx]}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="label">标准状态 <text class="req">*</text></view>
+        <picker range="{{STANDARD_STATUSES}}" value="{{standardStatusIdx < 0 ? 0 : standardStatusIdx}}" bindchange="pickStandardStatus">
+          <view class="picker">{{standardStatusIdx < 0 ? '请选择' : STANDARD_STATUSES[standardStatusIdx]}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="label">所属行业 <text class="req">*</text></view>
+        <view class="chip-group">
+          <view wx:for="{{INDUSTRIES}}" wx:key="*this"
+            class="chip {{industries.indexOf(item) >= 0 ? 'active' : ''}}"
+            data-value="{{item}}" bindtap="toggleIndustry">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">专业领域关键词</view>
+        <input class="input" placeholder="如泵、阀门、压力容器、光伏、储能、绿色低碳、智能制造等" value="{{keywords}}" data-field="keywords" bindinput="onInput" />
+        <view class="hint-inline">用于说明本次评审涉及的细分技术方向，也将作为专家匹配参考。</view>
+      </view>
+
+      <view class="field">
+        <view class="label">起草单位</view>
+        <input class="input" placeholder="多个用顿号分隔" value="{{draftingOrgs}}" data-field="draftingOrgs" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <view class="label">参与单位</view>
+        <textarea class="textarea" placeholder="参编 / 协作单位" value="{{participatingOrgs}}" data-field="participatingOrgs" bindinput="onInput"></textarea>
+      </view>
+
+      <view class="field">
+        <view class="label">项目背景说明 <text class="req">*</text></view>
+        <textarea class="textarea" placeholder="为什么要组织专家评审 / 投票" value="{{backgroundDesc}}" data-field="backgroundDesc" bindinput="onInput"></textarea>
+      </view>
+
+      <view class="field">
+        <view class="label">主要争议点 / 需专家判断事项</view>
+        <textarea class="textarea" placeholder="帮专家聚焦本次评审重点（选填）" value="{{disputePoints}}" data-field="disputePoints" bindinput="onInput"></textarea>
+      </view>
+
+      <view class="field">
+        <view class="label">是否涉密 / 敏感 <text class="req">*</text></view>
+        <picker range="{{CONFID_OPTIONS}}" range-key="label" value="{{confidentialLevelIdx}}" bindchange="pickConfidLevel">
+          <view class="picker">{{CONFID_OPTIONS[confidentialLevelIdx].label}}</view>
+        </picker>
+      </view>
+
+      <view class="field" wx:if="{{CONFID_OPTIONS[confidentialLevelIdx].value !== 'NONE'}}">
+        <view class="label">保密要求说明 <text class="req">*</text></view>
+        <textarea class="textarea" placeholder="选 一般敏感 / 严格保密 时必填" value="{{confidentialRemark}}" data-field="confidentialRemark" bindinput="onInput"></textarea>
+      </view>
+    </view>
+  </view>
+
+  <!-- Step 2：专家与会议 -->
+  <view wx:if="{{step === 1}}">
+    <view class="card">
+      <view class="card-title">专家需求</view>
+
+      <view class="field">
+        <view class="label">专家来源方式 <text class="req">*</text></view>
+        <view class="seg">
+          <view class="seg-item {{expertSourceType === 'PLATFORM' ? 'active' : ''}}" data-value="PLATFORM" bindtap="pickExpertSource">平台匹配</view>
+          <view class="seg-item {{expertSourceType === 'USER_SPECIFIED' ? 'active' : ''}}" data-value="USER_SPECIFIED" bindtap="pickExpertSource">用户指定</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">专家类别 <text class="req">*</text></view>
+        <view class="chip-group">
+          <view wx:for="{{EXPERT_CATEGORIES}}" wx:key="*this"
+            class="chip {{expertCategories.indexOf(item) >= 0 ? 'active' : ''}}"
+            data-value="{{item}}" bindtap="toggleExpertCategory">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">职称要求</view>
+        <view class="chip-group">
+          <view wx:for="{{TITLE_REQS}}" wx:key="*this"
+            class="chip {{titleRequirements.indexOf(item) >= 0 ? 'active' : ''}}"
+            data-value="{{item}}" bindtap="toggleTitleReq">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">单位背景要求</view>
+        <view class="chip-group">
+          <view wx:for="{{ORG_BG_REQS}}" wx:key="*this"
+            class="chip {{orgBackgroundRequirements.indexOf(item) >= 0 ? 'active' : ''}}"
+            data-value="{{item}}" bindtap="toggleOrgBg">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">专家数量 <text class="req">*</text></view>
+        <picker range="{{EXPERT_COUNT_LABELS}}" value="{{expertCountPickerIdx}}" bindchange="pickExpertCount">
+          <view class="picker">{{EXPERT_COUNT_LABELS[expertCountPickerIdx]}}</view>
+        </picker>
+        <!-- 自定义数量输入框 -->
+        <view wx:if="{{expertCountIsCustom}}" style="margin-top: 8px;">
+          <input
+            class="input"
+            type="number"
+            placeholder="请输入奇数，如 11、13、15…"
+            value="{{expertCountCustom}}"
+            bindinput="onCustomExpertCount"
+          />
+          <view class="hint-inline" wx:if="{{expertCountCustomError}}">
+            <text style="color:#e63946;">{{expertCountCustomError}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">其他专家要求</view>
+        <textarea class="textarea" placeholder="特殊要求（选填）" value="{{extraExpertNote}}" data-field="extraExpertNote" bindinput="onInput"></textarea>
+      </view>
+
+      <view class="field" wx:if="{{expertSourceType === 'USER_SPECIFIED'}}">
+        <view class="label">指定专家说明 <text class="req">*</text></view>
+        <textarea class="textarea" placeholder="姓名 / 单位 / 联系方式 / 指定原因" value="{{userSpecifiedExperts}}" data-field="userSpecifiedExperts" bindinput="onInput"></textarea>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">期望会议时间</view>
+
+      <view class="field">
+        <view class="label">期望会议日期 <text class="req">*</text></view>
+        <picker mode="date" start="{{minDateStr}}" value="{{desiredDate}}" bindchange="pickDesiredDate">
+          <view class="picker">{{desiredDate || '请选择'}}</view>
+        </picker>
+        <view class="hint-inline">专家组织和材料预审需要时间，最早可预约当前日期 {{minLeadDays}} 天后的会议。</view>
+      </view>
+
+      <view class="field">
+        <view class="label">期望时间段 <text class="req">*</text></view>
+        <picker range="{{SLOT_OPTIONS}}" range-key="label" value="{{desiredSlotIdx}}" bindchange="pickDesiredSlot">
+          <view class="picker">{{SLOT_OPTIONS[desiredSlotIdx].label}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="label">是否接受调剂</view>
+        <switch checked="{{acceptReschedule}}" bindchange="toggleAcceptReschedule" />
+      </view>
+
+      <view class="field">
+        <view class="label">备用时间说明</view>
+        <textarea class="textarea" placeholder="可填多个备选时间" value="{{backupTimeNote}}" data-field="backupTimeNote" bindinput="onInput"></textarea>
+      </view>
+    </view>
+  </view>
+
+  <!-- Step 3：材料 -->
+  <view wx:if="{{step === 2}}">
+    <view class="card">
+      <view class="card-title">材料上传</view>
+      <view class="hint-block">请上传专家评审所需的标准草案、项目说明、技术文件或相关辅助材料。材料越完整，越有利于专家判断。</view>
+
+      <view class="field">
+        <view class="label">主要材料 <text class="req">*</text></view>
+        <view class="att" wx:for="{{attachments}}" wx:key="id" wx:if="{{item.category === 'MAIN'}}">
+          <text class="att-name">{{item.originalName}}</text>
+          <text class="att-del" data-id="{{item.id}}" bindtap="removeAttachment">删除</text>
+        </view>
+        <view class="att pending" wx:for="{{pendingFiles}}" wx:key="*this" wx:if="{{item.category === 'MAIN'}}">
+          <text class="att-name">{{item.name}} (待上传)</text>
+          <text class="att-del" data-idx="{{index}}" bindtap="removePending">移除</text>
+        </view>
+        <view class="att-pick" data-category="MAIN" bindtap="pickFile">+ 选择主要材料</view>
+      </view>
+
+      <view class="field">
+        <view class="label">辅助材料</view>
+        <view class="att" wx:for="{{attachments}}" wx:key="id" wx:if="{{item.category === 'EXTRA'}}">
+          <text class="att-name">{{item.originalName}}</text>
+          <text class="att-del" data-id="{{item.id}}" bindtap="removeAttachment">删除</text>
+        </view>
+        <view class="att pending" wx:for="{{pendingFiles}}" wx:key="*this" wx:if="{{item.category === 'EXTRA'}}">
+          <text class="att-name">{{item.name}} (待上传)</text>
+          <text class="att-del" data-idx="{{index}}" bindtap="removePending">移除</text>
+        </view>
+        <view class="att-pick" data-category="EXTRA" bindtap="pickFile">+ 选择辅助材料</view>
+      </view>
+
+      <view class="field">
+        <view class="label">材料说明</view>
+        <textarea class="textarea" placeholder="选填" value="{{materialRemark}}" data-field="materialRemark" bindinput="onInput"></textarea>
+      </view>
+
+      <view class="hint-inline">单文件不超过 {{pricing.fileMaxMb || 50}}MB，总文件不超过 {{pricing.totalMaxMb || 200}}MB。</view>
+    </view>
+  </view>
+
+  <!-- Step 4：确认支付 -->
+  <view wx:if="{{step === 3}}">
+    <view class="card">
+      <view class="card-title">申请信息确认</view>
+      <view class="row"><text class="k">评审项目</text><text class="v">{{projectName || '-'}}</text></view>
+      <view class="row"><text class="k">项目类型</text><text class="v">{{PROJECT_TYPES[projectTypeIdx] || '-'}}</text></view>
+      <view class="row"><text class="k">标准类型</text><text class="v">{{STANDARD_TYPES[standardTypeIdx] || '-'}}</text></view>
+      <view class="row"><text class="k">标准状态</text><text class="v">{{STANDARD_STATUSES[standardStatusIdx] || '-'}}</text></view>
+      <view class="row"><text class="k">所属行业</text><text class="v">{{industries.length ? industries.join('、') : '-'}}</text></view>
+      <view class="row" wx:if="{{keywords}}"><text class="k">专业关键词</text><text class="v">{{keywords}}</text></view>
+      <view class="row"><text class="k">专家数量</text><text class="v">{{EXPERT_COUNTS[expertCountIdx]}} 位</text></view>
+      <view class="row"><text class="k">专家类别</text><text class="v">{{expertCategories.length ? expertCategories.join('、') : '-'}}</text></view>
+      <view class="row"><text class="k">期望日期</text><text class="v">{{desiredDate || '-'}}</text></view>
+      <view class="row"><text class="k">期望时间段</text><text class="v">{{SLOT_OPTIONS[desiredSlotIdx].label}}</text></view>
+      <view class="row"><text class="k">材料数量</text><text class="v">主要 {{attachments.length + pendingFiles.length}} 份</text></view>
+    </view>
+
+    <view class="card price-card">
+      <view class="card-title">价格说明</view>
+      <view wx:if="{{pricingError}}" class="hint-block">价格以提交后订单确认为准。</view>
+      <view class="price-row">
+        <text class="price-label">专家数量</text>
+        <text class="price-value">{{EXPERT_COUNTS[expertCountIdx]}} 位</text>
+      </view>
+      <view class="price-row">
+        <text class="price-label">单专家服务费</text>
+        <text class="price-value">¥{{pricing.unitPriceYuan || '-'}} / 位</text>
+      </view>
+      <view class="price-final">
+        <text class="price-label">预计金额</text>
+        <text class="price-amount">¥{{estimateAmount}}</text>
+      </view>
+      <view class="hint-inline">最终金额以订单确认为准。</view>
+    </view>
+  </view>
+
+  <!-- Footer 占位高度 -->
+  <view style="height: 100rpx;"></view>
+
+  <!-- 底部固定操作栏 -->
+  <view class="footer">
+    <button wx:if="{{!isFirstStep}}" class="ghost-btn" bindtap="goPrev">上一步</button>
+    <button class="ghost-btn" disabled="{{saving || submitting}}" bindtap="saveDraft">{{saving ? '保存中' : '保存草稿'}}</button>
+    <button wx:if="{{!isLastStep}}" class="primary-btn" bindtap="goNext">下一步</button>
+    <button wx:if="{{isLastStep}}" class="primary-btn" disabled="{{submitting}}" bindtap="submit">{{submitting ? '提交中' : '提交并支付'}}</button>
+  </view>
+</view>

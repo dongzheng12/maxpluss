@@ -1,0 +1,52 @@
+FROM node:20-slim
+
+# 时区基线：固定为北京时间。
+# node:20-slim base image 自带 /usr/share/zoneinfo/Asia/Shanghai，无需 apt install tzdata。
+# 影响：Node Date.getHours/getDate/getMonth/getFullYear 等 local 方法返回北京时间，
+# makeBusinessNo 生成的 ORD-/CMP-/BOOK-/INV- 前缀按北京时间。
+# 注意：仅 ENV TZ 不够，base image 的 /etc/localtime 默认 UTC（C 标准库 localtime() / SQLite
+# datetime('now','localtime') 走 /etc/localtime 不读 env），必须 symlink + 写 /etc/timezone。
+# 生产 docker run 仍然显式 -e TZ=Asia/Shanghai 三重保险（Dockerfile env + symlink + run-time env）。
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
+
+# 构建信息注入（deploy 脚本 canary 阶段用 /health 返回的 commit 校验是否是新版本，防误打旧容器）
+# docker buildx build --build-arg BUILD_COMMIT=$(git rev-parse --short HEAD) \
+#                     --build-arg BUILT_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ) ...
+ARG BUILD_COMMIT=unknown
+ARG BUILT_AT=unknown
+LABEL build.commit=$BUILD_COMMIT
+ENV BUILD_COMMIT=$BUILD_COMMIT
+ENV BUILT_AT=$BUILT_AT
+
+# curl 用于 Dockerfile HEALTHCHECK；openssl 用于 prisma generate。
+# 中文 PDF 字体不走 apt：见下方 COPY assets/fonts/NotoSansSC-Regular.otf 的决策注释。
+RUN apt-get update -y && apt-get install -y openssl curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 只复制 package.json 安装生产依赖
+# --ignore-scripts: 跳过 postinstall（避免 better-sqlite3 native build 需要 Python/gyp，
+# 而 better-sqlite3 仅 scripts/migrate-sqlite-to-pg.ts 一次性脚本用到，runtime 不 require）
+COPY package.json ./
+RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
+
+# 复制混淆后的单文件 + prisma schema
+COPY dist/server.mjs ./server.mjs
+COPY dist/prisma/ ./prisma/
+RUN npx prisma generate
+
+# 中文 PDF 字体（vendoring 单文件 OTF）。决策见 src/standard-execution/packageBundle.ts 注释。
+# NotoSansSC-Regular.otf：单文件 CFF/OpenType，CJK+Latin+数字+标点全覆盖，SIL OFL 1.1 商用许可。
+COPY assets/fonts/NotoSansSC-Regular.otf ./assets/fonts/NotoSansSC-Regular.otf
+
+# 不复制 src/ —— 镜像里没有源码
+
+EXPOSE 3000
+
+# 容器级 HEALTHCHECK —— docker inspect 可读 Health.Status
+# deploy 脚本的 canary 阶段会用这个字段 + 直接 curl 双重校验
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:3000/health/schema || exit 1
+
+CMD ["node", "server.mjs"]

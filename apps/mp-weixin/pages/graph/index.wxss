@@ -1,0 +1,24 @@
+/* ── 搜索/结果/概览 ── */
+.graph-search-card,
+.graph-overview-card,
+.graph-result-card,
+.graph-component-card { padding: 24rpx; margin-bottom: 18rpx; }
+
+.graph-search-shell { padding-right: 12rpx; }
+.graph-search-btn { min-width: 148rpx; height: 68rpx; border-radius: 18rpx; background: #2b63f6; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 28rpx; font-weight: 700; }
+
+.graph-overview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16rpx; }
+.graph-overview-code { font-size: 34rpx; font-weight: 700; color: #2b63f6; }
+.graph-overview-title { margin-top: 10rpx; font-size: 30rpx; font-weight: 700; line-height: 1.55; }
+.graph-summary { margin-top: 12rpx; font-size: 27rpx; color: #667389; line-height: 1.6; }
+
+/* ── 搜索候选列表 ── */
+.graph-result-item { padding: 18rpx 0; border-top: 1rpx solid #edf0f5; }
+.graph-result-item:first-of-type { border-top: 0; padding-top: 8rpx; }
+.graph-result-code { font-size: 30rpx; font-weight: 700; color: #2b63f6; }
+.graph-result-title { margin-top: 8rpx; font-size: 28rpx; line-height: 1.5; }
+.graph-result-meta { margin-top: 8rpx; font-size: 24rpx; color: #8a94a5; }
+
+/* ── 组件容器 ── */
+.graph-component-card { padding: 24rpx 0 0 0; overflow: hidden; }
+.graph-component-card .section-title { padding: 0 24rpx 16rpx 24rpx; }

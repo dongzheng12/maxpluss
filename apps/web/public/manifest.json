@@ -1,0 +1,23 @@
+{
+  "name": "标准小智",
+  "short_name": "标准小智",
+  "description": "企业标准数字化平台，提供标准查询、标准管理、标准编写、标准监测、标准执行与用标准能力。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0052d9",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-smart-standard.png",
+      "sizes": "2914x800",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+<view class="page-shell">
+  <view class="committee-hero section-card">
+    <view class="committee-hero-title">技术委员会标准查询</view>
+    <view class="committee-hero-desc">全国标准化技术委员会，按所在地分类浏览。</view>
+  </view>
+
+  <!-- 搜索栏：输入框 + 右侧地区下拉 -->
+  <view class="committee-search-card section-card">
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <text class="search-icon-glyph">⌕</text>
+        <input class="search-input" placeholder="搜索编号、名称、专业范围" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="submitSearch" />
+      </view>
+      <picker mode="selector" range="{{regions}}" value="{{selectedRegionIndex}}" bindchange="onRegionPick">
+        <view class="search-region-trigger">
+          <text class="region-trigger-text">{{regions[selectedRegionIndex]}}</text>
+          <text class="region-trigger-icon">▾</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 结果统计 -->
+  <view wx:if="{{total > 0 && !loading}}" class="result-summary">
+    <text>共 {{total}} 个委员会，已加载 {{committees.length}} 条</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="section-card empty-card">查询中...</view>
+
+  <!-- 列表 -->
+  <block wx:for="{{committees}}" wx:key="id">
+    <view class="committee-card section-card">
+      <view class="committee-row"><text class="committee-label">编号：</text><text class="committee-value muted">{{item.code}}</text></view>
+      <view class="committee-row"><text class="committee-label">名称：</text><text class="committee-value">{{item.full_name || item.name}}</text></view>
+      <view class="committee-row"><text class="committee-label">秘书处：</text><text class="committee-value muted">{{item.secretariat}}</text></view>
+      <view class="committee-row" wx:if="{{item.location}}"><text class="committee-label">所在地：</text><text class="committee-value muted">{{item.location}}</text></view>
+      <view class="committee-row" wx:if="{{item.scope}}"><text class="committee-label">范围：</text><text class="committee-value muted scope-text">{{item.scope}}</text></view>
+    </view>
+  </block>
+
+  <!-- 加载更多提示 -->
+  <view wx:if="{{committees.length && hasMore}}" class="load-more-tip">上拉加载更多</view>
+  <view wx:elif="{{committees.length && !hasMore}}" class="load-more-tip">已加载全部</view>
+
+  <!-- 无结果 -->
+  <view wx:if="{{!loading && !committees.length && keyword}}" class="section-card empty-card">没有匹配结果，换个关键词试试。</view>
+</view>

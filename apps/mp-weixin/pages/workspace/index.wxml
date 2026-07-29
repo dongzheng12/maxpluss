@@ -1,0 +1,71 @@
+<view class="page-shell">
+  <!-- 全部工具（可折叠 + 长按拖拽排序） -->
+  <view class="section-card tools-section">
+    <view class="tools-header" bindtap="toggleExpand">
+      <view class="section-title">全部工具</view>
+      <view class="tools-header-right">
+        <text wx:if="{{isEditing}}" class="edit-btn done-btn" catchtap="finishEdit">完成</text>
+        <text class="expand-arrow {{toolsExpanded ? 'up' : ''}}">›</text>
+      </view>
+    </view>
+
+    <view wx:if="{{toolsExpanded}}" class="tools-grid">
+      <view
+        wx:for="{{tools}}" wx:key="key"
+        class="tool-cell {{isEditing ? 'shaking' : ''}} {{dragIndex === index ? 'dragging' : ''}} {{placeholderIndex === index && dragIndex >= 0 && dragIndex !== index ? 'drop-target' : ''}}"
+        style="{{dragIndex === index ? dragStyle : ''}}"
+        data-key="{{item.key}}"
+        data-idx="{{index}}"
+        bindtap="tapTool"
+        bindlongpress="onLongPress"
+        catchtouchstart="{{isEditing ? 'onDragStart' : ''}}"
+        catchtouchmove="{{isEditing ? 'onDragMove' : ''}}"
+        catchtouchend="{{isEditing ? 'onDragEnd' : ''}}"
+      >
+        <view wx:if="{{isEditing}}" class="drag-handle">≡</view>
+        <view class="tool-icon-shell">
+          <image class="tool-icon-img" src="{{item.iconImg}}" mode="aspectFit" />
+        </view>
+        <text class="tool-label">{{item.label}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{toolsExpanded && !isEditing}}" class="tools-hint">长按图标进入排序模式 · 前 5 个显示在首页</view>
+  </view>
+
+  <!-- 个人数据入口 -->
+  <view class="section-card data-entry" bindtap="goOrders">
+    <view class="data-icon-shell">
+      <image class="data-icon-img" src="{{listIcons.orders}}" mode="aspectFit" />
+    </view>
+    <view class="data-copy">
+      <view class="data-title">我的订单</view>
+      <view class="meta-text">查看全部订单</view>
+    </view>
+    <view class="list-arrow">›</view>
+  </view>
+
+  <view class="section-card data-entry" bindtap="goFavorites">
+    <view class="data-icon-shell">
+      <image class="data-icon-img" src="{{listIcons.favorites}}" mode="aspectFit" />
+    </view>
+    <view class="data-copy">
+      <view class="data-title">我的收藏</view>
+      <view class="meta-text">{{favoriteCount}} 项</view>
+    </view>
+    <view class="list-arrow">›</view>
+  </view>
+
+  <!-- 企业成员专属：标准执行任务入口 -->
+  <view wx:if="{{seEnabled}}" class="section-card data-entry" bindtap="goSETasks">
+    <view class="data-icon-shell" style="background:#eef2ff;border-color:#c7d2f5;">
+      <image class="data-icon-img" src="/assets/list/history.png" mode="aspectFit" />
+    </view>
+    <view class="data-copy">
+      <view class="data-title">我的执行任务</view>
+      <view class="meta-text">查看企业分配的合规任务</view>
+    </view>
+    <view class="list-arrow">›</view>
+  </view>
+
+</view>

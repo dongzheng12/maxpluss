@@ -1,0 +1,35 @@
+/* ── 工具区 ── */
+.tools-section { padding: 24rpx; }
+.tools-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20rpx; }
+.tools-header-right { display: flex; align-items: center; gap: 16rpx; }
+.edit-btn { font-size: 26rpx; color: #3b6288; font-weight: 600; }
+.done-btn { background: #edf3f8; color: #3b6288; padding: 6rpx 24rpx; border-radius: 999rpx; font-size: 24rpx; }
+.expand-arrow { font-size: 36rpx; color: #99a7b8; transform: rotate(90deg); transition: transform 0.2s; }
+.expand-arrow.up { transform: rotate(-90deg); }
+.tools-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16rpx; position: relative; }
+.tool-cell { width: auto; min-height: 154rpx; margin-bottom: 0; border-radius: 22rpx; background: #f8fafc; border: 1rpx solid #e3ebf2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12rpx; position: relative; box-sizing: border-box; transition: transform 0.15s, box-shadow 0.15s; }
+.tool-label { font-size: 24rpx; font-weight: 600; color: #40506b; text-align: center; line-height: 1.35; }
+.tools-hint { margin-top: 16rpx; font-size: 22rpx; color: #99a3b4; text-align: center; }
+
+/* ── 抖动动画（编辑模式） ── */
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-2deg); }
+  75%      { transform: rotate(2deg); }
+}
+.tool-cell.shaking { animation: shake 0.3s ease-in-out infinite; }
+.tool-cell.dragging { animation: none; opacity: 0.85; box-shadow: 0 12rpx 40rpx rgba(0,0,0,0.18); z-index: 999; }
+.tool-cell.drop-target { background: #edf3f8; border: 2rpx dashed #3b6288; }
+
+/* 拖拽手柄 */
+.drag-handle { position: absolute; top: 6rpx; right: 10rpx; font-size: 28rpx; color: #b0b8c8; }
+
+/* 工具图标 */
+.tool-icon-shell { width: 76rpx; height: 76rpx; border-radius: 24rpx; background: #eef4f8; border: 1rpx solid #d3dde7; display: flex; align-items: center; justify-content: center; }
+.tool-icon-img { width: 38rpx; height: 38rpx; display: block; }
+
+/* ── 个人数据入口 ── */
+.data-entry { margin-top: 18rpx; padding: 24rpx; display: grid; grid-template-columns: auto 1fr auto; gap: 16rpx; align-items: center; }
+.data-icon-shell { width: 72rpx; height: 72rpx; border-radius: 22rpx; background: #eef4f8; border: 1rpx solid #d3dde7; display: flex; align-items: center; justify-content: center; }
+.data-icon-img { width: 34rpx; height: 34rpx; display: block; }
+.data-title { font-size: 32rpx; font-weight: 700; }

@@ -1,0 +1,101 @@
+.page {
+  padding: 24rpx;
+  min-height: 100vh;
+  background: #f5f6f8;
+  box-sizing: border-box;
+}
+
+.hero {
+  background: linear-gradient(135deg, #e6f4ff 0%, #bae0ff 100%);
+  border-radius: 16rpx;
+  padding: 32rpx 28rpx;
+  margin-bottom: 24rpx;
+}
+
+.hero-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #003a8c;
+  margin-bottom: 12rpx;
+}
+
+.hero-body {
+  font-size: 26rpx;
+  color: #0050b3;
+  line-height: 1.6;
+}
+
+.list {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 8rpx 28rpx;
+  margin-bottom: 32rpx;
+}
+
+.list-item {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 6rpx;
+}
+
+.list-item-desc {
+  font-size: 24rpx;
+  color: #888;
+  line-height: 1.6;
+}
+
+.action {
+  padding: 8rpx 12rpx 20rpx;
+}
+
+.enable-btn {
+  font-size: 30rpx;
+}
+
+.result {
+  padding: 0 16rpx 24rpx;
+}
+
+.result-text {
+  font-size: 26rpx;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.result-text.success {
+  color: #52c41a;
+}
+
+.result-text.hint {
+  color: #999;
+}
+
+.tips {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  margin-bottom: 48rpx;
+}
+
+.tips-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.tips-item {
+  font-size: 24rpx;
+  color: #888;
+  line-height: 1.8;
+}

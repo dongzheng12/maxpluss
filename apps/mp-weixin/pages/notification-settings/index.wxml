@@ -1,0 +1,43 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-title">开启消息通知</view>
+    <view class="hero-body">开启后，系统将在订单待支付、会员即将到期、功能次数不足时向你发送提醒</view>
+  </view>
+
+  <view class="list">
+    <view class="list-item">
+      <view class="list-item-title">订单待支付提醒</view>
+      <view class="list-item-desc">下单后 30 分钟未完成支付时，提醒你继续完成订单</view>
+    </view>
+    <view class="list-item">
+      <view class="list-item-title">会员到期提醒</view>
+      <view class="list-item-desc">会员即将到期或刚刚到期时，提醒你查看续费方案</view>
+    </view>
+    <view class="list-item">
+      <view class="list-item-title">次数卡消费通知</view>
+      <view class="list-item-desc">AI 大纲 / 小智问答 / 全库比对次数即将用完时通知</view>
+    </view>
+  </view>
+
+  <view class="action">
+    <button class="enable-btn" type="primary" bindtap="onEnableNotifications" loading="{{loading}}" disabled="{{loading}}">
+      一键开启通知
+    </button>
+  </view>
+
+  <view wx:if="{{hasResult}}" class="result">
+    <view wx:if="{{acceptedCount > 0}}" class="result-text success">
+      已开启 {{acceptedCount}} 项通知
+    </view>
+    <view wx:if="{{declinedCount > 0}}" class="result-text hint">
+      未开启 {{declinedCount}} 项，可再次点击按钮重新授权
+    </view>
+  </view>
+
+  <view class="tips">
+    <view class="tips-title">说明</view>
+    <view class="tips-item">· 每次开启后，每类通知会获得一次发送权限</view>
+    <view class="tips-item">· 通知次数用完后，可回到此页面重新开启</view>
+    <view class="tips-item">· 邀请奖励、首次扫码奖励通知会在对应场景单独开启</view>
+  </view>
+</view>

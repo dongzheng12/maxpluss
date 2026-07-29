@@ -1,0 +1,89 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+
+  <block wx:elif="{{detail}}">
+    <view wx:if="{{notReady}}" class="not-ready">
+      <view class="not-ready-title">会议尚未安排</view>
+      <view class="not-ready-hint">平台正在为您组织专家，会议安排确认后将在站内消息中通知您。</view>
+    </view>
+
+    <block wx:else>
+      <view wx:if="{{isHistory}}" class="history-banner">
+        <view class="history-tag">历史记录</view>
+        <view class="history-hint">{{historyHint}}</view>
+      </view>
+
+      <view class="header-card">
+        <view class="header-title">{{detail.meetingTitle}}</view>
+        <view class="header-meta" wx:if="{{detail.meetingHost}}">主持人：{{detail.meetingHost}}</view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">会议时间</view>
+        <view class="row block">
+          <text class="v" style="font-size: 28rpx;">
+            {{meetingStartText || '-'}}{{meetingEndText ? ' — ' + meetingEndText : ''}}
+          </text>
+        </view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">腾讯会议</view>
+        <view wx:if="{{detail.tencentMeetingId}}" class="row">
+          <text class="k">会议号</text>
+          <text class="v mono">{{detail.tencentMeetingId}}</text>
+        </view>
+        <button wx:if="{{detail.tencentMeetingId}}" class="ghost-btn" bindtap="copyMeetingId">复制会议号</button>
+
+        <view wx:if="{{detail.tencentMeetingPwd}}" class="row">
+          <text class="k">会议密码</text>
+          <text class="v mono">{{detail.tencentMeetingPwd}}</text>
+        </view>
+        <button wx:if="{{detail.tencentMeetingPwd}}" class="ghost-btn" bindtap="copyMeetingPwd">复制密码</button>
+
+        <view wx:if="{{detail.tencentMeetingUrl}}" class="row block">
+          <text class="k">入会链接</text>
+          <text class="v link">{{detail.tencentMeetingUrl}}</text>
+        </view>
+        <button wx:if="{{detail.tencentMeetingUrl && isLive}}" class="primary-btn" bindtap="copyMeetingUrl">复制会议链接</button>
+        <button wx:elif="{{detail.tencentMeetingUrl && !isLive}}" class="ghost-btn" bindtap="copyMeetingUrl">复制会议链接（历史）</button>
+        <view wx:if="{{detail.tencentMeetingUrl && isLive}}" class="hint">复制链接后请在腾讯会议 App 内粘贴打开。</view>
+      </view>
+
+      <view class="card" wx:if="{{detail.meetingHostContact || detail.meetingNotes}}">
+        <view class="card-title">其他信息</view>
+        <view class="row" wx:if="{{detail.meetingHostContact}}">
+          <text class="k">主持人联系</text>
+          <text class="v">{{detail.meetingHostContact}}</text>
+        </view>
+        <view class="row block" wx:if="{{detail.meetingNotes}}">
+          <text class="k">注意事项</text>
+          <text class="v multi">{{detail.meetingNotes}}</text>
+        </view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">申请概要</view>
+        <view class="row"><text class="k">评审项目</text><text class="v">{{detail.projectName}}</text></view>
+        <view class="row"><text class="k">专家数量</text><text class="v">{{detail.expertCount}} 位</text></view>
+      </view>
+
+      <view class="card">
+        <view class="card-title">参会专家</view>
+        <block wx:if="{{detail.experts && detail.experts.length > 0}}">
+          <view wx:for="{{detail.experts}}" wx:key="id" class="expert-row">
+            <text class="expert-name">{{item.expertName}}</text>
+            <text wx:if="{{item.expertOrg}}" class="expert-meta"> · {{item.expertOrg}}</text>
+            <text wx:if="{{item.expertTitle}}" class="expert-tag">{{item.expertTitle}}</text>
+            <text wx:if="{{item.expertField}}" class="expert-meta"> {{item.expertField}}</text>
+          </view>
+        </block>
+        <view wx:else class="expert-empty">
+          平台正在确认专家名单，请以后续通知为准。
+        </view>
+      </view>
+
+      <view class="footer-meta">最近一次确认：{{arrangedAtText || '-'}}</view>
+    </block>
+  </block>
+</view>

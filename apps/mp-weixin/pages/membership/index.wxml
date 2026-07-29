@@ -1,0 +1,62 @@
+<view class="page-shell membership-page">
+  <!-- 已是专业会员 -->
+  <view wx:if="{{isPro}}" class="section-card already-pro-card">
+    <view class="already-pro-icon">✓</view>
+    <view class="already-pro-title">{{copy.alreadyProTitle}}</view>
+    <view class="meta-text">{{copy.alreadyProDesc}}</view>
+  </view>
+
+  <!-- 套餐列表 -->
+  <view wx:else class="plan-list">
+    <!-- 个人会员升级提示 -->
+    <view wx:if="{{currentTier === 'personal'}}" class="section-card upgrade-tip">
+      <view class="meta-text">{{copy.upgradeHint}}</view>
+    </view>
+
+    <block wx:for="{{plans}}" wx:key="id">
+      <view class="section-card plan-card {{selectedId === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="choosePlan">
+        <view class="row-between">
+          <view class="plan-name">{{item.name}}</view>
+          <view wx:if="{{item.badge}}" class="tag tag-blue">{{item.badge}}</view>
+        </view>
+        <view wx:if="{{item.originalPrice > item.price}}" class="plan-promo-banner">{{copy.promoBanner}}</view>
+        <view class="plan-price-row">
+          <text wx:if="{{item.price > 0 && item.originalPrice > item.price}}" class="plan-origin">￥{{item.originalPrice}}/{{item.unit}}</text>
+          <text wx:if="{{item.price > 0 && item.originalPrice > item.price}}" class="plan-discount-tag">{{copy.promoTag}}</text>
+          <text wx:if="{{!item.price || item.price <= 0}}" class="plan-price-contact">{{copy.priceContact}}</text>
+        </view>
+        <view wx:if="{{item.price > 0}}" class="plan-current-price-row">
+          <text class="plan-price">￥{{item.price}}</text>
+          <text class="plan-price-unit">/{{item.unit}}</text>
+        </view>
+        <block wx:for="{{item.features}}" wx:key="*this">
+          <view class="plan-feature">✓ {{item}}</view>
+        </block>
+        <view class="plan-note">{{item.note}}</view>
+      </view>
+    </block>
+
+    <!-- 权益介绍入口 -->
+    <view class="section-card benefits-entry" bindtap="goBenefits">
+      <view class="row-between">
+        <view class="section-title" style="margin-bottom:0">查看完整权益对照表</view>
+        <text style="color:#999;font-size:28rpx">></text>
+      </view>
+      <view class="meta-text">了解各会员等级在不同功能上的权限区别</view>
+    </view>
+
+    <view class="section-card member-note-card">
+      <view class="section-title">信息说明</view>
+      <view class="member-note-text">{{infoNotice}}</view>
+    </view>
+
+    <view class="bottom-spacer"></view>
+  </view>
+
+  <!-- 底部浮动按钮 -->
+  <view wx:if="{{!isPro}}" class="floating-btn-wrap">
+    <view class="primary-btn floating-btn" bindtap="submit">
+      {{btnText}}
+    </view>
+  </view>
+</view>

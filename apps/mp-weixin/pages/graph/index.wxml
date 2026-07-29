@@ -1,0 +1,49 @@
+<view class="page-shell">
+  <view class="section-card graph-search-card">
+    <view class="search-shell graph-search-shell">
+      <text class="search-icon">⌕</text>
+      <input class="search-input" placeholder="输入标准号、标准名称查看知识图谱" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="submitSearch" />
+      <view class="graph-search-btn" bindtap="submitSearch">查询图谱</view>
+    </view>
+  </view>
+
+  <view wx:if="{{candidates.length && !graph}}" class="section-card graph-result-card">
+    <view class="section-title">搜索结果</view>
+    <block wx:for="{{candidates}}" wx:key="code">
+      <view class="graph-result-item" data-code="{{item.code}}" bindtap="chooseCandidate">
+        <view class="graph-result-code">{{item.code}}</view>
+        <view class="graph-result-title">{{item.name}}</view>
+        <view class="graph-result-meta">{{item.status}}</view>
+      </view>
+    </block>
+  </view>
+
+  <block wx:if="{{graph}}">
+    <!-- 标准概览 -->
+    <view class="section-card graph-overview-card">
+      <view class="graph-overview-head">
+        <view>
+          <view class="graph-overview-code">{{graph.standard.code}}</view>
+          <view class="graph-overview-title">{{graph.standard.name}}</view>
+        </view>
+      </view>
+      <view class="graph-summary">{{graph.summary}}</view>
+    </view>
+
+    <!-- 新版关系图谱组件 -->
+    <view class="section-card graph-component-card">
+      <view class="section-title">关系图谱</view>
+      <standard-graph
+        centerNode="{{graphCenter}}"
+        relationMetrics="{{graphMetrics}}"
+        replacementChain="{{graphChain}}"
+        relatedNodes="{{graphRelated}}"
+        libraryStandards="{{graphLibrary}}"
+        citedSummary="{{graph.citedSummary}}"
+        bind:itemtap="onGraphItemTap"
+      />
+    </view>
+  </block>
+
+  <view wx:elif="{{keyword}}" class="section-card empty-card">没有找到匹配的标准图谱，请更换关键词重试。</view>
+</view>

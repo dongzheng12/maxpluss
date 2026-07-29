@@ -1,0 +1,41 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-title">邀请好友 · 赚会员时长</view>
+    <view class="hero-body">好友注册你和他各得 7 天，好友付费你再多得 30 天</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-box">
+    <text class="state-text">加载中…</text>
+  </view>
+
+  <view wx:elif="{{errorMsg}}" class="state-box">
+    <text class="state-text error">{{errorMsg}}</text>
+    <button class="retry-btn" size="mini" bindtap="_loadCode">重试</button>
+  </view>
+
+  <block wx:else>
+    <view class="qr-card">
+      <image class="qr-img" src="{{qrcodeBase64}}" mode="widthFix" bindtap="previewImage" show-menu-by-longpress="{{true}}" />
+      <view class="qr-hint">长按图片保存到相册后分享给好友</view>
+    </view>
+
+    <view class="code-card">
+      <view class="code-label">我的邀请码</view>
+      <view class="code-value">{{code}}</view>
+      <button class="copy-btn" size="mini" bindtap="copyCode">复制</button>
+    </view>
+
+    <view class="stats-card">
+      <view class="stats-label">已成功邀请</view>
+      <view class="stats-value">{{totalInvited}} 人</view>
+    </view>
+
+    <view class="rules">
+      <view class="rules-title">规则说明</view>
+      <view class="rules-item">· 好友扫码完成注册（登录归因成功）→ 双方各得 +7 天</view>
+      <view class="rules-item">· 好友首次完成付费 → 邀请人再 +30 天（被邀请人无额外奖励）</view>
+      <view class="rules-item">· 同一好友只归属首位邀请人，不可覆盖</view>
+      <view class="rules-item">· 奖励自动延长到会员到期时间，无需手动领取</view>
+    </view>
+  </block>
+</view>

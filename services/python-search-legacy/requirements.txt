@@ -1,0 +1,8 @@
+fastapi>=0.104.0
+uvicorn>=0.24.0
+jieba>=0.42.1
+# ── 向量召回（POC，可选；未安装则自动降级为纯 FTS）──
+sentence-transformers>=2.7.0
+faiss-cpu>=1.7.4
+numpy>=1.24.0
+huggingface-hub>=0.20.0

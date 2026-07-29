@@ -1,0 +1,20 @@
+{
+  "name": "biaozhun-xiaozhi",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "echo 'Select a package to run (h5/admin/api)'; exit 0",
+    "prepare": "bash scripts/hooks/install.sh --quiet || true",
+    "hooks:install": "bash scripts/hooks/install.sh",
+    "lint": "echo 'No lints configured yet'",
+    "test": "cd services/api && npx vitest run",
+    "smoke:local": "cd services/api && pnpm smoke:local",
+    "smoke:preprod": "cd services/api && pnpm smoke:preprod",
+    "smoke:prod": "cd services/api && pnpm smoke:prod"
+  }
+}

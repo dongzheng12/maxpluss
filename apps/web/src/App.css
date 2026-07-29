@@ -1,0 +1,99 @@
+/* ═══ 标准小智 PC Web 全局样式 ═══ */
+
+/* 平滑滚动 */
+html { scroll-behavior: smooth; }
+
+/* 全局过渡 */
+a, button, .ant-btn, .ant-card {
+  transition: all 0.2s ease;
+}
+
+/* Card hover 微上浮 */
+.ant-card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 页面切换淡入 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Ant Design 微调 */
+.ant-table-thead > tr > th {
+  font-weight: 600 !important;
+  background: #fafbfc !important;
+}
+.ant-statistic-title {
+  font-size: 13px !important;
+  color: #8c8c8c !important;
+}
+
+/* 搜索框焦点高亮 */
+.ant-input-search .ant-input:focus,
+.ant-input-search .ant-input-focused {
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
+}
+
+/* 自定义滚动条（Webkit） */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #bfbfbf; }
+
+/* ── 响应式 ── */
+@media (max-width: 768px) {
+  .ant-layout-content { padding: 16px !important; }
+  /* 表格横向滚动 */
+  .ant-table-wrapper { overflow-x: auto; }
+  /* 卡片内间距缩减 */
+  .ant-card-body { padding: 16px !important; }
+  /* 禁用 hover 上浮（触屏无 hover） */
+  .ant-card-hoverable:hover { transform: none; }
+  /* Modal 全宽 */
+  .ant-modal { max-width: calc(100vw - 32px) !important; }
+  /* 统计数字缩小 */
+  .ant-statistic-content-value { font-size: 22px !important; }
+  /* Drawer / Dropdown 触摸优化 */
+  .ant-menu-item, .ant-menu-submenu-title { min-height: 44px !important; line-height: 44px !important; }
+}
+
+/* ── 全局圆角统一 ── */
+.ant-card { border-radius: 10px !important; }
+.ant-btn-lg { border-radius: 8px !important; }
+.ant-input-lg, .ant-input-affix-wrapper-lg { border-radius: 8px !important; }
+.ant-segmented { border-radius: 8px !important; }
+.ant-segmented-item { border-radius: 6px !important; }
+
+/* ── 主按钮渐变 ── */
+.ant-btn-primary:not(:disabled) {
+  background: linear-gradient(135deg, #1677ff, #4096ff) !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.2);
+}
+.ant-btn-primary:not(:disabled):hover {
+  background: linear-gradient(135deg, #0958d9, #1677ff) !important;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+}
+
+/* ── 输入框 focus 增强 ── */
+.ant-input:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #1677ff !important;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.08) !important;
+}
+
+/* ── 空态样式 ── */
+.ant-empty-description { color: #8c8c8c; }
+
+/* ── Alert 美化 ── */
+.ant-alert { border-radius: 10px !important; }
+
+/* ── 页面淡入优化 ── */
+.ant-layout-content > div {
+  animation: fadeIn 0.25s ease-out;
+}

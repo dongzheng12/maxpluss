@@ -1,0 +1,28 @@
+<view class="page">
+  <view class="list" wx:if="{{items.length > 0}}">
+    <view
+      wx:for="{{items}}"
+      wx:key="id"
+      class="card"
+      data-idx="{{index}}"
+      bindtap="showDetail"
+    >
+      <view class="card-title">{{item.title}}</view>
+      <view class="card-summary" wx:if="{{item.taskTitle}}">任务：{{item.taskTitle}}</view>
+      <view class="card-summary" wx:if="{{item.summary}}">{{item.summary}}</view>
+      <view class="card-footer">
+        <text class="muted small">完成于 {{item.recordDate}}</text>
+        <text class="muted small">附件 {{item.attachmentCount}}</text>
+        <text class="status status-{{item.status}}">{{item.statusLabel}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{empty && !loading}}">
+    <text>暂无完成记录</text>
+  </view>
+
+  <view class="footer" wx:if="{{items.length > 0 && finished}}">
+    <text>没有更多了</text>
+  </view>
+</view>

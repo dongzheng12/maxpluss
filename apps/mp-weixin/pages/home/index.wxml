@@ -1,0 +1,84 @@
+<view class="page-shell">
+  <!-- 产品首页 hero -->
+  <view class="section-card home-hero">
+    <view class="hero-title">标准小智</view>
+    <view class="hero-subtitle">问标准、做任务、找服务，一站式智能助手</view>
+    <view class="hero-input-row" catchtap="onHeroInputTap">
+      <input
+        class="hero-input"
+        placeholder="搜索标准 或 向小智提问"
+        placeholder-class="hero-input-placeholder"
+        value="{{heroInput}}"
+        bindinput="onHeroInput"
+        bindconfirm="goChatWithInput"
+        confirm-type="send"
+        cursor-spacing="16"
+      />
+      <view class="hero-send" catchtap="goChatWithInput">
+        <text class="hero-send-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 工具入口 · 实验 B：tools 数组长度 + 查看更多独立验证 -->
+  <view class="section-card quick-entry-card">
+    <view class="quick-grid">
+      <view wx:for="{{tools}}" wx:key="key" class="quick-item" data-key="{{item.key}}" bindtap="tapTool">
+        <view class="quick-item-inner">
+          <view class="quick-icon-shell">
+            <image class="quick-icon-img" src="{{item.iconImg}}" mode="aspectFit" />
+          </view>
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+      <view class="quick-item" bindtap="tapMore">
+        <view class="quick-item-inner">
+          <view class="quick-icon-shell">
+            <image class="quick-icon-img" src="{{moreIcon}}" mode="aspectFit" />
+          </view>
+          <text>我们在不断增加</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-card home-service-card" bindtap="goBooking">
+    <view class="home-service-copy">
+      <view class="home-service-title">标准服务预约</view>
+      <view class="home-service-desc">团标立项、标准编制、技术审查与专家支持</view>
+    </view>
+    <view class="home-service-action">立即预约</view>
+  </view>
+
+  <view wx:if="{{notices.length > 0}}" class="section-card home-notice-card">
+    <view class="section-title">公告动态</view>
+    <block wx:for="{{notices}}" wx:key="id">
+      <view class="notice-item" hover-class="notice-item-hover" data-id="{{item.id}}" bindtap="onNoticeTap">
+        <view class="notice-title">{{item.title}}</view>
+        <view class="notice-date">{{item.date}}</view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{showMemberBanner}}" class="member-banner" bindtap="goMembership">
+    <view>
+      <view class="member-title">开通会员</view>
+      <view class="member-desc">{{memberBannerDesc}}</view>
+    </view>
+    <view class="member-action">立即开通</view>
+  </view>
+
+  <view class="section-card stats-card">
+    <block wx:for="{{heroStats}}" wx:key="label">
+      <view class="stat-item">
+        <view class="stat-value">{{item.value}}</view>
+        <view class="stat-label">{{item.label}}</view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 加载失败兜底：接口异常时显示重试按钮，不影响正常加载 -->
+  <view wx:if="{{homeLoadFailed}}" class="home-fail-tip" bindtap="retryLoadHome">
+    <text>加载失败，点击重试</text>
+  </view>
+</view>

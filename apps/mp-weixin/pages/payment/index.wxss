@@ -1,0 +1,91 @@
+/* ---- 基础 ---- */
+.payment-card { padding: 24rpx; margin-bottom: 18rpx; }
+.payment-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }
+.payment-title { font-size: 38rpx; font-weight: 700; line-height: 1.45; margin-bottom: 10rpx; }
+.payment-price-wrap { text-align: right; flex-shrink: 0; }
+.payment-price { font-size: 50rpx; font-weight: 700; color: #1f2a44; }
+.payment-origin { margin-top: 8rpx; color: #9aa3b2; font-size: 28rpx; text-decoration: line-through; }
+
+/* ---- 支付方式 ---- */
+.pay-channel { margin-top: 18rpx; padding: 24rpx; border: 2rpx solid #d7deea; border-radius: 24rpx; display: flex; align-items: center; justify-content: space-between; }
+.pay-channel.active { background: #edf3ff; border-color: #2b63f6; }
+.pay-channel-label { font-size: 36rpx; font-weight: 700; }
+.pay-radio { font-size: 34rpx; color: #2b63f6; }
+
+/* ---- 价格汇总 ---- */
+.payment-summary-row { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 0; border-top: 1rpx solid #edf0f5; font-size: 32rpx; }
+.payment-summary-row:first-child { border-top: 0; padding-top: 0; }
+.payment-summary-row.total { padding-bottom: 0; font-weight: 700; }
+.summary-origin { color: #9aa3b2; text-decoration: line-through; }
+.summary-discount { color: #17a34a; }
+.summary-total { color: #e01818; font-size: 56rpx; }
+
+/* ---- 二维码步骤 ---- */
+.qr-amount { font-size: 60rpx; font-weight: 700; color: #cf1322; margin-bottom: 30rpx; }
+.qr-wrap { background: #f6f6f6; border-radius: 24rpx; padding: 30rpx; display: inline-block; margin-bottom: 20rpx; }
+.qr-img { width: 440rpx; height: 440rpx; }
+.qr-hint { font-size: 30rpx; color: #555; margin-top: 12rpx; }
+.qr-hint-sub { font-size: 26rpx; color: #9aa3b2; margin-top: 8rpx; }
+
+/* ---- 上传凭证步骤 ---- */
+.upload-hint { font-size: 28rpx; color: #666; line-height: 1.6; margin-bottom: 24rpx; padding: 20rpx; background: #edf3ff; border-radius: 16rpx; }
+.upload-area { border: 2rpx dashed #c5d0de; border-radius: 20rpx; padding: 40rpx; text-align: center; margin-bottom: 24rpx; min-height: 300rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.upload-icon { font-size: 80rpx; color: #9aa3b2; line-height: 1; }
+.upload-text { font-size: 30rpx; color: #555; margin-top: 16rpx; }
+.upload-sub-text { font-size: 26rpx; color: #9aa3b2; margin-top: 8rpx; }
+.receipt-preview { width: 400rpx; max-height: 500rpx; border-radius: 12rpx; }
+.upload-change-text { font-size: 26rpx; color: #2b63f6; margin-top: 16rpx; }
+
+/* ---- 按钮行 ---- */
+.btn-row { display: flex; gap: 20rpx; }
+.btn-row .primary-btn { flex: 1; }
+.btn-row .secondary-btn { flex-shrink: 0; width: 200rpx; }
+.secondary-btn { height: 88rpx; line-height: 88rpx; border-radius: 44rpx; text-align: center; font-size: 32rpx; font-weight: 600; background: #fff; border: 2rpx solid #d7deea; color: #555; }
+.btn-disabled { opacity: 0.5; pointer-events: none; }
+
+/* ---- 完成步骤 ---- */
+.done-icon { width: 120rpx; height: 120rpx; border-radius: 999rpx; margin: 0 auto 20rpx; background: #daf5e4; color: #17a34a; display: flex; align-items: center; justify-content: center; font-size: 60rpx; font-weight: 700; }
+.done-title { font-size: 42rpx; font-weight: 700; margin-bottom: 12rpx; }
+.done-desc { font-size: 28rpx; color: #666; line-height: 1.6; margin-top: 12rpx; }
+
+/* ---- 阶段三：优惠券入口 row ---- */
+.coupon-row { display: flex; align-items: center; justify-content: space-between; }
+.coupon-row-disabled { opacity: 0.5; }
+.coupon-row-left { display: flex; align-items: center; gap: 12rpx; }
+.coupon-icon { font-size: 36rpx; }
+.coupon-label { font-size: 32rpx; font-weight: 600; color: #1f2a44; }
+.coupon-row-right { display: flex; align-items: center; gap: 8rpx; }
+.coupon-selected { font-size: 28rpx; color: #e01818; font-weight: 600; }
+.coupon-available { font-size: 28rpx; color: #2b63f6; }
+.coupon-empty { font-size: 28rpx; color: #9aa3b2; }
+.coupon-skeleton {
+  width: 160rpx;
+  height: 28rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: coupon-skeleton-shine 1.2s linear infinite;
+}
+@keyframes coupon-skeleton-shine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---- 阶段三：选券 bottom sheet ---- */
+.coupon-sheet-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 998; }
+.coupon-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 24rpx 24rpx 0 0; max-height: 80vh; z-index: 999; padding-bottom: env(safe-area-inset-bottom); display: flex; flex-direction: column; }
+.coupon-sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 28rpx; border-bottom: 1rpx solid #edf0f5; }
+.coupon-sheet-title { font-size: 34rpx; font-weight: 700; }
+.coupon-sheet-close { font-size: 28rpx; color: #2b63f6; }
+.coupon-sheet-list { max-height: 70vh; padding: 12rpx 24rpx 32rpx; }
+.coupon-item { display: flex; align-items: flex-start; gap: 18rpx; padding: 24rpx; margin-top: 16rpx; background: #f7f9fc; border: 2rpx solid transparent; border-radius: 16rpx; }
+.coupon-item-active { border-color: #2b63f6; background: #edf3ff; }
+.coupon-item-disabled { opacity: 0.5; }
+.coupon-item-radio { font-size: 36rpx; color: #2b63f6; line-height: 1; padding-top: 4rpx; flex-shrink: 0; }
+.coupon-item-body { flex: 1; min-width: 0; }
+.coupon-item-name { font-size: 32rpx; font-weight: 600; color: #1f2a44; margin-bottom: 8rpx; }
+.coupon-item-meta { font-size: 28rpx; color: #e01818; margin-bottom: 4rpx; }
+.coupon-item-meta .coupon-item-warn { color: #9aa3b2; }
+.coupon-item-sub { font-size: 24rpx; color: #9aa3b2; }
+.coupon-item-none { background: #fff; border: 2rpx dashed #d7deea; }
+.coupon-item-none.coupon-item-active { background: #edf3ff; border: 2rpx solid #2b63f6; }

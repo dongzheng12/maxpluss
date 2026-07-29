@@ -1,0 +1,48 @@
+# 营销自动化 — n8n 工作流引擎
+# 独立 compose 文件，不与现有 bxz-api/bxz-dedup 容器耦合
+#
+# 部署：
+#   在本文件所在目录准备 .env（参考 services/api/.env.example 的 N8N_PASSWORD）
+#   docker compose -f docker-compose.n8n.yml up -d
+#
+# 访问（运维机）：
+#   ssh -L 5678:127.0.0.1:5678 user@<生产服务器>
+#   浏览器打开 http://localhost:5678 → 用 admin / $N8N_PASSWORD 登录
+#
+# n8n 调 bxz-api：容器内通过 host.docker.internal 访问宿主机 3000 端口
+# 工作流里设置 BXZ_API_URL=http://host.docker.internal:3000 或你的 API 实际内网地址
+
+version: "3.8"
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: bxz-n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"   # 仅绑本地回环，强制走 SSH 隧道访问
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - DB_TYPE=sqlite
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+      - TZ=Asia/Shanghai
+      - GENERIC_TIMEZONE=Asia/Shanghai
+      # 下面两个由 workflow import 时读取，生产环境请在 .env 填实际值
+      - BXZ_API_URL=${BXZ_API_URL}
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET}
+      # 允许 workflow 表达式里读 $env.XXX（默认新版 n8n 屏蔽）
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+    volumes:
+      - n8n_data:/home/node/.n8n
+    extra_hosts:
+      # Linux 下解析 host.docker.internal → 宿主机 IP；macOS/Windows 原生支持
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  n8n_data:
+    name: bxz-n8n-data

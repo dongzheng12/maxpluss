@@ -1,0 +1,103 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+
+  <block wx:elif="{{detail}}">
+    <view class="header">
+      <text class="project">{{detail.projectName}}</text>
+      <view class="tag {{statusClass}}">{{statusLabel}}</view>
+    </view>
+    <view class="meta-line">申请编号：{{detail.requestNo}}</view>
+
+    <!-- 申请基础信息 -->
+    <view class="card">
+      <view class="card-title">申请基础信息</view>
+      <view class="row"><text class="k">标准/项目</text><text class="v">{{detail.targetName}}</text></view>
+      <view class="row"><text class="k">项目类型</text><text class="v">{{detail.projectType}}</text></view>
+      <view class="row"><text class="k">标准类型</text><text class="v">{{detail.standardType}}</text></view>
+      <view class="row"><text class="k">标准状态</text><text class="v">{{detail.standardStatus}}</text></view>
+      <view class="row"><text class="k">所属行业</text><text class="v">{{industriesText}}</text></view>
+      <view class="row" wx:if="{{detail.keywords}}"><text class="k">专业关键词</text><text class="v">{{detail.keywords}}</text></view>
+      <view class="row" wx:if="{{detail.draftingOrgs}}"><text class="k">起草单位</text><text class="v">{{detail.draftingOrgs}}</text></view>
+      <view class="row" wx:if="{{detail.participatingOrgs}}"><text class="k">参与单位</text><text class="v">{{detail.participatingOrgs}}</text></view>
+      <view class="row"><text class="k">期望完成时间</text><text class="v">{{expectedFinishText}}</text></view>
+      <view class="row"><text class="k">是否涉密</text><text class="v">{{confidentialLabel}}</text></view>
+      <view wx:if="{{detail.confidentialRemark}}" class="row block">
+        <text class="k">保密要求</text>
+        <text class="v multi">{{detail.confidentialRemark}}</text>
+      </view>
+      <view class="row block">
+        <text class="k">项目背景</text>
+        <text class="v multi">{{detail.backgroundDesc}}</text>
+      </view>
+      <view wx:if="{{detail.disputePoints}}" class="row block">
+        <text class="k">争议点</text>
+        <text class="v multi">{{detail.disputePoints}}</text>
+      </view>
+    </view>
+
+    <!-- 专家需求 -->
+    <view class="card">
+      <view class="card-title">专家需求</view>
+      <view class="row"><text class="k">专家来源</text><text class="v">{{detail.expertSourceType === 'PLATFORM' ? '平台匹配' : '用户指定'}}</text></view>
+      <view class="row"><text class="k">专家数量</text><text class="v">{{detail.expertCount}} 位</text></view>
+      <view wx:if="{{expertCategoriesText !== '-'}}" class="row"><text class="k">专家类别</text><text class="v">{{expertCategoriesText}}</text></view>
+      <view wx:if="{{detail.expertKeywords}}" class="row"><text class="k">专业关键词</text><text class="v">{{detail.expertKeywords}}</text></view>
+      <view class="row"><text class="k">职称要求</text><text class="v">{{titleRequirementsText}}</text></view>
+      <view class="row"><text class="k">单位背景</text><text class="v">{{orgBackgroundText}}</text></view>
+      <view wx:if="{{detail.extraExpertNote}}" class="row block">
+        <text class="k">其他要求</text>
+        <text class="v multi">{{detail.extraExpertNote}}</text>
+      </view>
+    </view>
+
+    <!-- 会议时间偏好 -->
+    <view class="card">
+      <view class="card-title">会议时间偏好</view>
+      <view class="row"><text class="k">期望日期</text><text class="v">{{desiredDateText}}</text></view>
+      <view class="row"><text class="k">期望时间段</text><text class="v">{{slotLabel}}</text></view>
+      <view class="row"><text class="k">是否接受调剂</text><text class="v">{{detail.acceptReschedule ? '是' : '否'}}</text></view>
+      <view wx:if="{{detail.backupTimeNote}}" class="row block">
+        <text class="k">备用时间说明</text>
+        <text class="v multi">{{detail.backupTimeNote}}</text>
+      </view>
+    </view>
+
+    <!-- 订单 / 时间 -->
+    <view class="card">
+      <view class="card-title">订单与时间</view>
+      <view class="row"><text class="k">金额</text><text class="v">¥{{amountYuan}}</text></view>
+      <view class="row"><text class="k">订单号</text><text class="v mono">{{detail.orderNo || '未生成'}}</text></view>
+      <view class="row"><text class="k">提交时间</text><text class="v">{{submittedAtText}}</text></view>
+      <view class="row"><text class="k">支付时间</text><text class="v">{{paidAtText}}</text></view>
+    </view>
+
+    <!-- 上传材料 -->
+    <view class="card" wx:if="{{detail.attachments && detail.attachments.length}}">
+      <view class="card-title">上传材料（{{detail.attachments.length}}）</view>
+      <view class="att" wx:for="{{detail.attachments}}" wx:key="id">
+        <text class="att-name">{{item.originalName}}</text>
+        <text class="att-meta">{{item.category === 'MAIN' ? '主要材料' : '辅助材料'}} · {{item.size}} 字节</text>
+      </view>
+      <view class="hint">附件下载请联系平台。</view>
+    </view>
+
+    <!-- 状态阶段提示 -->
+    <view class="card hint-card" wx:if="{{detail.status === 'PAYING'}}">{{hintPaying}}</view>
+    <view class="card hint-card" wx:if="{{detail.status === 'EXPERT_ARRANGING'}}">{{hintExpertArranging}}</view>
+    <view class="card hint-card" wx:if="{{detail.status === 'MEETING_SCHEDULED'}}">{{hintMeetingScheduled}}</view>
+    <view class="card hint-card" wx:if="{{detail.status === 'VOTING'}}">{{hintVoting}}</view>
+    <view class="card hint-card" wx:if="{{detail.status === 'VOTED'}}">{{hintVoted}}</view>
+    <view class="card hint-card" wx:if="{{detail.status === 'SIGNING'}}">{{hintSigning}}</view>
+    <view class="card hint-card success" wx:if="{{detail.status === 'COMPLETED'}}">{{hintCompleted}}</view>
+    <view class="card hint-card" wx:if="{{detail.status === 'REFUNDED'}}">{{hintRefunded}}</view>
+
+    <view class="footer" wx:if="{{showMeetingPrimary || isCompletedWithFile || isCompletedNoFile || showMeetingHistory}}">
+      <!-- 主操作 -->
+      <button wx:if="{{isCompletedWithFile}}" class="primary-btn" bindtap="downloadSigned">下载最终交付文件</button>
+      <button wx:elif="{{isCompletedNoFile}}" class="primary-btn" disabled>最终交付文件暂未上传</button>
+      <button wx:elif="{{showMeetingPrimary}}" class="primary-btn" bindtap="goMeeting">查看会议详情</button>
+      <!-- 次操作：会议作为历史信息查看（VOTING/VOTED/SIGNING，以及 COMPLETED 已下载主按钮后并存） -->
+      <button wx:if="{{showMeetingHistory}}" class="ghost-btn" bindtap="goMeeting">会议信息</button>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,54 @@
+<view class="page-shell">
+  <view class="compare-toolbar">
+    <view class="compare-plus" bindtap="goLaunch">＋</view>
+  </view>
+
+  <view wx:if="{{hasPending && !pollStoppedDisplay}}" class="compare-pending-tip">
+    <text>{{pendingCount}} 个任务正在后台处理中，完成后将自动更新</text>
+  </view>
+
+  <!-- 30 分钟轮询硬停后,提示用户回头查看 / 手动刷新状态 -->
+  <view wx:if="{{pollStoppedDisplay}}" class="compare-pending-tip" style="background:#fff7e6;border:1rpx solid #ffd591;color:#874d00">
+    <view style="margin-bottom:8rpx">任务处理时间较长，请稍后回到比对历史查看，或点击下方按钮立即查询。</view>
+    <view class="primary-btn" style="width:auto;padding:12rpx 28rpx;font-size:26rpx" bindtap="refreshAfterStop">刷新状态</view>
+  </view>
+
+  <view class="section-card compare-summary">
+    <view class="compare-metric"><text>全部任务</text><strong>{{totalCount}}</strong></view>
+    <view class="compare-metric"><text>已完成</text><strong>{{doneCount}}</strong></view>
+    <view class="compare-metric"><text>处理中</text><strong>{{pendingCount}}</strong></view>
+    <view class="compare-metric" wx:if="{{failedCount > 0}}"><text>失败</text><strong class="text-red">{{failedCount}}</strong></view>
+  </view>
+
+  <view wx:if="{{loading}}" class="compare-loading">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:if="{{!loading && tasks.length === 0}}" class="compare-empty">
+    <text>暂无比对任务，点击 ＋ 发起新比对</text>
+  </view>
+
+  <block wx:for="{{tasks}}" wx:key="taskNo">
+    <view class="section-card compare-task-card">
+      <view class="standard-tags">
+        <text class="tag {{item.status === 'COMPLETED' ? 'tag-green' : item.status === 'FAILED' ? 'tag-red' : 'tag-blue'}}">
+          {{item.displayStatus}}
+        </text>
+        <text class="tag tag-outline">{{item.compareMode === 'library' ? '全库分析' : '1对1比对'}}</text>
+      </view>
+      <view class="compare-task-title">{{item.documentName}}</view>
+      <view class="compare-task-date">{{item._createdFmt || item.createdAt}}</view>
+      <view class="compare-task-desc" wx:if="{{item.status === 'COMPLETED'}}">报告已生成，点击查看完整报告。</view>
+      <view class="compare-task-desc compare-task-fail" wx:elif="{{item.status === 'FAILED'}}">! {{item.errorMessage || '比对失败，请重新发起。'}}</view>
+      <view class="compare-task-desc" wx:else>正在后台处理中，通常需要 1-5 分钟...</view>
+      <view class="compare-task-actions">
+        <view class="primary-btn" bindtap="openReport" data-taskno="{{item.taskNo}}" data-status="{{item.status}}" wx:if="{{item.status === 'COMPLETED'}}">查看报告</view>
+        <view class="retry-btn" bindtap="retryTask" data-taskno="{{item.taskNo}}" wx:if="{{item.status === 'FAILED'}}">重试</view>
+        <view class="retry-btn" bindtap="reCompare" wx:if="{{item.status === 'FAILED'}}">重新比对</view>
+        <view class="delete-link" bindtap="deleteTask" data-taskno="{{item.taskNo}}">删除</view>
+      </view>
+    </view>
+  </block>
+
+  <view class="ai-disclaimer">内容由 AI 生成，仅供参考</view>
+</view>

@@ -1,0 +1,65 @@
+/**
+ * 公共 WXS 过滤器
+ * 用法：<wxs src="../../utils/filters.wxs" module="filters" />
+ *      {{filters.statusLabel(item.assigneeStatus)}}
+ */
+
+var ASSIGNEE_STATUS_LABEL = {
+  PENDING: '待处理',
+  IN_PROGRESS: '进行中',
+  PENDING_REVIEW: '待审核',
+  COMPLETED: '已完成',
+  REJECTED: '已驳回',
+}
+
+var SUBMISSION_STATUS_LABEL = {
+  PENDING_REVIEW: '待审核',
+  SUBMITTED: '审核中',
+  APPROVED: '已通过',
+  REJECTED: '已驳回',
+}
+
+var TASK_ITEM_STATUS_LABEL = {
+  PENDING: '待处理',
+  DONE: '已完成',
+  SKIPPED: '已跳过',
+}
+
+var TASK_TYPE_LABEL = {
+  TRAINING: '培训确认',
+  QUALIFICATION_MATERIAL: '资质材料',
+  ONBOARDING_ACCESS: '上岗准入',
+  INSPECTION_FILL: '检查填报',
+  RECTIFICATION: '整改闭环',
+  ARCHIVE_MATERIAL: '资料归档',
+}
+
+function statusLabel(s) {
+  return ASSIGNEE_STATUS_LABEL[s] || s
+}
+
+function submissionStatusLabel(s) {
+  return SUBMISSION_STATUS_LABEL[s] || s
+}
+
+function taskItemStatusLabel(s) {
+  return TASK_ITEM_STATUS_LABEL[s] || s
+}
+
+function taskTypeLabel(t) {
+  return TASK_TYPE_LABEL[t] || t
+}
+
+// wxml 不支持方法调用(.indexOf 等)，数组包含判断走 wxs
+function arrIncludes(arr, val) {
+  if (!arr) return false
+  return arr.indexOf(val) >= 0
+}
+
+module.exports = {
+  statusLabel: statusLabel,
+  submissionStatusLabel: submissionStatusLabel,
+  taskItemStatusLabel: taskItemStatusLabel,
+  taskTypeLabel: taskTypeLabel,
+  arrIncludes: arrIncludes,
+}

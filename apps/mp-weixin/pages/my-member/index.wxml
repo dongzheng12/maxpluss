@@ -1,0 +1,63 @@
+<view class="page-shell">
+  <!-- 等级卡片 -->
+  <view class="tier-card {{isPro ? 'pro' : isPersonal ? 'personal' : 'free'}}">
+    <view class="tier-badge">{{tierLabel}}</view>
+    <view wx:if="{{expireDate}}" class="tier-expire">有效期至 {{expireDate}}</view>
+    <view wx:if="{{isFree}}" class="tier-expire">尚未开通会员</view>
+  </view>
+
+  <!-- 当前权益 -->
+  <view wx:if="{{!isFree}}" class="section-card features-card">
+    <view class="section-title">当前权益</view>
+    <view class="features-list">
+      <view wx:for="{{features}}" wx:key="*this" class="feat-row">
+        <text class="feat-check">✓</text>
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 免费用户权益 + 开通引导 -->
+  <view wx:if="{{isFree}}" class="section-card features-card">
+    <view class="section-title">免费权益</view>
+    <view class="features-list">
+      <view wx:for="{{freeBenefits}}" wx:key="*this" class="feat-row">
+        <text class="feat-check">✓</text><text>{{item}}</text>
+      </view>
+      <view class="feat-row feat-disabled"><text class="feat-x">✗</text><text>一对一比对（需会员）</text></view>
+      <view class="feat-row feat-disabled"><text class="feat-x">✗</text><text>专属客服（需专业版）</text></view>
+    </view>
+  </view>
+
+  <view wx:if="{{isFree}}" class="section-card action-card">
+    <view class="upgrade-banner" bindtap="goMembership">
+      <view class="upgrade-copy">
+        <view class="upgrade-title" style="color:#2b63f6">升级会员</view>
+        <view class="upgrade-desc" style="color:#5b8def">解锁全库相似度分析、不限次检索等专业功能</view>
+      </view>
+      <view class="list-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 个人会员 → 升级 -->
+  <view wx:elif="{{isPersonal}}" class="section-card action-card">
+    <view class="upgrade-banner" bindtap="doUpgrade">
+      <view class="upgrade-copy">
+        <view class="upgrade-title">升级专业版</view>
+        <view class="upgrade-desc">补差价 ￥{{upgradeCost}} · 解锁比对报告+团标权益</view>
+      </view>
+      <view class="list-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 专业会员 → 最高等级 -->
+  <view wx:elif="{{isPro}}" class="section-card action-card">
+    <view class="pro-max">当前为最高等级，感谢您的支持</view>
+  </view>
+
+  <!-- 说明 -->
+  <view class="section-card note-card">
+    <view class="section-title">信息说明</view>
+    <view class="note-text">{{infoNotice}}</view>
+  </view>
+</view>

@@ -1,0 +1,189 @@
+{
+  "name": "R02 - 首检索后功能引导",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "trigger-r02",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.BXZ_API_URL}}/api/internal/users/rule/R02",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-internal-token",
+              "value": "={{$env.INTERNAL_API_SECRET}}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-users-r02",
+      "name": "Fetch users R02",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-users",
+              "leftValue": "={{$json.users.length}}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "has-users-r02",
+      "name": "Has users?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "users",
+        "options": {}
+      },
+      "id": "split-users-r02",
+      "name": "Split users",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        920,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.BXZ_API_URL}}/api/internal/push/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-internal-token",
+              "value": "={{$env.INTERNAL_API_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"userId\": \"{{$json.userId}}\",\n  \"openid\": \"{{$json.openid}}\",\n  \"ruleId\": \"R02\",\n  \"templateId\": \"{{$json.templateId}}\",\n  \"templateData\": {{JSON.stringify($json.templateData)}},\n  \"refId\": {{$json.refId ? '\"' + $json.refId + '\"' : 'null'}}\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "push-send-r02",
+      "name": "Push send R02",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        220
+      ],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch users R02",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch users R02": {
+      "main": [
+        [
+          {
+            "node": "Has users?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has users?": {
+      "main": [
+        [
+          {
+            "node": "Split users",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Split users": {
+      "main": [
+        [
+          {
+            "node": "Push send R02",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "marketing"
+    },
+    {
+      "name": "R02"
+    }
+  ]
+}

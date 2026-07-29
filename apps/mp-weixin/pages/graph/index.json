@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "标准关系图谱",
+  "usingComponents": {
+    "standard-graph": "../../components/standard-graph/standard-graph"
+  }
+}

@@ -1,0 +1,38 @@
+<view class="page-shell ics-page">
+  <view class="search-shell">
+    <text class="search-icon">⌕</text>
+    <input class="search-input" placeholder="按分类名称搜索" value="{{keyword}}" bindinput="onKeywordInput" />
+  </view>
+
+  <block wx:if="{{keyword}}">
+    <view wx:if="{{searchResults.length}}" class="section-card ics-search-card">
+      <block wx:for="{{searchResults}}" wx:key="path">
+        <view class="ics-search-item" bindtap="chooseLeaf" data-rootcode="{{item.rootCode}}" data-rootname="{{item.rootName}}" data-childcode="{{item.childCode}}" data-childname="{{item.childName}}" data-code="{{item.code}}" data-name="{{item.name}}">
+          <view class="ics-search-title">{{item.code}} {{item.name}}</view>
+          <view class="ics-search-path">{{item.path}}</view>
+        </view>
+      </block>
+    </view>
+    <view wx:else class="section-card empty-card">没有匹配到分类结果。</view>
+  </block>
+
+  <view class="section-card ics-panel">
+    <view class="ics-left">
+      <block wx:for="{{roots}}" wx:key="code">
+        <view class="ics-root {{activeRootCode === item.code ? 'active' : ''}}" data-code="{{item.code}}" bindtap="switchRoot">{{item.code}} {{item.name}}</view>
+      </block>
+    </view>
+    <scroll-view scroll-y class="ics-right">
+      <block wx:for="{{activeRoot.children}}" wx:key="code" wx:for-item="group">
+        <view class="ics-group">
+          <view class="ics-group-title">{{group.code}} {{group.name}}</view>
+          <view class="ics-leaf-grid">
+            <block wx:for="{{group.children}}" wx:key="code" wx:for-item="leaf">
+              <view class="ics-leaf-chip" bindtap="chooseLeaf" data-rootcode="{{activeRoot.code}}" data-rootname="{{activeRoot.name}}" data-childcode="{{group.code}}" data-childname="{{group.name}}" data-code="{{leaf.code}}" data-name="{{leaf.name}}">{{leaf.code}}</view>
+            </block>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+</view>

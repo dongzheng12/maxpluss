@@ -1,0 +1,17 @@
+<view class="page-shell">
+  <block wx:if="{{standards.length}}">
+    <block wx:for="{{standards}}" wx:key="id">
+      <view class="section-card favorite-card" bindtap="openDetail" data-id="{{item.id}}">
+        <view class="standard-tags">
+          <text class="tag tag-green">{{item.status}}</text>
+          <text class="tag tag-blue">{{item.typeLabel}}</text>
+        </view>
+        <view class="favorite-code">{{item.code}}</view>
+        <view class="favorite-title">{{item.title}}</view>
+        <view class="meta-text">{{item.organization}} · {{item.publishDate}}</view>
+      </view>
+    </block>
+  </block>
+
+  <view wx:else class="section-card empty-card">还没有收藏标准，去标准信息页点”收藏”即可保存。</view>
+</view>

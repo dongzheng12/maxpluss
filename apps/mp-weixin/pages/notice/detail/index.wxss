@@ -1,0 +1,30 @@
+.notice-detail-card {
+  padding: 32rpx;
+}
+
+.notice-detail-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f2a3a;
+  line-height: 1.4;
+}
+
+.notice-detail-date {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+.notice-detail-divider {
+  height: 1rpx;
+  background: #e6eaf0;
+  margin: 24rpx 0;
+}
+
+.notice-detail-content {
+  font-size: 28rpx;
+  color: #324155;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

@@ -1,0 +1,182 @@
+<view class="page-shell">
+  <!-- loading -->
+  <view wx:if="{{loading}}" style="text-align:center;padding-top:200rpx;">
+    <view class="meta-text">加载中...</view>
+  </view>
+
+  <!-- ========== 步骤1: 商品信息 + 支付方式选择 ========== -->
+  <block wx:if="{{!loading && step === 'info' && payment}}">
+    <view class="section-card payment-card">
+      <view class="section-title">商品信息</view>
+      <view class="payment-row">
+        <view style="flex:1;">
+          <view class="payment-title">{{payment.title}}</view>
+          <view class="meta-text">{{payment.desc}}</view>
+        </view>
+        <view class="payment-price-wrap">
+          <view class="payment-price">¥{{payment.amountFmt}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card payment-card">
+      <view class="section-title">支付方式</view>
+      <view class="pay-channel active">
+        <view class="pay-channel-label">微信支付</view>
+        <view class="pay-radio">◉</view>
+      </view>
+    </view>
+
+    <!-- 阶段三：优惠券入口（applicableCount=0 时灰态，feature flag 关时同样灰态） -->
+    <view class="section-card payment-card coupon-row {{!couponsLoading && applicableCount === 0 ? 'coupon-row-disabled' : ''}}" bindtap="openCouponSheet">
+      <view class="coupon-row-left">
+        <text class="coupon-icon">◇</text>
+        <text class="coupon-label">优惠券</text>
+      </view>
+      <view class="coupon-row-right">
+        <!-- 加载态：骨架占位,避免「暂无可用」闪烁 -->
+        <block wx:if="{{couponsLoading}}">
+          <view class="coupon-skeleton"></view>
+        </block>
+        <block wx:elif="{{selectedCoupon}}">
+          <text class="coupon-selected">已选 · 立减 ¥{{discountAmountFmt}}</text>
+          <text class="list-arrow">›</text>
+        </block>
+        <block wx:elif="{{applicableCount > 0}}">
+          <text class="coupon-available">{{applicableCount}} 张可用</text>
+          <text class="list-arrow">›</text>
+        </block>
+        <block wx:else>
+          <text class="coupon-empty">暂无可用优惠券</text>
+        </block>
+      </view>
+    </view>
+
+    <view class="section-card payment-card">
+      <!-- 选中券：三行金额（原价 / 优惠 / 应付）；未选：单行应付 -->
+      <block wx:if="{{selectedCoupon}}">
+        <view class="payment-summary-row">
+          <text>原价</text>
+          <text class="summary-origin">¥{{payment.amountFmt}}</text>
+        </view>
+        <view class="payment-summary-row">
+          <text>优惠</text>
+          <text class="summary-discount">-¥{{discountAmountFmt}}</text>
+        </view>
+        <view class="payment-summary-row total">
+          <text>应付金额</text>
+          <text class="summary-total">¥{{finalAmountFmt}}</text>
+        </view>
+      </block>
+      <view wx:else class="payment-summary-row total">
+        <text>应付金额</text>
+        <text class="summary-total">¥{{payment.amountFmt}}</text>
+      </view>
+    </view>
+
+    <view class="primary-btn" bindtap="submitPayment">确认支付</view>
+  </block>
+
+  <!-- 阶段三：选券 bottom sheet -->
+  <view wx:if="{{showCouponSheet}}" class="coupon-sheet-mask" bindtap="closeCouponSheet"></view>
+  <view wx:if="{{showCouponSheet}}" class="coupon-sheet" catchtap="">
+    <view class="coupon-sheet-header">
+      <text class="coupon-sheet-title">选择优惠券</text>
+      <text class="coupon-sheet-close" bindtap="closeCouponSheet">关闭</text>
+    </view>
+    <scroll-view scroll-y class="coupon-sheet-list">
+      <view
+        wx:for="{{applicableCoupons}}"
+        wx:key="id"
+        class="coupon-item {{!item.applicable ? 'coupon-item-disabled' : ''}} {{item.id === selectedCouponId ? 'coupon-item-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="pickCoupon"
+      >
+        <view class="coupon-item-radio">{{item.id === selectedCouponId ? '◉' : '○'}}</view>
+        <view class="coupon-item-body">
+          <view class="coupon-item-name">{{item.name}}</view>
+          <view class="coupon-item-meta">
+            <text wx:if="{{item.applicable}}">立减 ¥{{item.calculatedDiscountFmt}}</text>
+            <text wx:else class="coupon-item-warn">{{item.unmatchReason}}</text>
+          </view>
+          <view class="coupon-item-sub">
+            <text wx:if="{{item.minAmount > 0}}">满 ¥{{item.minAmountFmt}} 可用 · </text>
+            <text>到期 {{item.expiresAt}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="coupon-item coupon-item-none {{!selectedCouponId ? 'coupon-item-active' : ''}}" bindtap="pickCoupon">
+        <view class="coupon-item-radio">{{!selectedCouponId ? '◉' : '○'}}</view>
+        <view class="coupon-item-body">
+          <view class="coupon-item-name">不使用优惠券</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ========== 步骤2: 展示收款二维码 ========== -->
+  <block wx:if="{{step === 'qrcode' && payment}}">
+    <view class="section-card payment-card" style="text-align:center;">
+      <view class="payment-title" style="margin-bottom:10rpx;">{{payment.title}}</view>
+      <view class="qr-amount">¥{{payment.amountFmt}}</view>
+
+      <view class="qr-wrap">
+        <image src="/images/pay-qrcode.jpg"
+               mode="aspectFit"
+               class="qr-img"
+               bindtap="previewQR"
+               show-menu-by-longpress="{{true}}" />
+      </view>
+
+      <view class="qr-hint">请使用微信扫描上方收款码完成支付</view>
+      <view class="qr-hint-sub">长按图片可保存到相册</view>
+
+      <view class="primary-btn" style="margin-top:40rpx;" bindtap="goUpload">我已支付，上传凭证</view>
+    </view>
+  </block>
+
+  <!-- ========== 步骤3: 上传支付凭证 ========== -->
+  <block wx:if="{{step === 'upload'}}">
+    <view class="section-card payment-card">
+      <view class="section-title">上传支付凭证</view>
+      <view class="upload-hint">请上传微信支付成功的截图，截图应包含支付金额、收款方等信息，方便我们核实。</view>
+
+      <view class="upload-area" bindtap="chooseReceipt">
+        <block wx:if="{{receiptPath}}">
+          <image src="{{receiptPath}}" mode="aspectFit" class="receipt-preview" />
+          <view class="upload-change-text">点击重新选择</view>
+        </block>
+        <block wx:else>
+          <view class="upload-icon">+</view>
+          <view class="upload-text">点击选择支付截图</view>
+          <view class="upload-sub-text">支持 JPG、PNG 格式</view>
+        </block>
+      </view>
+
+      <view class="btn-row">
+        <view class="secondary-btn" bindtap="goUpload" data-back="1" catchtap="backToQrcode">返回</view>
+        <view class="primary-btn {{!receiptPath || uploading ? 'btn-disabled' : ''}}" bindtap="uploadReceipt">
+          {{uploading ? '提交中...' : '提交凭证'}}
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- ========== 步骤4: 完成 ========== -->
+  <block wx:if="{{step === 'done'}}">
+    <view class="section-card payment-card" style="text-align:center;padding:60rpx 28rpx;">
+      <view class="done-icon">✓</view>
+      <block wx:if="{{doneMode === 'paid'}}">
+        <view class="done-title">支付成功</view>
+        <view class="done-desc">您的会员权益已自动开通，感谢您的支持！</view>
+      </block>
+      <block wx:else>
+        <view class="done-title">支付凭证已提交</view>
+        <view class="done-desc">我们将在 24 小时内完成核实确认，届时订单状态会自动更新。</view>
+      </block>
+      <view class="primary-btn" style="margin-top:40rpx;" bindtap="goNext">
+        {{payment.flow === 'membership' || payment.flow === 'upgrade' ? '查看我的会员' : '查看订单'}}
+      </view>
+    </view>
+  </block>
+</view>

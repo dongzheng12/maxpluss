@@ -1,0 +1,87 @@
+<view class="page-shell">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="meta-text">正在比对分析中...</view>
+  </view>
+
+  <block wx:else>
+    <!-- Tab 切换 -->
+    <view class="tab-bar">
+      <view class="tab-item {{tab === 'mapping' ? 'active' : ''}}" data-tab="mapping" bindtap="switchTab">映射预览</view>
+      <view class="tab-item {{tab === 'table' ? 'active' : ''}}" data-tab="table" bindtap="switchTab">详细结果</view>
+    </view>
+
+    <!-- 映射预览 -->
+    <view wx:if="{{tab === 'mapping'}}" class="mapping-panel">
+      <view class="mapping-header">
+        <view class="mapping-col-title">文档 A</view>
+        <view class="mapping-col-title" style="text-align:right;">文档 B</view>
+      </view>
+      <view class="mapping-body">
+        <view class="mapping-col left-col">
+          <view wx:for="{{linesA}}" wx:key="index" class="mapping-item left">
+            <text class="mapping-idx">{{index + 1}}</text>
+            <text class="mapping-label">{{item}}</text>
+          </view>
+        </view>
+        <view class="mapping-col right-col">
+          <view wx:for="{{linesB}}" wx:key="index" class="mapping-item right">
+            <text class="mapping-label">{{item}}</text>
+            <text class="mapping-idx">{{index + 1}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 映射连线列表 -->
+      <view class="mapping-links">
+        <view wx:for="{{mappings}}" wx:key="idxA" class="link-row">
+          <view class="link-left">{{item.sectionA}}</view>
+          <view class="link-arrow {{item.similarity >= 80 ? 'high' : item.similarity >= 50 ? 'mid' : 'low'}}">
+            <text class="arrow-score">{{item.similarity}}%</text>
+            <text class="arrow-icon">⟷</text>
+          </view>
+          <view class="link-right">{{item.sectionB}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 详细结果表格 -->
+    <view wx:if="{{tab === 'table'}}" class="table-panel">
+      <scroll-view scroll-x class="table-scroll">
+        <view class="result-table">
+          <!-- 表头 -->
+          <view class="table-row table-header">
+            <view class="table-cell cell-idx">序号</view>
+            <view class="table-cell cell-section">章节 A</view>
+            <view class="table-cell cell-content">内容 A</view>
+            <view class="table-cell cell-section">章节 B</view>
+            <view class="table-cell cell-content">内容 B</view>
+            <view class="table-cell cell-sim">相似度</view>
+          </view>
+          <!-- 数据行 -->
+          <view wx:for="{{mappings}}" wx:key="idxA" class="table-row {{index % 2 === 0 ? 'even' : 'odd'}}">
+            <view class="table-cell cell-idx">{{index + 1}}</view>
+            <view class="table-cell cell-section">{{item.sectionA}}</view>
+            <view class="table-cell cell-content">{{item.contentA}}</view>
+            <view class="table-cell cell-section">{{item.sectionB}}</view>
+            <view class="table-cell cell-content">{{item.contentB}}</view>
+            <view class="table-cell cell-sim">
+              <view class="sim-badge {{item.similarity >= 80 ? 'sim-high' : item.similarity >= 50 ? 'sim-mid' : 'sim-low'}}">
+                {{item.similarity}}%
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </block>
+
+  <view class="ai-disclaimer">内容由 AI 生成，仅供参考</view>
+
+  <!-- 底部操作 -->
+  <view class="bottom-bar">
+    <view class="price-note">{{priceNote}}</view>
+    <view class="primary-btn" bindtap="viewReport">查看分析报告{{btnSuffix}}</view>
+  </view>
+</view>

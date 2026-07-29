@@ -1,0 +1,523 @@
+<!-- ==================== T12 动态提交配置 ==================== -->
+<view class="page" wx:if="{{loading}}">
+  <view class="card">
+    <view class="section-title">加载提交配置...</view>
+    <view class="hint-text">正在读取任务提交形式。</view>
+  </view>
+</view>
+
+<view class="page" wx:elif="{{submitConfig}}">
+  <view class="card submit-guide">
+    <view class="section-title">按要求项提交</view>
+    <view class="hint-text" wx:if="{{requirementForms.length > 0}}">
+      共 {{requirementForms.length}} 个要求项，请逐项填写对应内容并上传材料。
+    </view>
+    <view class="hint-text" wx:else>{{submitHint}}</view>
+  </view>
+
+  <block wx:if="{{requirementForms.length > 0}}">
+    <view wx:for="{{requirementForms}}" wx:for-item="req" wx:for-index="reqIndex" wx:key="id" class="card requirement-card">
+      <view class="requirement-head">
+        <view class="requirement-index">#{{reqIndex + 1}}</view>
+        <view class="requirement-title-wrap">
+          <view class="requirement-title">
+            <text wx:if="{{req.clauseNo}}">[{{req.clauseNo}}] </text>{{req.title}}
+            <text wx:if="{{req.required}}" class="required">*</text>
+          </view>
+          <view wx:if="{{req.description}}" class="requirement-desc">{{req.description}}</view>
+        </view>
+      </view>
+
+      <view class="mode-tags requirement-tags">
+        <text wx:for="{{req.submitTags}}" wx:for-item="tag" wx:key="mode" class="mode-tag">{{tag.label}}</text>
+      </view>
+      <view class="hint-text small-gap">{{req.hint}}</view>
+
+      <view wx:if="{{req.submitFlags.TEXT}}" class="requirement-section">
+        <view class="section-title sub-title">{{req.textPrompt}} <text wx:if="{{req.required}}" class="required">*</text></view>
+        <textarea
+          class="textarea compact"
+          placeholder="{{req.textPrompt}}"
+          maxlength="1000"
+          auto-height
+          value="{{req.textValue}}"
+          data-idx="{{reqIndex}}"
+          bindinput="inputRequirementText"
+        />
+      </view>
+
+      <view wx:if="{{req.submitFlags.STRUCTURED}}" class="requirement-section">
+        <view class="section-title sub-title">结构化填写项</view>
+        <view wx:for="{{req.structuredFields}}" wx:for-item="field" wx:for-index="fieldIndex" wx:key="id" class="structured-field">
+          <view class="field-label">{{field.name}} <text wx:if="{{field.required}}" class="required">*</text></view>
+          <input
+            class="input-field"
+            placeholder="请填写{{field.name}}"
+            value="{{field.value}}"
+            data-idx="{{reqIndex}}"
+            data-field-idx="{{fieldIndex}}"
+            bindinput="inputRequirementStructured"
+          />
+        </view>
+      </view>
+
+      <view wx:if="{{req.submitFlags.IMAGE || req.submitFlags.FILE}}" class="requirement-section">
+        <view class="section-title sub-title">
+          上传材料
+          <text wx:if="{{req.attachmentRequired}}" class="required">*</text>
+          <text class="muted small"> 至少 {{req.attachmentMinCount}} 份，最多 {{req.attachmentMaxCount}} 份</text>
+        </view>
+        <view wx:if="{{req.attachmentHint}}" class="hint-text small-gap">{{req.attachmentHint}}</view>
+        <view class="image-grid">
+          <view wx:for="{{req.files}}" wx:for-item="file" wx:for-index="fileIndex" wx:key="tempPath" class="image-item">
+            <image wx:if="{{file.isImage !== false}}" class="thumb" src="{{file.tempPath}}" mode="aspectFill" data-idx="{{reqIndex}}" data-file-idx="{{fileIndex}}" bindtap="previewRequirementFile" />
+            <view wx:else class="file-thumb">
+              <text class="file-icon">FILE</text>
+              <text class="file-name">{{file.displayName || '附件'}}</text>
+            </view>
+            <view class="remove" data-idx="{{reqIndex}}" data-file-idx="{{fileIndex}}" bindtap="removeRequirementFile">×</view>
+            <view wx:if="{{file.uploaded}}" class="badge-ok">✓</view>
+          </view>
+          <view class="image-add" wx:if="{{req.files.length < req.attachmentMaxCount}}" data-idx="{{reqIndex}}" bindtap="chooseRequirementFile">
+            <text class="add-plus">+</text>
+            <text class="add-text">添加材料</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{req.submitFlags.LEARNING}}" class="requirement-section">
+        <view class="section-title sub-title">学习材料确认 <text wx:if="{{req.required}}" class="required">*</text></view>
+        <view wx:if="{{req.learningMaterials.length > 0}}" class="learning-list">
+          <view wx:for="{{req.learningMaterials}}" wx:for-item="material" wx:key="name" class="learning-item">{{material.name || material.url || '学习材料'}}</view>
+        </view>
+        <view class="check-row" data-idx="{{reqIndex}}" bindtap="toggleRequirementLearning">
+          <view class="checkbox {{req.learningConfirmed ? 'checked' : ''}}">
+            <text wx:if="{{req.learningConfirmed}}">✓</text>
+          </view>
+          <text class="check-label">我已阅读并确认本要求项关联学习材料</text>
+        </view>
+      </view>
+
+      <view wx:if="{{req.submitFlags.QUIZ}}" class="requirement-section">
+        <view class="section-title sub-title">题库答题 <text wx:if="{{req.required}}" class="required">*</text></view>
+        <view class="quiz-box">
+          <view class="quiz-status {{quizDone ? 'done' : ''}}">
+            {{quizDone ? '已完成题库答题' : '请先进入题库完成作答'}}
+            <text wx:if="{{req.quizQuestionCount}}"> · {{req.quizQuestionCount}} 题</text>
+            <text wx:if="{{req.quizPassScore}}"> · 通过分 {{req.quizPassScore}}</text>
+          </view>
+          <button class="btn-secondary" size="mini" bindtap="goQuiz">{{quizDone ? '重新答题' : '去答题'}}</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">补充说明（可选）</view>
+      <textarea
+        class="textarea"
+        placeholder="可补充本次任务整体情况"
+        maxlength="2000"
+        auto-height
+        value="{{submitText}}"
+        bindinput="inputText"
+      />
+      <view class="count">{{submitTextLen}} / 2000</view>
+    </view>
+  </block>
+
+  <view class="card" wx:if="{{!requirementForms.length && showLearning}}">
+    <view class="section-title">学习确认 <text wx:if="{{submitConfig.learning.requiresConfirmation}}" class="required">*</text></view>
+    <view class="check-row" bindtap="toggleLearningConfirm">
+      <view class="checkbox {{learningConfirmed ? 'checked' : ''}}">
+        <text wx:if="{{learningConfirmed}}">✓</text>
+      </view>
+      <text class="check-label">我已阅读并确认本任务关联的学习材料</text>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{!requirementForms.length && showTaskItems}}">
+    <view class="section-title">检查项填写 <text class="required">*</text></view>
+    <view wx:for="{{taskItemInputs}}" wx:key="id" class="task-item-field">
+      <view class="task-item-title">
+        <text wx:if="{{item.clauseNo}}" class="muted">[{{item.clauseNo}}] </text>{{item.title}}
+      </view>
+      <textarea
+        class="textarea compact"
+        placeholder="请填写该检查项的执行情况、结果或异常说明"
+        maxlength="1000"
+        auto-height
+        value="{{item.value}}"
+        data-idx="{{index}}"
+        bindinput="inputTaskItem"
+      />
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{!requirementForms.length && showQuiz}}">
+    <view class="section-title">题库答题 <text wx:if="{{submitConfig.quiz.required}}" class="required">*</text></view>
+    <view class="quiz-box">
+      <view class="quiz-status {{quizDone ? 'done' : ''}}">{{quizDone ? '已完成题库答题' : '请先进入题库完成作答'}}</view>
+      <button class="btn-secondary" size="mini" bindtap="goQuiz">{{quizDone ? '重新答题' : '去答题'}}</button>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{!requirementForms.length && showText}}">
+    <view class="section-title">{{textLabel}} <text wx:if="{{textRequired}}" class="required">*</text></view>
+    <textarea
+      class="textarea"
+      placeholder="请填写任务完成情况，例如检查结果、处理过程、异常说明等"
+      maxlength="{{textMaxLength}}"
+      auto-height
+      value="{{submitText}}"
+      bindinput="inputText"
+    />
+    <view class="count">{{submitTextLen}} / {{textMaxLength}}</view>
+  </view>
+
+  <view class="card" wx:if="{{!requirementForms.length && showAttachment}}">
+    <view class="section-title">附件上传 <text wx:if="{{attachmentRequired}}" class="required">*</text><text class="muted small"> 至少 {{attachmentMinCount}} 份，最多 {{attachmentMaxCount}} 份</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files1}}" wx:key="tempPath" class="image-item">
+        <image wx:if="{{item.isImage !== false}}" class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage1" />
+        <view wx:else class="file-thumb">
+          <text class="file-icon">FILE</text>
+          <text class="file-name">{{item.displayName || '附件'}}</text>
+        </view>
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile1">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files1.length < attachmentMaxCount}}" bindtap="chooseAttachment">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加附件</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>
+
+<!-- ==================== TRAINING 培训确认 ==================== -->
+<view class="page" wx:if="{{!loading && !submitConfig && taskType === 'TRAINING'}}">
+
+  <!-- 培训签到表 -->
+  <view class="card">
+    <view class="section-title">培训签到表 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files1}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage1" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile1">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files1.length < 10}}" bindtap="chooseImage1">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 考核记录 -->
+  <view class="card">
+    <view class="section-title">考核记录 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files2}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage2" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile2">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files2.length < 10}}" bindtap="chooseImage2">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 已阅读确认 -->
+  <view class="card">
+    <view class="check-row" bindtap="toggleCheck" data-key="trainingConfirm">
+      <view class="checkbox {{checkValues.trainingConfirm ? 'checked' : ''}}">
+        <text wx:if="{{checkValues.trainingConfirm}}">✓</text>
+      </view>
+      <text class="check-label">我已阅读培训内容，并参与了相关培训 <text class="required">*</text></text>
+    </view>
+  </view>
+
+  <!-- 补充说明 -->
+  <view class="card">
+    <view class="section-title">补充说明（可选）</view>
+    <textarea class="textarea" placeholder="可补充说明（选填）" maxlength="2000" auto-height value="{{submitText}}" bindinput="inputText" />
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>
+
+
+<!-- ==================== QUALIFICATION_MATERIAL 资质材料 ==================== -->
+<view class="page" wx:elif="{{!loading && !submitConfig && taskType === 'QUALIFICATION_MATERIAL'}}">
+
+  <!-- 证件正面 -->
+  <view class="card">
+    <view class="section-title">证件正面照片 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files1}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage1" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile1">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files1.length < 5}}" bindtap="chooseImage1">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 证件背面 -->
+  <view class="card">
+    <view class="section-title">证件背面照片 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files2}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage2" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile2">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files2.length < 5}}" bindtap="chooseImage2">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 证件编号 -->
+  <view class="card">
+    <view class="section-title">证件编号 <text class="required">*</text></view>
+    <input class="input-field" placeholder="请输入证件编号" value="{{inputValues.certNo}}" data-key="certNo" bindinput="inputField" />
+  </view>
+
+  <!-- 有效期至 -->
+  <view class="card">
+    <view class="section-title">有效期至 <text class="required">*</text></view>
+    <input class="input-field" placeholder="如：2027-05-31" value="{{inputValues.certExpiry}}" data-key="certExpiry" bindinput="inputField" />
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>
+
+
+<!-- ==================== ONBOARDING_ACCESS 上岗准入 ==================== -->
+<view class="page" wx:elif="{{!loading && !submitConfig && taskType === 'ONBOARDING_ACCESS'}}">
+
+  <!-- 已了解要求 -->
+  <view class="card">
+    <view class="check-row" bindtap="toggleCheck" data-key="onboardConfirm">
+      <view class="checkbox {{checkValues.onboardConfirm ? 'checked' : ''}}">
+        <text wx:if="{{checkValues.onboardConfirm}}">✓</text>
+      </view>
+      <text class="check-label">我已了解本岗位全部操作规范与安全要求 <text class="required">*</text></text>
+    </view>
+  </view>
+
+  <!-- 上岗日期 -->
+  <view class="card">
+    <view class="section-title">上岗日期 <text class="required">*</text></view>
+    <input class="input-field" placeholder="如：2026-05-20" value="{{inputValues.onboardDate}}" data-key="onboardDate" bindinput="inputField" />
+  </view>
+
+  <!-- 本人签名确认 -->
+  <view class="card">
+    <view class="section-title">本人签名确认</view>
+    <view class="signature-area" bindtap="tapSignature">
+      <text class="signature-hint" wx:if="{{!checkValues.onboardConfirm}}">请先勾选上方确认项</text>
+      <text class="signature-hint" wx:elif="{{!signatureDone}}">点击此处签名</text>
+      <text class="signature-done" wx:else>✓ 签名已完成</text>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>
+
+
+<!-- ==================== INSPECTION_FILL 检查填报 ==================== -->
+<view class="page" wx:elif="{{!loading && !submitConfig && taskType === 'INSPECTION_FILL'}}">
+
+  <!-- 检查清单 -->
+  <view class="card">
+    <view class="section-title">检查清单</view>
+    <view
+      wx:for="{{checklistItems}}"
+      wx:key="*this"
+      class="check-row"
+      data-idx="{{index}}"
+      bindtap="toggleChecklistItem"
+    >
+      <view class="checkbox {{checklistValues[index] ? 'checked' : ''}}">
+        <text wx:if="{{checklistValues[index]}}">✓</text>
+      </view>
+      <text class="check-label">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 现场照片 -->
+  <view class="card">
+    <view class="section-title">现场照片 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files1}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage1" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile1">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files1.length < 10}}" bindtap="chooseImage1">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 检查结论 -->
+  <view class="card">
+    <view class="section-title">检查结论 <text class="required">*</text></view>
+    <picker mode="selector" range="{{conclusions}}" value="{{conclusionIndex < 0 ? 0 : conclusionIndex}}" bindchange="pickerConclusion">
+      <view class="picker-field {{conclusionIndex >= 0 ? '' : 'placeholder'}}">
+        {{conclusionIndex >= 0 ? conclusions[conclusionIndex] : '请选择检查结论'}}
+        <text class="picker-arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 备注 -->
+  <view class="card">
+    <view class="section-title">备注</view>
+    <textarea class="textarea" placeholder="可补充说明（选填）" maxlength="2000" auto-height value="{{submitText}}" bindinput="inputText" />
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>
+
+
+<!-- ==================== RECTIFICATION 整改闭环 ==================== -->
+<view class="page" wx:elif="{{!loading && !submitConfig && taskType === 'RECTIFICATION'}}">
+
+  <!-- 整改前照片 -->
+  <view class="card">
+    <view class="section-title">整改前照片 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files1}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage1" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile1">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files1.length < 10}}" bindtap="chooseImage1">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 整改后照片 -->
+  <view class="card">
+    <view class="section-title">整改后照片 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files2}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage2" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile2">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files2.length < 10}}" bindtap="chooseImage2">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 整改说明 -->
+  <view class="card">
+    <view class="section-title">整改说明 <text class="required">*</text></view>
+    <textarea class="textarea" placeholder="请描述整改措施及结果" maxlength="2000" auto-height value="{{submitText}}" bindinput="inputText" />
+    <view class="count">{{submitTextLen}} / 2000</view>
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>
+
+
+<!-- ==================== ARCHIVE_MATERIAL 资料归档 ==================== -->
+<view class="page" wx:elif="{{!loading && !submitConfig && taskType === 'ARCHIVE_MATERIAL'}}">
+
+  <!-- 归档材料上传 -->
+  <view class="card">
+    <view class="section-title">归档材料 <text class="required">*</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files1}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage1" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile1">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files1.length < 20}}" bindtap="chooseImage1">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 材料名称 -->
+  <view class="card">
+    <view class="section-title">材料名称 <text class="required">*</text></view>
+    <input class="input-field" placeholder="请输入材料名称" value="{{inputValues.materialName}}" data-key="materialName" bindinput="inputField" />
+  </view>
+
+  <!-- 归档说明 -->
+  <view class="card">
+    <view class="section-title">归档说明</view>
+    <textarea class="textarea" placeholder="可补充说明（选填）" maxlength="1000" auto-height value="{{submitText}}" bindinput="inputText" />
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>
+
+
+<!-- ==================== 通用兜底（未知 taskType）==================== -->
+<view class="page" wx:if="{{!loading && !submitConfig && taskType !== 'TRAINING' && taskType !== 'QUALIFICATION_MATERIAL' && taskType !== 'ONBOARDING_ACCESS' && taskType !== 'INSPECTION_FILL' && taskType !== 'RECTIFICATION' && taskType !== 'ARCHIVE_MATERIAL'}}">
+  <view class="card">
+    <view class="section-title">文字说明 <text class="required">*</text></view>
+    <textarea
+      class="textarea"
+      placeholder="请描述任务完成情况，例如检查项、设备状态、数值结果等"
+      maxlength="5000"
+      auto-height
+      value="{{submitText}}"
+      bindinput="inputText"
+    />
+    <view class="count">{{submitTextLen}} / 5000</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">图片附件 <text class="required">*</text><text class="muted small"> 至少 1 张，最多 20 张</text></view>
+    <view class="image-grid">
+      <view wx:for="{{files1}}" wx:key="tempPath" class="image-item">
+        <image class="thumb" src="{{item.tempPath}}" mode="aspectFill" data-idx="{{index}}" bindtap="previewImage1" />
+        <view class="remove" data-idx="{{index}}" bindtap="removeFile1">×</view>
+        <view wx:if="{{item.uploaded}}" class="badge-ok">✓</view>
+      </view>
+      <view class="image-add" wx:if="{{files1.length < 20}}" bindtap="chooseImage1">
+        <text class="add-plus">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit">提交审核</button>
+  </view>
+</view>

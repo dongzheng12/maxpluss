@@ -1,0 +1,84 @@
+.DS_Store
+node_modules
+.pnpm-store
+.local/
+.env
+.env.*
+!.env.example
+!.env.*.template
+!.env.smoke.example
+/dist
+/build
+/out
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.db.bak.*
+__pycache__
+
+# 本地工具 / 虚拟环境
+.claude/
+.venv*/
+services/ppshitu/.venv/
+services/ppshitu/models/
+
+# 证书/密钥（绝不入库）
+services/api/certs/
+# 阿里云下载的证书包（含 .key 私钥）— 根目录也禁止
+/[0-9]*_*_nginx/
+/[0-9]*_*_nginx.zip
+*.key
+*.pem
+
+# 数据文件（大文件不入库）
+data/pdfs/
+data/*.json
+data/*.enc
+data/*.csv
+data/crawled_v2/
+data/csv/
+data/tc/
+data/rules/
+data/.fuse_hidden*
+data/ARCHIVE_NOTES.md
+
+# FUSE 临时残留（任意目录，文件被打开时被删除的残留）
+**/.fuse_hidden*
+
+# 运行时产物
+services/api/uploads/
+/uploads/
+services/api/prisma/*.bak.*
+archive/
+# 例外：必读/archive/ 是必读铁律规定的归档位置（task-*.md / 旧版必读 / deploy-checklist），必须入库
+!必读/archive/
+!必读/archive/**
+# 上面的否定规则会把 .DS_Store 重新包含，单独再排除
+必读/archive/**/.DS_Store
+
+# 本地 pm2 配置（含本机绝对路径，机器特定）
+services/api/ecosystem.config.cjs
+
+# 一次性验收/内部报告（保留本地，不入库）
+/专家评审*验收报告_*.md
+
+# 小程序本地配置
+apps/mp-weixin/project.private.config.json
+
+# 构建产物
+apps/web/dist/
+apps/web/playwright-report/
+apps/web/test-results/
+支付/
+
+# pSEO 静态产物（484K HTML + sitemap + manifest，约 2GB；由 scripts/generate-seo-pages.js 生成）
+data/seo-pages/
+
+# RAG POC 产物（向量召回索引 + CentOS 7 离线 wheel 缓存，体积 1.2GB；超 GitHub 100MB 单文件限制）
+# 重建命令：cd services/python-search-legacy && python build_vec_index.py
+# 详见 memory/project_bxz_rag_poc_2026_05_21.md
+data/*.faiss
+services/python-search-legacy/wheels-linux/
+# data/standards_vec_codes.json 已被 data/*.json 规则覆盖（line 36），此处仅文档化

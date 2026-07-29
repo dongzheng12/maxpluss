@@ -1,0 +1,75 @@
+/* 流式光标动画 */
+.streaming-cursor {
+  display: inline-block;
+  animation: blink 0.8s step-end infinite;
+  color: #722ed1;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Markdown 样式 */
+/* 宽内容（表格、代码块）可横向滚动，避免溢出气泡 */
+.chat-markdown {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.chat-markdown p {
+  margin: 0 0 8px;
+}
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3,
+.chat-markdown h4,
+.chat-markdown h5,
+.chat-markdown h6 {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 10px 0 6px;
+  color: #1f2d3d;
+}
+.chat-markdown hr {
+  border: none;
+  border-top: 1px solid #e7edf7;
+  margin: 10px 0;
+}
+.chat-markdown ul, .chat-markdown ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+.chat-markdown li {
+  margin-bottom: 2px;
+}
+.chat-markdown table {
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.chat-markdown th, .chat-markdown td {
+  border: 1px solid #d9d9d9;
+  padding: 4px 8px;
+}
+.chat-markdown th {
+  background: #fafafa;
+}
+.chat-markdown code {
+  background: #f5f5f5;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.chat-markdown strong {
+  color: #1677ff;
+}
+
+/* 会话列表 hover 显示删除按钮 */
+.chat-conv-item:hover .chat-conv-edit,
+.chat-conv-item:hover .chat-conv-delete {
+  opacity: 1 !important;
+}

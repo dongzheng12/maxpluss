@@ -1,0 +1,4 @@
+.booking-record-card { padding: 24rpx; margin-bottom: 18rpx; }
+.booking-record-head { align-items: flex-start; margin-bottom: 10rpx; gap: 16rpx; }
+.booking-record-title { font-size: 34rpx; font-weight: 700; line-height: 1.45; }
+.booking-record-desc { margin-top: 18rpx; font-size: 29rpx; line-height: 1.7; color: #5f6b81; }

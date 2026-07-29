@@ -1,0 +1,6 @@
+.invoice-card { padding: 24rpx; margin-bottom: 18rpx; }
+.invoice-type-row { display: flex; gap: 18rpx; }
+.invoice-type-btn { flex: 1; min-height: 88rpx; border-radius: 24rpx; border: 1rpx solid #d7deea; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 34rpx; font-weight: 700; }
+.invoice-type-btn.active { background: #edf3ff; border-color: #2b63f6; color: #2b63f6; }
+.invoice-input, .invoice-textarea { width: 100%; min-height: 88rpx; margin-top: 18rpx; padding: 0 22rpx; border: 1rpx solid #d6dce6; border-radius: 20rpx; box-sizing: border-box; background: #fff; font-size: 30rpx; }
+.invoice-textarea { min-height: 180rpx; padding: 20rpx 22rpx; }

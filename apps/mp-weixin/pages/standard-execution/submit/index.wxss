@@ -1,0 +1,337 @@
+.page { background: #f5f5f7; min-height: 100vh; padding-bottom: 200rpx; }
+
+.card {
+  background: #fff;
+  margin: 16rpx;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.04);
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+.required { color: #f5222d; }
+.muted { color: #999; font-weight: normal; }
+.small { font-size: 24rpx; }
+
+.mode-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-bottom: 16rpx;
+}
+.mode-tag {
+  font-size: 22rpx;
+  color: #1677ff;
+  background: #e6f4ff;
+  border-radius: 999rpx;
+  padding: 6rpx 16rpx;
+}
+.hint-text {
+  font-size: 26rpx;
+  color: #64748b;
+  line-height: 40rpx;
+}
+.small-gap { margin-top: 8rpx; }
+
+.submit-guide {
+  border-left: 8rpx solid #1677ff;
+}
+
+.requirement-card {
+  border: 1rpx solid #e2e8f0;
+}
+.requirement-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+.requirement-index {
+  min-width: 56rpx;
+  height: 44rpx;
+  border-radius: 999rpx;
+  background: #e6f4ff;
+  color: #1677ff;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 44rpx;
+  text-align: center;
+}
+.requirement-title-wrap { flex: 1; min-width: 0; }
+.requirement-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #172033;
+  line-height: 44rpx;
+}
+.requirement-desc {
+  margin-top: 8rpx;
+  font-size: 25rpx;
+  line-height: 38rpx;
+  color: #64748b;
+}
+.requirement-tags { margin-top: 18rpx; }
+.requirement-section {
+  margin-top: 22rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #edf2f7;
+}
+.sub-title {
+  font-size: 26rpx;
+  margin-bottom: 12rpx;
+}
+.structured-field + .structured-field {
+  margin-top: 16rpx;
+}
+.field-label {
+  margin-bottom: 8rpx;
+  font-size: 25rpx;
+  color: #475569;
+  font-weight: 600;
+}
+.learning-list {
+  margin-bottom: 12rpx;
+  background: #f8fafc;
+  border-radius: 8rpx;
+  padding: 12rpx 16rpx;
+}
+.learning-item {
+  font-size: 25rpx;
+  line-height: 38rpx;
+  color: #475569;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 200rpx;
+  font-size: 28rpx;
+  line-height: 44rpx;
+  padding: 16rpx;
+  background: #fafafa;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+}
+.textarea.compact {
+  min-height: 120rpx;
+  margin-top: 12rpx;
+}
+.count {
+  text-align: right;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.task-item-field {
+  padding: 18rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+}
+.task-item-field:first-of-type { border-top: none; }
+.task-item-title {
+  font-size: 26rpx;
+  color: #333;
+  line-height: 40rpx;
+}
+
+.quiz-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+.quiz-status {
+  flex: 1;
+  font-size: 26rpx;
+  color: #fa8c16;
+}
+.quiz-status.done { color: #52c41a; }
+.btn-secondary {
+  background: #eef4ff;
+  color: #1677ff;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.image-item, .image-add {
+  width: calc((100% - 32rpx) / 3);
+  aspect-ratio: 1;
+  border-radius: 8rpx;
+  position: relative;
+  overflow: hidden;
+}
+.thumb { width: 100%; height: 100%; }
+.file-thumb {
+  width: 100%;
+  height: 100%;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12rpx;
+  box-sizing: border-box;
+}
+.file-icon {
+  font-size: 22rpx;
+  color: #1677ff;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+.file-name {
+  font-size: 20rpx;
+  color: #475569;
+  line-height: 28rpx;
+  text-align: center;
+  word-break: break-all;
+}
+.remove {
+  position: absolute;
+  top: 4rpx;
+  right: 4rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  text-align: center;
+  line-height: 40rpx;
+  font-size: 28rpx;
+}
+.badge-ok {
+  position: absolute;
+  bottom: 4rpx;
+  right: 4rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: #52c41a;
+  color: #fff;
+  text-align: center;
+  line-height: 36rpx;
+  font-size: 24rpx;
+}
+
+.image-add {
+  background: #fafafa;
+  border: 2rpx dashed #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.add-plus {
+  font-size: 60rpx;
+  color: #ccc;
+  line-height: 60rpx;
+}
+.add-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* ── 单行输入 ── */
+.input-field {
+  width: 100%;
+  height: 80rpx;
+  font-size: 28rpx;
+  padding: 0 16rpx;
+  background: #fafafa;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #eee;
+}
+
+/* ── 复选框行 ── */
+.check-row {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  min-height: 72rpx;
+}
+.check-row + .check-row {
+  border-top: 1rpx solid #f0f0f0;
+}
+.checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 8rpx;
+  border: 2rpx solid #d9d9d9;
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 28rpx;
+  color: #fff;
+  background: #fff;
+}
+.checkbox.checked {
+  background: #1677ff;
+  border-color: #1677ff;
+}
+.check-label {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+}
+
+/* ── Picker ── */
+.picker-field {
+  display: flex;
+  align-items: center;
+  height: 80rpx;
+  padding: 0 16rpx;
+  background: #fafafa;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #333;
+  border: 1rpx solid #eee;
+}
+.picker-field.placeholder {
+  color: #bbb;
+}
+.picker-arrow {
+  margin-left: auto;
+  font-size: 36rpx;
+  color: #bbb;
+}
+
+/* ── 签名区 ── */
+.signature-area {
+  border: 2rpx dashed #CBD5E1;
+  border-radius: 8rpx;
+  height: 120rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F8FAFC;
+  cursor: pointer;
+}
+.signature-hint {
+  font-size: 26rpx;
+  color: #94A3B8;
+}
+.signature-done {
+  font-size: 28rpx;
+  color: #10B981;
+  font-weight: 600;
+}
+
+/* ── Action bar ── */
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 32rpx;
+  background: #fff;
+  border-top: 1rpx solid #eee;
+}
+.action-bar button { width: 100%; }

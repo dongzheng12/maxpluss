@@ -1,0 +1,12 @@
+<view class="page-shell">
+  <view wx:if="{{loading}}" class="section-card empty-card">加载中...</view>
+
+  <view wx:elif="{{notFound}}" class="section-card empty-card">公告不存在或已下架</view>
+
+  <view wx:else class="section-card notice-detail-card">
+    <view class="notice-detail-title">{{notice.title}}</view>
+    <view class="notice-detail-date">{{notice.date}}</view>
+    <view class="notice-detail-divider"></view>
+    <view class="notice-detail-content">{{notice.content}}</view>
+  </view>
+</view>

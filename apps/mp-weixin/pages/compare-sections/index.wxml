@@ -1,0 +1,53 @@
+<view class="page-shell">
+  <view wx:if="{{loadingA || loadingB}}" class="loading-state">
+    <view class="meta-text">正在解析文档章节...</view>
+    <view class="meta-text" style="font-size: 24rpx; color: #999; margin-top: 16rpx;">大文档预计 30-180 秒，请耐心等待</view>
+    <view class="meta-text" style="font-size: 22rpx; color: #bbb; margin-top: 12rpx;">推荐使用文字版 PDF 或 docx 格式</view>
+  </view>
+
+  <view wx:else class="sections-layout">
+    <!-- 文档 A 章节 -->
+    <view class="section-col">
+      <view class="col-header">
+        <view class="col-title">{{fileAName}}</view>
+        <view wx:if="{{sectionsA.length}}" class="col-toggle" bindtap="toggleAllA">{{allCheckedA ? '取消全选' : '全选'}}</view>
+      </view>
+      <scroll-view scroll-y class="section-list">
+        <view wx:if="{{loadingA}}" class="empty-hint">正在解析...</view>
+        <view wx:elif="{{errorA}}" class="empty-hint error-hint">{{errorA}}</view>
+        <view wx:elif="{{sectionsA.length === 0}}" class="empty-hint">暂无章节</view>
+        <view wx:for="{{sectionsA}}" wx:key="id" class="section-item {{item.checked ? 'checked' : ''}}" data-idx="{{index}}" bindtap="toggleA">
+          <view class="checkbox-icon">{{item.checked ? '☑' : '☐'}}</view>
+          <text class="section-text">{{item.title}}</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 文档 B 章节 -->
+    <view class="section-col">
+      <view class="col-header">
+        <view class="col-title">{{fileBName}}</view>
+        <view wx:if="{{sectionsB.length}}" class="col-toggle" bindtap="toggleAllB">{{allCheckedB ? '取消全选' : '全选'}}</view>
+      </view>
+      <scroll-view scroll-y class="section-list">
+        <view wx:if="{{loadingB}}" class="empty-hint">正在解析...</view>
+        <view wx:elif="{{errorB}}" class="empty-hint error-hint">{{errorB}}</view>
+        <view wx:elif="{{sectionsB.length === 0}}" class="empty-hint">暂无章节</view>
+        <view wx:for="{{sectionsB}}" wx:key="id" class="section-item {{item.checked ? 'checked' : ''}}" data-idx="{{index}}" bindtap="toggleB">
+          <view class="checkbox-icon">{{item.checked ? '☑' : '☐'}}</view>
+          <text class="section-text">{{item.title}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view class="ai-disclaimer">内容由 AI 生成，仅供参考</view>
+
+  <!-- 底部操作 -->
+  <view class="bottom-bar">
+    <view class="selected-info">
+      已选 A: {{checkedCountA}} 项 · B: {{checkedCountB}} 项
+    </view>
+    <view class="primary-btn {{comparing || loadingA || loadingB ? 'btn-disabled' : ''}}" bindtap="startCompare">{{comparing ? '跳转中...' : '开始比对'}}</view>
+  </view>
+</view>

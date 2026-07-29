@@ -1,0 +1,23 @@
+<view class="ent-home">
+  <view class="ent-header">
+    <text class="ent-title">企业工作台</text>
+    <text class="ent-role">当前身份：{{roleLabel}}</text>
+  </view>
+
+  <view class="entry-list">
+    <view
+      class="entry-card"
+      wx:for="{{entries}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="tapEntry"
+    >
+      <text class="entry-icon">{{item.icon}}</text>
+      <view class="entry-body">
+        <text class="entry-label">{{item.label}}</text>
+        <text class="entry-desc">{{item.desc}}</text>
+      </view>
+      <text class="entry-arrow">›</text>
+    </view>
+  </view>
+</view>

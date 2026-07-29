@@ -1,0 +1,53 @@
+<view class="page">
+  <!-- 表单态 -->
+  <view class="form-card" wx:if="{{!submitted}}">
+    <text class="form-title">申请企业版</text>
+    <text class="form-desc">填写信息提交申请，我们将尽快与您联系</text>
+
+    <view class="form-group">
+      <text class="label">姓名</text>
+      <input class="input" placeholder="请输入您的姓名" maxlength="50" value="{{name}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="label">职位</text>
+      <input class="input" placeholder="请输入您的职位" maxlength="50" value="{{position}}" bindinput="onPositionInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="label">公司名称</text>
+      <input class="input" placeholder="请输入公司名称" maxlength="100" value="{{company}}" bindinput="onCompanyInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="label">联系手机</text>
+      <input class="input" type="number" maxlength="11" placeholder="请输入手机号" value="{{phone}}" bindinput="onPhoneInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="label">需求描述</text>
+      <textarea class="textarea" placeholder="请简要描述您的需求" maxlength="1000" value="{{requirement}}" bindinput="onRequirementInput" auto-height="{{false}}" />
+    </view>
+
+    <button
+      class="btn-submit"
+      bindtap="onSubmit"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >
+      {{loading ? '提交中...' : '提交申请'}}
+    </button>
+
+    <text class="footer-tip">企业版需结合企业业务场景、数据基础和系统环境进行方案评估后开通</text>
+  </view>
+
+  <!-- 成功态 -->
+  <view class="success-page" wx:if="{{submitted}}">
+    <view class="success-icon">
+      <text class="success-check">✓</text>
+    </view>
+    <text class="success-title">申请已提交</text>
+    <text class="success-desc">商务团队将在 1-2 个工作日内联系您</text>
+    <button class="btn-home" bindtap="goHome">返回首页</button>
+  </view>
+</view>

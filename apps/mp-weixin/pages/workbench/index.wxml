@@ -1,0 +1,6 @@
+<view class="page">
+  <view class="placeholder">
+    <view style="font-size:32rpx;font-weight:600;margin-bottom:12rpx">我的工作台</view>
+    <view style="font-size:26rpx;color:#7f8898;line-height:1.6">该模块正在开发中，相关入口将在下个版本逐步开放。常用功能可在「首页」或「工具」中直接使用。</view>
+  </view>
+</view>

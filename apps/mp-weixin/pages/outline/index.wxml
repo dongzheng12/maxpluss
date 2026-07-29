@@ -1,0 +1,161 @@
+<view class="page-shell">
+  <!-- 输入区 -->
+  <view class="section-card input-card">
+    <!-- 标准类型选择 -->
+    <view class="field-group">
+      <view class="field-label">标准类型</view>
+      <picker mode="selector" range="{{stdTypeLabels}}" value="{{selectedTypeIndex}}" bindchange="onTypePick">
+        <view class="select-box">
+          <text class="select-text {{selectedTypeIndex > 0 ? 'selected' : ''}}">{{stdTypeLabels[selectedTypeIndex]}}</text>
+          <text class="select-arrow">▾</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 内容描述 -->
+    <view class="field-group">
+      <view class="field-label">描述你要规范的内容</view>
+      <view class="textarea-wrap {{descFocus ? 'focus' : ''}}">
+        <textarea class="outline-textarea" placeholder="例如：不锈钢管、食品添加剂、焊接操作规程…" value="{{description}}" bindinput="onDescInput" bindfocus="onDescFocus" bindblur="onDescBlur" maxlength="200" auto-height />
+        <view class="char-count">{{description.length}}/200</view>
+      </view>
+    </view>
+
+    <!-- 生成按钮 -->
+    <view class="gen-btn {{loading || !description ? 'disabled' : ''}}" bindtap="generate">
+      <text wx:if="{{loading}}" class="gen-btn-text">生成中...</text>
+      <text wx:else class="gen-btn-text">生成标准大纲</text>
+    </view>
+
+    <!-- 快捷示例 -->
+    <view class="example-section">
+      <view class="example-label">快捷输入</view>
+      <view class="example-tags">
+        <view wx:for="{{exampleTags}}" wx:key="*this" class="example-tag" data-text="{{item}}" bindtap="tapExample">{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 模板 + 章节数 -->
+  <view wx:if="{{result}}" class="section-card result-meta-card">
+    <view class="meta-simple">
+      <view class="meta-template">{{result.matched_template || '标准大纲'}}</view>
+      <view class="meta-count">共 {{result.outline.length}} 个章节</view>
+    </view>
+  </view>
+
+  <!-- 大纲树 -->
+  <view wx:if="{{result}}" class="section-card outline-card">
+    <view class="card-header">
+      <view class="card-header-left">
+        <view class="card-header-icon blue">目</view>
+        <text class="card-header-title">标准大纲</text>
+      </view>
+      <view class="legend-row">
+        <view class="legend-item"><view class="legend-dot blue"></view><text>可编辑</text></view>
+        <view class="legend-item"><view class="legend-dot gray"></view><text>固定</text></view>
+      </view>
+    </view>
+
+    <block wx:for="{{result.outline}}" wx:key="clause">
+      <view class="clause-item {{item.editable ? 'editable' : 'fixed'}}">
+        <view class="clause-head" data-clause="{{item.clause}}" bindtap="toggleClause">
+          <view class="clause-indicator"></view>
+          <text class="clause-number">{{item.clause}}</text>
+          <text class="clause-title">{{item.title}}</text>
+          <text wx:if="{{!item.editable}}" class="clause-fixed-tag">固定</text>
+          <text class="clause-arrow {{expandedClauses[item.clause] ? 'expanded' : ''}}">▸</text>
+        </view>
+
+        <view wx:if="{{expandedClauses[item.clause]}}" class="clause-body" style="animation: slideDown 0.2s ease">
+          <view wx:if="{{item.content}}" class="clause-content">{{item.content}}</view>
+          <view wx:if="{{item.note}}" class="clause-note">
+            <text class="note-icon">i</text>
+            <text>{{item.note}}</text>
+          </view>
+
+          <!-- 子条款 -->
+          <block wx:if="{{item.children}}" wx:for="{{item.children}}" wx:for-item="child" wx:key="clause">
+            <view class="child-item">
+              <view class="child-head" data-key="{{child.clause}}" bindtap="toggleChild">
+                <text class="child-number">{{child.clause}}</text>
+                <text class="child-title">{{child.title}}</text>
+                <text class="child-arrow {{expandedClauses[child.clause] ? 'expanded' : ''}}">▸</text>
+              </view>
+              <view wx:if="{{expandedClauses[child.clause]}}" class="child-body">
+                <view wx:if="{{child.content}}" class="clause-content">{{child.content}}</view>
+                <view wx:if="{{child.note}}" class="clause-note">
+                  <text class="note-icon">i</text>
+                  <text>{{child.note}}</text>
+                </view>
+              </view>
+            </view>
+          </block>
+
+          <!-- 注入的规范性引用 -->
+          <block wx:if="{{item.injected_refs}}">
+            <view class="ref-section">
+              <view class="ref-section-title">规范性引用文件</view>
+              <view wx:for="{{item.injected_refs}}" wx:for-item="ref" wx:key="code" class="ref-item">
+                <text class="ref-code">{{ref.code}}</text>
+                <text class="ref-name">{{ref.name}}</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 附录 -->
+  <view wx:if="{{result.appendices.length}}" class="section-card appendix-card">
+    <view class="card-header">
+      <view class="card-header-left">
+        <view class="card-header-icon orange">附</view>
+        <text class="card-header-title">附录</text>
+      </view>
+      <text class="card-header-badge">{{result.appendices.length}} 项</text>
+    </view>
+    <view wx:for="{{result.appendices}}" wx:key="title" class="appendix-item">
+      <view class="appendix-type {{item.type === 'normative' ? 'normative' : 'informative'}}">{{item.type === 'normative' ? '规范性' : '资料性'}}</view>
+      <view class="appendix-body">
+        <text class="appendix-title">{{item.title}}</text>
+        <view wx:if="{{item.content}}" class="appendix-content">{{item.content}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关联标准 -->
+  <view wx:if="{{result.related_standards.length}}" class="section-card related-card">
+    <view class="card-header">
+      <view class="card-header-left">
+        <view class="card-header-icon green">引</view>
+        <text class="card-header-title">关联标准</text>
+      </view>
+      <text class="card-header-badge">{{result.related_standards.length}} 项</text>
+    </view>
+    <view wx:for="{{result.related_standards}}" wx:key="code" class="related-item">
+      <text class="related-code">{{item.code}}</text>
+      <text class="related-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{!result && !loading && !error}}" class="empty-state">
+    <view class="empty-illustration">
+      <view class="empty-circle">
+        <text class="empty-glyph">目</text>
+      </view>
+    </view>
+    <view class="empty-text-main">一句话描述，自动生成标准文件架构</view>
+    <view class="empty-text-sub">基于 GB/T 1.1 标准化文件结构规则</view>
+  </view>
+
+  <!-- 错误 -->
+  <view wx:if="{{error}}" class="error-toast">
+    <text class="error-icon">!</text>
+    <text>{{error}}</text>
+  </view>
+
+  <view class="ai-disclaimer">内容由 AI 生成，仅供参考</view>
+</view>

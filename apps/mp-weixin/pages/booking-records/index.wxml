@@ -1,0 +1,18 @@
+<view class="page-shell">
+  <view wx:if="{{loading}}" class="section-card empty-card">加载中...</view>
+
+  <block wx:elif="{{records.length}}">
+    <block wx:for="{{records}}" wx:key="id">
+      <view class="section-card booking-record-card" hover-class="booking-record-card-hover" data-id="{{item.id}}" bindtap="onRecordTap">
+        <view class="row-between booking-record-head">
+          <view class="booking-record-title">{{item.title}}</view>
+          <view class="tag {{item.statusClass}}">{{item.status}}</view>
+        </view>
+        <view class="meta-text">{{item.createdAt}}</view>
+        <view class="booking-record-desc">{{item.desc}}</view>
+      </view>
+    </block>
+  </block>
+
+  <view wx:else class="section-card empty-card">当前没有预约历史记录。</view>
+</view>

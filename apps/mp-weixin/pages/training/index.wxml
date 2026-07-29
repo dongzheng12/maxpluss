@@ -1,0 +1,8 @@
+<view class="page-shell">
+  <view class="coming-soon-card section-card">
+    <view class="coming-icon">PX</view>
+    <view class="coming-title">培训服务</view>
+    <view class="coming-desc">敬请期待</view>
+    <view class="coming-sub">标准化培训、内审员培训、专题讲座等服务即将上线</view>
+  </view>
+</view>

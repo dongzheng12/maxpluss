@@ -1,0 +1,68 @@
+/* ============================================================
+ * sales-landing scoped styles
+ * 所有规则只作用于 .sales-root 容器内，防止打到 AntD 页面
+ * ============================================================ */
+
+/* 轻量 preflight 补丁：给"裸"<button>（无 class）一个干净起点
+ * 整个选择器包进 :where() 让 specificity 整体降到 (0,0,0)，
+ * 任何 Tailwind utility class 都能覆盖（避免吃掉 shadcn Button 的渐变/描边/padding）*/
+:where(.sales-root button) {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.sales-root img,
+.sales-root svg {
+  display: block;
+  max-width: 100%;
+}
+.sales-root h1,
+.sales-root h2,
+.sales-root h3 {
+  font-weight: 500;
+}
+
+/* iOS 安全区 */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Logo 处理：只显示左侧 mark 图形部分（原图是横排 mark+文字） */
+/* - 容器 40×40 圆角背景块
+ * - 图按 height:100% 自然放大（不 contain / 不 cover），宽度超出后 overflow:hidden 裁右边文字
+ * - filter: invert 把黑 logo 反成白，配合蓝色渐变背景
+ */
+/* Logo：蓝色渐变圆角背景 + 内嵌 mark（反白显示）
+ * 用 background-image 分层控制：
+ * - 外层 .sales-logo-wrap 是渐变蓝底
+ * - 内层 .sales-logo-mark 是 mark 本身（带 invert 滤镜单独反白，不影响底色）
+ * - 只截 logo 左侧 mark 区域（背景图 width 放大到容器 4 倍 → mark 正好对齐容器宽）
+ */
+.sales-logo-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.sales-logo-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 4px;                              /* 内边距 4px，让 mark 周围留白 */
+  /* 原图 2914×800，mark 在 x≈60-895（宽 835，高 800，稍宽于正方形）
+   * bg-size auto 85%：bg 高度 ≈ 24，mark 宽度 ≈ 25（在 28px ::before 内完整）
+   * bg-position left：bg 左缘对齐 ::before，mark 自然靠左完整显示 */
+  background-image: url('/logo-smart-standard.png');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: auto 85%;
+  filter: invert(1) brightness(2);
+}
+.sales-logo-wrap img {
+  display: none;
+}

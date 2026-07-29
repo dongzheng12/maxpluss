@@ -1,0 +1,179 @@
+<view class="chat-page">
+  <!-- 顶部栏 -->
+  <view class="top-bar">
+    <view class="top-bar-brand">
+      <view class="top-bar-title">呼叫小智</view>
+    </view>
+    <view class="top-bar-actions">
+      <view class="top-bar-action" bindtap="toggleHistory">
+        <text class="top-bar-action-text">历史</text>
+      </view>
+      <view class="top-bar-action top-bar-action-primary" bindtap="createConversation">
+        <text class="top-bar-action-text">+ 新对话</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史会话弹出层 -->
+  <view wx:if="{{showHistory}}" class="history-mask" bindtap="toggleHistory">
+    <view class="history-panel" catchtap="">
+      <view class="history-header">
+        <text class="history-title">对话历史</text>
+      </view>
+      <scroll-view scroll-y class="history-list">
+        <view wx:if="{{conversations.length === 0}}" class="history-empty">暂无对话</view>
+        <view
+          wx:for="{{conversations}}" wx:key="id"
+          class="history-item {{item.id === currentConvId ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          data-title="{{item.title}}"
+          bindtap="switchConversation"
+          bindlongpress="onConvLongPress"
+        >
+          <text class="history-item-title">{{item.title}}</text>
+          <text class="history-item-time">{{item.timeLabel}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 消息列表 -->
+  <scroll-view
+    scroll-y
+    class="message-list"
+    scroll-into-view="{{scrollToId}}"
+    scroll-with-animation
+  >
+  <view class="message-list-inner">
+    <!-- 欢迎界面 -->
+    <view wx:if="{{showWelcome}}" class="welcome">
+      <view class="welcome-title">想查什么标准？</view>
+      <view class="welcome-chips-label">试着这样问</view>
+      <view class="welcome-chips">
+        <view
+          wx:for="{{welcomeExamples}}" wx:key="text"
+          class="welcome-chip"
+          data-text="{{item.text}}"
+          bindtap="onTapExample"
+        >{{item.text}}</view>
+      </view>
+    </view>
+
+    <!-- 消息气泡（两栏：avatar + content column） -->
+    <view wx:for="{{messages}}" wx:key="index" wx:for-item="msg" wx:for-index="msgIdx" id="msg-{{msgIdx}}" class="msg-row {{msg.role === 'user' ? 'msg-user' : 'msg-assistant'}}">
+      <!-- 助手头像（左侧） -->
+      <view wx:if="{{msg.role === 'assistant'}}" class="msg-avatar avatar-assistant">智</view>
+      <!-- 内容列 -->
+      <view class="msg-content">
+        <!-- 置信度标签：🟢 本地标准库 / 🟡 联网搜索 / 🔴 AI 推断 -->
+        <view wx:if="{{msg.role === 'assistant' && msg.confidenceEmoji}}" class="confidence-badge confidence-{{msg.confidenceLevel}}">
+          <text class="confidence-emoji">{{msg.confidenceEmoji}}</text>
+          <text class="confidence-label">{{msg.confidenceLabel}}</text>
+        </view>
+        <view class="msg-bubble {{msg.role === 'user' ? 'bubble-user' : 'bubble-assistant'}} {{msg.isBlocked ? 'bubble-blocked' : ''}}">
+          <text class="msg-text" user-select>{{msg.content}}</text>
+          <text wx:if="{{msg.isStreaming}}" class="streaming-cursor">▍</text>
+        </view>
+        <!-- 联网搜索来源（🟡）-->
+        <view wx:if="{{msg.role === 'assistant' && msg.webSearchItems && msg.webSearchItems.length > 0}}" class="web-search-list">
+          <view class="web-search-header">🟡 联网搜索来源（{{msg.webSearchItems.length}} 条）</view>
+          <view wx:for="{{msg.webSearchItems}}" wx:for-item="src" wx:for-index="srcIdx" wx:key="srcIdx" class="web-search-item">
+            <text class="web-search-title">{{srcIdx + 1}}. {{src.title}}</text>
+            <text wx:if="{{src.siteName}}" class="web-search-site">{{src.siteName}}</text>
+          </view>
+        </view>
+        <!-- 搜索结果卡片 -->
+        <view wx:if="{{msg.role === 'assistant' && msg.searchItems && msg.searchItems.length > 0}}" class="search-cards">
+          <view
+            wx:for="{{msg.searchItems}}"
+            wx:for-item="std"
+            wx:for-index="stdIdx"
+            wx:key="stdIdx"
+            class="std-card"
+            data-code="{{std.code}}"
+            bindtap="onTapStandardCard"
+          >
+            <view class="std-card-code">{{std.code}}</view>
+            <view class="std-card-title">{{std.title}}</view>
+            <view class="std-card-meta">
+              <text class="std-card-status std-status-{{std.status === '现行' ? 'active' : 'other'}}">{{std.status}}</text>
+              <text wx:if="{{std.implDate}}" class="std-card-date">{{std.implDate}}</text>
+            </view>
+          </view>
+        </view>
+        <!-- 任务卡片 -->
+        <view wx:if="{{msg.role === 'assistant' && msg.taskItems && msg.taskItems.length > 0}}" class="task-cards">
+          <view wx:for="{{msg.taskItems}}" wx:for-item="task" wx:for-index="taskIdx" wx:key="taskIdx" class="task-card">
+            <view class="task-card-name">{{task.documentName}}</view>
+            <view class="task-card-meta">
+              <text class="task-card-no">{{task.taskNo}}</text>
+              <text class="task-card-status task-status-{{task.status}}">{{task.statusLabel}}</text>
+            </view>
+          </view>
+        </view>
+        <!-- 大纲按钮 -->
+        <view wx:if="{{msg.role === 'assistant' && msg.showOutlineActions}}" class="outline-actions">
+          <view class="outline-btn outline-btn-primary" data-msgidx="{{msgIdx}}" bindtap="confirmOutline">
+            <text>确认大纲，生成框架</text>
+          </view>
+          <view class="outline-btn outline-btn-default" data-msgidx="{{msgIdx}}" bindtap="editOutline">
+            <text>修改大纲</text>
+          </view>
+        </view>
+        <!-- 框架完成提示 -->
+        <view wx:if="{{msg.role === 'assistant' && msg.showFrameworkDone}}" class="framework-done-hint">
+          <text>标准框架已生成，可长按复制文本</text>
+        </view>
+        <!-- 建议追问 chips（横向铺开在气泡下方） -->
+        <view wx:if="{{msg.role === 'assistant' && msg.suggestions && msg.suggestions.length > 0}}" class="suggestion-row">
+          <view
+            wx:for="{{msg.suggestions}}"
+            wx:for-item="sug"
+            wx:for-index="sugIdx"
+            wx:key="sugIdx"
+            class="suggestion-chip"
+            data-text="{{sug.text}}"
+            bindtap="onTapSuggestion"
+          >
+            <text>{{sug.label}}</text>
+          </view>
+        </view>
+      </view>
+      <!-- 用户头像（右侧） -->
+      <view wx:if="{{msg.role === 'user'}}" class="msg-avatar avatar-user">我</view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view style="height: 20rpx;" id="msg-bottom"></view>
+  </view>
+  </scroll-view>
+
+  <!-- 底部输入区 -->
+  <view class="input-area">
+    <view wx:if="{{isFree && remainingQuota !== null}}" class="quota-hint">
+      今日剩余 {{remainingQuota}}/5 次对话
+      <text wx:if="{{remainingQuota <= 0}}" class="upgrade-link" bindtap="goMembership"> 升级会员</text>
+    </view>
+    <view class="input-row">
+      <textarea
+        class="input-box"
+        value="{{inputValue}}"
+        placeholder="{{inputPlaceholder}}"
+        disabled="{{isStreaming || remainingQuota === 0}}"
+        bindinput="onInputChange"
+        bindconfirm="sendMessage"
+        confirm-type="send"
+        auto-height
+        maxlength="2000"
+        adjust-position="{{true}}"
+      />
+      <view
+        class="send-btn {{(!inputValue || isStreaming) ? 'send-btn-disabled' : ''}}"
+        bindtap="sendMessage"
+      >
+        <text>发送 ›</text>
+      </view>
+    </view>
+    <view class="ai-disclaimer">内容由 AI 生成，仅供参考</view>
+  </view>
+</view>

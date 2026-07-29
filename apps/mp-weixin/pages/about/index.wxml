@@ -1,0 +1,16 @@
+<view class="page-shell">
+  <view class="section-card about-card">
+    <view class="section-title">关于标准小智</view>
+    <view class="about-paragraph">
+      标准小智是由通标中研标准化研究院推出的标准化数字服务平台，聚焦标准查询、标准查重、标准比对、标准动态监测等核心场景，致力于为企业用户与专业用户提供更加高效、便捷的标准化工具与服务支持。
+    </view>
+    <view class="about-paragraph">
+      依托通标中研标准化研究院在标准化研究、标准数字化应用与标准服务创新方面的实践积累，标准小智围绕标准全生命周期应用，不断探索“标准 + 数字化 + 智能化”的服务模式，推动标准资源更高效地服务于管理、编制、应用与业务发展。
+    </view>
+  </view>
+
+  <view class="about-footer">
+    <text>© {{year}} 通标中研标准化研究院 标准小智</text>
+    <text class="about-icp" bindtap="tapIcp">京ICP备20023187号-8</text>
+  </view>
+</view>

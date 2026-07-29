@@ -1,0 +1,110 @@
+<wxs src="../../../utils/filters.wxs" module="filters" />
+<view class="page">
+
+  <!-- 加载中 / 错误 -->
+  <view class="center-tip" wx:if="{{loading}}">加载题目中...</view>
+  <view class="center-tip error" wx:elif="{{error}}">{{error}}</view>
+
+  <!-- 答题区 -->
+  <block wx:elif="{{!submitted}}">
+    <view class="quiz-header">
+      <view class="quiz-title">{{quizTitle}}</view>
+      <view class="quiz-count">共 {{questions.length}} 题</view>
+    </view>
+
+    <view class="question-list">
+      <view wx:for="{{questions}}" wx:key="id" class="question-card">
+        <view class="q-header">
+          <text class="q-no">Q{{index + 1}}</text>
+          <text class="q-type-badge {{item.type === 'single' ? 'badge-single' : 'badge-multi'}}">
+            {{item.type === 'single' ? '单选' : '多选'}}
+          </text>
+          <text class="q-score">{{item.score}} 分</text>
+        </view>
+
+        <view class="q-text">{{item.text}}</view>
+
+        <view class="opt-list">
+          <view
+            wx:for="{{item.opts}}"
+            wx:for-item="opt"
+            wx:for-index="oi"
+            wx:key="oi"
+            class="opt-item {{filters.arrIncludes(selectedMap[item.id], oi) ? 'opt-selected' : ''}}"
+            data-qid="{{item.id}}"
+            data-qtype="{{item.type}}"
+            data-oidx="{{oi}}"
+            bindtap="tapOption"
+          >
+            <view class="opt-letter {{filters.arrIncludes(selectedMap[item.id], oi) ? 'letter-selected' : ''}}">
+              {{['A','B','C','D','E','F','G','H'][oi]}}
+            </view>
+            <view class="opt-text">{{opt}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="submit-bar">
+      <button type="primary" loading="{{submitting}}" bindtap="submit">提交答卷</button>
+    </view>
+  </block>
+
+  <!-- 结果区 -->
+  <block wx:elif="{{submitted && result}}">
+    <view class="result-header {{result.passed ? 'result-pass' : 'result-fail'}}">
+      <view class="result-icon">{{result.passed ? '✓' : '✗'}}</view>
+      <view class="result-verdict">{{result.passed ? '考核通过' : '考核未通过'}}</view>
+      <view class="result-score">
+        <text class="score-num">{{result.score}}</text>
+        <text class="score-total"> / {{result.totalScore}} 分</text>
+      </view>
+      <view class="result-stats">答对 {{result.correctCount}} 题 · 答错 {{result.wrongCount}} 题</view>
+      <view class="pass-hint" wx:if="{{!result.passed}}">（60分及格，请返回重新作答）</view>
+    </view>
+
+    <view class="question-list">
+      <view wx:for="{{questions}}" wx:key="id" class="question-card">
+        <view class="q-header">
+          <text class="q-no">Q{{index + 1}}</text>
+          <text class="q-type-badge {{item.type === 'single' ? 'badge-single' : 'badge-multi'}}">
+            {{item.type === 'single' ? '单选' : '多选'}}
+          </text>
+          <view wx:if="{{result.questionResultMap[item.id]}}"
+            class="verdict-dot {{result.questionResultMap[item.id].isCorrect ? 'dot-correct' : 'dot-wrong'}}">
+            {{result.questionResultMap[item.id].isCorrect ? '✓' : '✗'}}
+          </view>
+        </view>
+
+        <view class="q-text">{{item.text}}</view>
+
+        <view class="opt-list">
+          <view
+            wx:for="{{item.opts}}"
+            wx:for-item="opt"
+            wx:for-index="oi"
+            wx:key="oi"
+            class="opt-item result-opt {{result.questionResultMap[item.id] && filters.arrIncludes(result.questionResultMap[item.id].correctAnswer, oi) ? 'opt-correct-ans' : ''}} {{filters.arrIncludes(selectedMap[item.id], oi) && !(result.questionResultMap[item.id] && filters.arrIncludes(result.questionResultMap[item.id].correctAnswer, oi)) ? 'opt-wrong-ans' : ''}}"
+          >
+            <view class="opt-letter {{result.questionResultMap[item.id] && filters.arrIncludes(result.questionResultMap[item.id].correctAnswer, oi) ? 'letter-correct' : ''}} {{filters.arrIncludes(selectedMap[item.id], oi) && !(result.questionResultMap[item.id] && filters.arrIncludes(result.questionResultMap[item.id].correctAnswer, oi)) ? 'letter-wrong' : ''}}">
+              {{['A','B','C','D','E','F','G','H'][oi]}}
+            </view>
+            <view class="opt-text">{{opt}}</view>
+          </view>
+        </view>
+
+        <!-- 解析 -->
+        <view wx:if="{{result.questionResultMap[item.id] && result.questionResultMap[item.id].exp}}" class="exp-block">
+          <text class="exp-label">解析：</text>
+          <text>{{result.questionResultMap[item.id].exp}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="submit-bar">
+      <button wx:if="{{result.passed}}" type="primary" bindtap="goTaskList">已完成 ✓</button>
+      <button wx:else bindtap="goBack">返回重新作答</button>
+    </view>
+  </block>
+
+</view>

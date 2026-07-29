@@ -1,0 +1,67 @@
+.page-shell {
+  min-height: 100vh;
+  background: #f5f6f8;
+  padding: 40rpx 32rpx;
+}
+.bind-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 48rpx 36rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.bind-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1a2b42;
+  margin-bottom: 12rpx;
+}
+.bind-desc {
+  font-size: 28rpx;
+  color: #7f8c9b;
+  margin-bottom: 48rpx;
+  line-height: 1.6;
+}
+.form-group {
+  margin-bottom: 32rpx;
+}
+.form-input {
+  width: 100%;
+  height: 88rpx;
+  background: #f5f6f8;
+  border-radius: 16rpx;
+  padding: 0 28rpx;
+  font-size: 32rpx;
+  box-sizing: border-box;
+  border: 2rpx solid #e8edf2;
+}
+.bind-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-top: 16rpx;
+}
+.sms-row {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+.sms-input {
+  flex: 1;
+}
+.sms-btn {
+  flex-shrink: 0;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 26rpx;
+  padding: 0 24rpx;
+  border-radius: 16rpx;
+}
+.skip-link {
+  text-align: center;
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  color: #9eacbc;
+}

@@ -1,0 +1,62 @@
+<view class="page-shell">
+  <view class="booking-hero">
+    <view class="booking-hero-icon">🎧</view>
+    <view class="booking-hero-copy">
+      <view class="booking-title">{{heroTitle}}</view>
+      <view class="booking-desc">{{heroDesc}}</view>
+    </view>
+  </view>
+
+  <view class="section-card booking-service-card">
+    <view class="section-title">服务内容</view>
+    <view class="booking-service-grid">
+      <block wx:for="{{serviceCards}}" wx:key="title">
+        <view class="booking-service-item">
+          <view class="booking-service-title">{{item.title}}</view>
+          <view class="booking-service-desc">{{item.desc}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="section-card booking-form">
+    <view class="booking-field">
+      <view class="booking-label">姓名 *</view>
+      <input class="booking-input" placeholder="请输入您的姓名" value="{{name}}" data-field="name" bindinput="onInput" />
+    </view>
+
+    <view class="booking-field">
+      <view class="booking-label">手机号 *</view>
+      <input class="booking-input" placeholder="请输入手机号" type="number" maxlength="11" value="{{phone}}" data-field="phone" bindinput="onInput" />
+    </view>
+
+    <view class="booking-field">
+      <view class="booking-label">所属机构 *</view>
+      <input class="booking-input" placeholder="请输入所属机构" value="{{organization}}" data-field="organization" bindinput="onInput" />
+    </view>
+
+    <view class="booking-field">
+      <view class="booking-label">标准类型需求</view>
+      <picker range="{{serviceTypes}}" value="{{serviceTypeIndex < 0 ? 0 : serviceTypeIndex}}" bindchange="chooseServiceType">
+        <view class="booking-picker">
+          <text>{{serviceTypeLabel}}</text>
+          <text class="booking-picker-arrow">⌄</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="booking-field">
+      <view class="booking-label">需求描述</view>
+      <textarea class="booking-textarea" placeholder="请详细描述您的需求（200字以内）" maxlength="200" value="{{demandDesc}}" data-field="demandDesc" bindinput="onInput"></textarea>
+    </view>
+  </view>
+
+  <view class="section-card booking-process-card">
+    <view class="section-title">服务流程</view>
+    <view class="booking-process-item">1. 提交需求后 1 个工作日内由顾问联系您</view>
+    <view class="booking-process-item">2. 根据标准类型、行业和目标用途匹配专家方案</view>
+    <view class="booking-process-item">3. 确认合作方式后推进立项、编制或技术审查</view>
+  </view>
+
+  <view class="primary-btn {{submitting ? 'disabled' : ''}}" bindtap="submit">{{submitting ? '提交中...' : '提交预约'}}</view>
+</view>

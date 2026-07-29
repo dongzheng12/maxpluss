@@ -1,0 +1,112 @@
+<view class="graph-container">
+  <!-- 统计卡片区域 -->
+  <view class="metrics-grid" wx:if="{{relationMetrics}}">
+    <view class="metric-item">
+      <text class="metric-value">{{relationMetrics.versionCount || 0}}</text>
+      <text class="metric-label">版本节点</text>
+    </view>
+    <view class="metric-item">
+      <text class="metric-value">{{relationMetrics.similarCount || 0}}</text>
+      <text class="metric-label">相关标准</text>
+    </view>
+    <view class="metric-item">
+      <text class="metric-value">{{relationMetrics.seriesCount || 0}}</text>
+      <text class="metric-label">系列分册</text>
+    </view>
+    <view class="metric-item">
+      <text class="metric-value">{{relationMetrics.totalCount || 0}}</text>
+      <text class="metric-label">总关联</text>
+    </view>
+  </view>
+
+  <!-- 图谱画布区域 -->
+  <view class="canvas-area">
+    <!-- 中心节点 -->
+    <view class="node-center shadow-lg">
+      <view class="center-code">{{centerNode.code}}</view>
+      <view class="center-name">{{centerNode.name}}</view>
+      <view class="center-badge">{{centerNode.total_relations}} 关联</view>
+    </view>
+
+    <!-- 动态关系节点 -->
+    <block wx:for="{{relationNodes}}" wx:key="type">
+      <view class="node-relation {{item.type}} animate-fade-in" style="margin-left: {{item.offsetX}}rpx; margin-top: {{item.offsetY}}rpx;" bindtap="onNodeTap" data-type="{{item.type}}" data-label="{{item.label}}">
+        <view class="relation-line" style="width: {{item.lineWidth}}rpx; transform: rotate({{item.lineAngle}}deg)"></view>
+        <view class="relation-circle shadow-sm">
+          <text class="relation-text">{{item.label}}</text>
+          <text class="relation-count">{{item.count}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 详情展示区域（根据点击动态切换） -->
+  <view class="detail-panel shadow-up" wx:if="{{activeType}}">
+    <view class="panel-header">
+      <text class="panel-title">{{activeTitle}}</text>
+      <view class="close-btn" bindtap="closeDetail">×</view>
+    </view>
+
+    <scroll-view scroll-y class="panel-content">
+      <view wx:if="{{activeType === 'total'}}" class="summary-panel">
+        <view class="summary-intro">
+          <text class="summary-intro-text">当前标准共关联 {{relationMetrics.totalCount || 0}} 项内容，包含版本演进、系列分册和相关标准。</text>
+        </view>
+        <view class="summary-grid">
+          <view class="summary-card">
+            <text class="summary-value">{{relationMetrics.versionCount || 0}}</text>
+            <text class="summary-label">版本节点</text>
+          </view>
+          <view class="summary-card">
+            <text class="summary-value">{{relationMetrics.seriesCount || 0}}</text>
+            <text class="summary-label">系列分册</text>
+          </view>
+          <view class="summary-card">
+            <text class="summary-value">{{relationMetrics.similarCount || 0}}</text>
+            <text class="summary-label">相关标准</text>
+          </view>
+          <view class="summary-card summary-card-total">
+            <text class="summary-value">{{relationMetrics.totalCount || 0}}</text>
+            <text class="summary-label">总关联</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 版本演进链 -->
+      <view wx:if="{{activeType === 'versions'}}" class="timeline">
+        <view wx:for="{{replacementChain}}" wx:key="code" class="timeline-item {{item.isCurrent ? 'active' : ''}}">
+          <view class="time-node"></view>
+          <view class="time-content" bindtap="onItemTap" data-code="{{item.code}}">
+            <view class="time-code">{{item.code}}</view>
+            <view class="time-name">{{item.name}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 系列分册 -->
+      <view wx:if="{{activeType === 'series'}}" class="list-container">
+        <view class="series-summary">{{citedSummary}}</view>
+        <view wx:for="{{libraryStandards}}" wx:key="code" class="list-item" bindtap="onItemTap" data-code="{{item.code}}">
+          <view class="item-info">
+            <text class="item-code">{{item.code}}</text>
+            <text class="item-name">{{item.name}}</text>
+          </view>
+          <text class="status-tag {{item.status === '现行' ? 'green' : 'gray'}}">{{item.status}}</text>
+        </view>
+      </view>
+
+      <!-- 相关标准 -->
+      <view wx:if="{{activeType === 'similar'}}" class="list-container">
+        <view wx:for="{{relatedNodes}}" wx:key="code" class="list-item" bindtap="onItemTap" data-code="{{item.code}}">
+          <view class="item-info">
+            <text class="item-code">{{item.code}}</text>
+            <text class="item-name">{{item.name}}</text>
+          </view>
+          <view class="tag-group">
+            <text class="type-tag">{{item.relation}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

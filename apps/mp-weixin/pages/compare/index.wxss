@@ -1,0 +1,22 @@
+.compare-toolbar { display: flex; justify-content: flex-end; margin-bottom: 20rpx; }
+.compare-plus { width: 76rpx; height: 76rpx; border-radius: 20rpx; background: #fff; border: 1rpx solid #d5dbe5; display: flex; align-items: center; justify-content: center; font-size: 40rpx; color: #1f2a44; }
+.compare-summary { padding: 24rpx; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx; margin-bottom: 18rpx; }
+.compare-metric { min-height: 140rpx; border-radius: 22rpx; background: #f7f8fb; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12rpx; color: #6f7b90; font-size: 26rpx; }
+.compare-metric strong { color: #1f2a44; font-size: 46rpx; }
+.compare-task-card { padding: 24rpx; }
+/* 任务卡片状态/模式标签容器:加 flex,防止 .tag (inline-flex) 在窄
+   compare-task-card 里被换行成竖排重叠的"大傻逼"格式。
+   跟 pages/standards/index.wxss 的 .standard-tags 规则保持一致。 */
+.compare-task-card .standard-tags { display: flex; gap: 12rpx; margin-bottom: 18rpx; flex-wrap: wrap; align-items: center; }
+.compare-task-title { margin: 18rpx 0 14rpx; font-size: 38rpx; font-weight: 700; line-height: 1.45; }
+.compare-task-date, .compare-task-desc { color: #7f8898; font-size: 28rpx; margin-bottom: 18rpx; }
+.compare-task-fail { color: #cf1322; background: #fff1f0; padding: 12rpx 16rpx; border-left: 6rpx solid #ff7875; border-radius: 8rpx; line-height: 1.55; word-break: break-all; }
+.compare-loading, .compare-empty { text-align: center; padding: 60rpx 0; color: #999; font-size: 28rpx; }
+.tag-red { background: #fff1f0; color: #cf1322; }
+.text-red { color: #cf1322; }
+.compare-pending-tip { background: #e6f4ff; color: #1677ff; font-size: 26rpx; padding: 16rpx 24rpx; border-radius: 12rpx; margin-bottom: 18rpx; text-align: center; }
+.compare-task-actions { display: flex; gap: 16rpx; align-items: center; }
+.compare-task-actions .primary-btn { flex: 1; }
+.retry-btn { color: #1677ff; font-size: 26rpx; padding: 12rpx 20rpx; font-weight: 500; }
+.delete-link { color: #8b99a8; font-size: 24rpx; padding: 12rpx 16rpx; }
+.tag-outline { background: transparent; border: 1rpx solid #c9d6e2; color: #516174; }

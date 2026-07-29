@@ -1,0 +1,15 @@
+# id	location	marker	description
+enterprise-login-route	main	/enterprise/login	企业版登录路由必须进入 web 主 bundle
+enterprise-login-tab	main	tab=enterprise	个人登录页企业版 tab 必须进入 web 主 bundle
+enterprise-login-label	main	企业版登录	企业版登录按钮/标题文案必须进入 web 主 bundle
+enterprise-login-brand	main	标准执行与信息管理平台	企业版独立登录页品牌文案必须进入 web 主 bundle
+se-floating-bubble-api	main	/api/app/se-chat	标准执行 AI 浮标/企业 AI 助手 API 标识必须进入 web 主 bundle
+se-dashboard-title	main	执行总览	标准执行后台/企业工作台总览入口必须进入 web 主 bundle
+expert-vote-detail-summary	main	申请信息与材料	专家评审后台详情摘要区必须进入 web 主 bundle
+expert-vote-delivery-trace	main	交付留痕	专家评审最终交付留痕必须进入 web 主 bundle
+expert-vote-tech-validation	main	技术校验信息	专家评审最终交付技术校验信息必须进入 web 主 bundle
+se-workbench-v2	main	AI 任务草稿工作台	v2 任务生成工作台（接管原入口）必须进入 web 主 bundle
+se-task-generation-legacy	main	相同 groupId 会合并为一个任务	旧 4-step 任务生成工作台（兜底切回）必须常驻 web 主 bundle，防 tree-shake
+seo-title	index	标准小智官网｜企业标准数字化平台	SEO title 关键字段必须进入 web index.html
+seo-description	index	标准查询、标准管理、标准编写、标准监测、标准执行与用标准能力	SEO description 关键字段必须进入 web index.html
+seo-og-title	index	<meta property="og:title" content="标准小智官网｜企业标准数字化平台"	OG title 关键字段必须进入 web index.html

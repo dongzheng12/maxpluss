@@ -1,0 +1,33 @@
+/* 我的优惠券页 */
+.page-shell { padding: 24rpx; min-height: 100vh; background: #f5f7fb; }
+
+/* tab */
+.coupons-tabs { display: flex; background: #fff; border-radius: 16rpx; padding: 8rpx; margin-bottom: 20rpx; }
+.coupons-tab { flex: 1; text-align: center; font-size: 30rpx; padding: 18rpx 0; color: #6b7280; border-radius: 12rpx; }
+.coupons-tab-active { background: #2b63f6; color: #fff; font-weight: 600; }
+
+/* 空状态 */
+.coupons-empty { padding: 120rpx 0; text-align: center; color: #9aa3b2; font-size: 30rpx; }
+.coupons-empty-icon { font-size: 100rpx; margin-bottom: 20rpx; opacity: 0.4; }
+.coupons-empty-text { font-size: 30rpx; color: #9aa3b2; }
+
+/* 列表 */
+.coupons-list { display: flex; flex-direction: column; gap: 18rpx; }
+
+/* 卡片：左面值 + 分割线 + 右描述 */
+.coupon-card { display: flex; align-items: stretch; background: #fff; border-radius: 20rpx; overflow: hidden; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04); }
+.coupon-card-AVAILABLE { background: linear-gradient(135deg, #fff 0%, #fff8e7 100%); }
+.coupon-card-USED, .coupon-card-EXPIRED, .coupon-card-REVOKED { opacity: 0.6; }
+
+.coupon-card-left { flex: 0 0 200rpx; padding: 28rpx 16rpx; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8rpx; }
+.coupon-card-face { font-size: 48rpx; font-weight: 700; color: #e01818; line-height: 1.1; }
+.coupon-card-min { font-size: 22rpx; color: #9aa3b2; }
+
+/* 分割线（虚线） */
+.coupon-card-divider { width: 2rpx; background-image: linear-gradient(to bottom, #d7deea 50%, transparent 50%); background-size: 2rpx 12rpx; background-repeat: repeat-y; flex-shrink: 0; }
+
+.coupon-card-right { flex: 1; padding: 28rpx 24rpx; min-width: 0; }
+.coupon-card-name { font-size: 32rpx; font-weight: 600; color: #1f2a44; margin-bottom: 8rpx; line-height: 1.3; }
+.coupon-card-scope { display: inline-block; font-size: 22rpx; color: #2b63f6; background: #edf3ff; border-radius: 8rpx; padding: 4rpx 12rpx; margin-bottom: 12rpx; }
+.coupon-card-meta { font-size: 24rpx; color: #9aa3b2; }
+.coupon-card-warn { color: #e01818; font-weight: 600; }

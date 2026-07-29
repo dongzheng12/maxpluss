@@ -1,0 +1,155 @@
+<view class="page">
+  <!-- 安全区顶部占位 -->
+  <view class="safe-top" style="height: {{statusBarHeight}}px;"></view>
+
+  <!-- Header -->
+  <view class="header">
+    <image class="logo" src="/assets/icon-mark.png" mode="aspectFit" />
+    <text class="title">欢迎使用标准小智</text>
+    <text class="subtitle">用标准解决企业生产、销售前中后的互联网化诉求</text>
+  </view>
+
+  <!-- Tab 切换器 -->
+  <view class="tab-switcher">
+    <view
+      class="tab-item {{activeTab === 'personal' ? 'tab-active' : ''}}"
+      bindtap="switchTab"
+      data-tab="personal"
+    >个人版</view>
+    <view
+      class="tab-item {{activeTab === 'enterprise' ? 'tab-active' : ''}}"
+      bindtap="switchTab"
+      data-tab="enterprise"
+    >企业版</view>
+  </view>
+
+  <!-- 个人版 -->
+  <view class="panel" wx:if="{{activeTab === 'personal'}}">
+    <view class="login-card">
+
+      <!-- 账号 -->
+      <view class="form-group">
+        <text class="form-label">账号</text>
+        <input
+          class="form-input"
+          placeholder="手机号 / 邮箱"
+          placeholder-style="color:#999999"
+          value="{{phone}}"
+          bindinput="onPhoneInput"
+        />
+      </view>
+
+      <!-- 密码 -->
+      <view class="form-group">
+        <text class="form-label">密码</text>
+        <input
+          class="form-input"
+          password="{{true}}"
+          placeholder="请输入密码"
+          placeholder-style="color:#999999"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+        />
+      </view>
+
+      <!-- 协议勾选（应微信审核要求：登录前必须主动勾选） -->
+      <view class="agreement-row">
+        <view class="agreement-checkbox {{agreed ? 'checked' : ''}}" bindtap="toggleAgreed"></view>
+        <view class="agreement-text" bindtap="toggleAgreed">
+          <text>我已阅读并同意</text>
+          <text class="agreement-link" catchtap="goTerms">《用户服务协议》</text>
+          <text>及</text>
+          <text class="agreement-link" catchtap="goPrivacy">《隐私政策》</text>
+        </view>
+      </view>
+
+      <!-- 登录按钮 -->
+      <button
+        class="btn-login"
+        bindtap="onPasswordLogin"
+        loading="{{loginingByPwd}}"
+        disabled="{{!agreed || !phone || !password || loginingByPwd}}"
+      >
+        {{loginingByPwd ? '登录中...' : '登录'}}
+      </button>
+
+      <!-- 忘记密码 -->
+      <view class="link-row">
+        <text class="link" bindtap="forgotPassword">忘记密码</text>
+      </view>
+
+      <!-- 「或」分割线 -->
+      <view class="divider">
+        <view class="divider-line"></view>
+        <text class="divider-text">或</text>
+        <view class="divider-line"></view>
+      </view>
+
+      <button
+        class="btn-wechat"
+        bindtap="handleWxLogin"
+        loading="{{authing}}"
+        disabled="{{!agreed || authing}}"
+      >
+        <text>{{authing ? '登录中...' : '微信一键登录'}}</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 企业版：已开通账号登录 -->
+  <view class="panel" wx:if="{{activeTab === 'enterprise'}}">
+    <view class="login-card">
+      <!-- 账号 -->
+      <view class="form-group">
+        <text class="form-label">账号</text>
+        <input
+          class="form-input"
+          placeholder="手机号"
+          placeholder-style="color:#999999"
+          value="{{entPhone}}"
+          bindinput="onEntPhoneInput"
+        />
+      </view>
+
+      <!-- 密码 -->
+      <view class="form-group">
+        <text class="form-label">密码</text>
+        <input
+          class="form-input"
+          password="{{true}}"
+          placeholder="请输入密码"
+          placeholder-style="color:#999999"
+          value="{{entPassword}}"
+          bindinput="onEntPasswordInput"
+        />
+      </view>
+
+      <!-- 协议勾选（与个人版共享 agreed） -->
+      <view class="agreement-row">
+        <view class="agreement-checkbox {{agreed ? 'checked' : ''}}" bindtap="toggleAgreed"></view>
+        <view class="agreement-text" bindtap="toggleAgreed">
+          <text>我已阅读并同意</text>
+          <text class="agreement-link" catchtap="goTerms">《用户服务协议》</text>
+          <text>及</text>
+          <text class="agreement-link" catchtap="goPrivacy">《隐私政策》</text>
+        </view>
+      </view>
+
+      <!-- 企业版登录按钮 -->
+      <button
+        class="btn-login"
+        bindtap="onEnterpriseLogin"
+        loading="{{entLogining}}"
+        disabled="{{!agreed || !entPhone || !entPassword || entLogining}}"
+      >
+        {{entLogining ? '登录中...' : '企业版登录'}}
+      </button>
+    </view>
+
+    <!-- 底部申请入口 -->
+    <view class="link-row">
+      <text>还没有企业版？</text>
+      <text class="link" bindtap="goEnterpriseApply">申请开通</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,48 @@
+/* ═══ committee 页 ═══ */
+
+.committee-hero,
+.committee-search-card,
+.committee-card { padding: 24rpx; margin-bottom: 18rpx; }
+
+.committee-hero { background: linear-gradient(135deg, #eff5ff 0%, #dce8ff 100%); }
+.committee-hero-title { font-size: 36rpx; font-weight: 700; margin-bottom: 10rpx; }
+.committee-hero-desc { font-size: 26rpx; color: #647085; line-height: 1.6; }
+
+/* 搜索栏 */
+.search-bar { display: flex; gap: 16rpx; align-items: center; }
+.search-input-wrap {
+  flex: 1; display: flex; align-items: center; gap: 14rpx;
+  padding: 0 24rpx; height: 80rpx; border-radius: 16rpx;
+  background: #f5f7fa; border: 2rpx solid #e8ecf2;
+}
+.search-input-wrap:active { border-color: #2b63f6; }
+.search-icon-glyph { font-size: 32rpx; color: #bfc8d6; flex-shrink: 0; }
+.search-input { flex: 1; font-size: 28rpx; color: #1a2236; }
+
+/* 右侧地区下拉 */
+.search-region-trigger {
+  height: 80rpx; padding: 0 20rpx; border-radius: 16rpx;
+  background: #edf3ff; border: 2rpx solid #d4dffa;
+  display: flex; align-items: center; gap: 8rpx;
+  flex-shrink: 0;
+}
+.search-region-trigger:active { background: #dce8ff; }
+.region-trigger-text { font-size: 26rpx; color: #2b63f6; font-weight: 600; white-space: nowrap; }
+.region-trigger-icon { font-size: 24rpx; color: #2b63f6; }
+
+/* 结果统计 */
+.result-summary { padding: 0 24rpx; margin-bottom: 16rpx; font-size: 24rpx; color: #8a94a5; }
+
+/* 卡片 */
+.committee-row { display: flex; gap: 12rpx; padding: 10rpx 0; }
+.committee-label { width: 120rpx; flex: none; font-size: 28rpx; color: #1f2a44; font-weight: 700; white-space: nowrap; }
+.committee-value { flex: 1; font-size: 28rpx; color: #1f2a44; line-height: 1.6; }
+.committee-value.muted { color: #8a94a5; }
+.scope-text {
+  line-height: 1.6;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+}
+
+/* 加载更多 */
+.load-more-tip { text-align: center; padding: 24rpx 0; font-size: 24rpx; color: #b0b8c8; }

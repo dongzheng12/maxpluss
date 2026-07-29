@@ -1,0 +1,17 @@
+/* 页面级 flex 纵向布局（覆盖全局 .page-shell） */
+.ics-page { padding-bottom: 24rpx; display: flex; flex-direction: column; min-height: 100vh; }
+.ics-search-card { padding: 12rpx 24rpx; margin: 18rpx 0; }
+.ics-search-item { padding: 20rpx 0; border-top: 1rpx solid #edf0f5; }
+.ics-search-item:first-child { border-top: 0; }
+.ics-search-title { font-size: 30rpx; font-weight: 700; margin-bottom: 8rpx; color: #1f2a44; }
+.ics-search-path { color: #6f7b90; font-size: 25rpx; line-height: 1.5; }
+.ics-panel { margin-top: 18rpx; padding: 0; display: flex; flex: 1; min-height: 0; overflow: hidden; }
+.ics-left { width: 220rpx; background: #f7f8fb; border-right: 1rpx solid #edf0f5; }
+.ics-root { padding: 30rpx 18rpx; font-size: 26rpx; line-height: 1.45; color: #6b7484; border-bottom: 1rpx solid #edf0f5; }
+.ics-root.active { background: #ffffff; color: #1f2a44; font-weight: 700; }
+.ics-right { flex: 1; height: 100%; padding: 24rpx; box-sizing: border-box; }
+.ics-group { padding-bottom: 26rpx; margin-bottom: 26rpx; border-bottom: 1rpx solid #edf0f5; }
+.ics-group:last-child { border-bottom: 0; margin-bottom: 0; }
+.ics-group-title { font-size: 32rpx; font-weight: 700; margin-bottom: 18rpx; }
+.ics-leaf-grid { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.ics-leaf-chip { min-width: 168rpx; min-height: 76rpx; padding: 0 18rpx; border-radius: 18rpx; background: #f5f6f8; display: flex; align-items: center; justify-content: center; font-size: 26rpx; color: #1f2a44; }

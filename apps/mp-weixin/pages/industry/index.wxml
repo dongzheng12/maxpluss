@@ -1,0 +1,115 @@
+<view class="page-shell">
+  <!-- 搜索 + 行业选择 -->
+  <view class="section-card search-card">
+    <!-- 搜索栏：输入框 + 右侧行业下拉 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <text class="search-icon-glyph">⌕</text>
+        <input class="search-input" placeholder="搜索行业名称" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="search" />
+      </view>
+      <picker mode="selector" range="{{industryLabels}}" value="{{selectedIndustryIndex}}" bindchange="onIndustryPick">
+        <view class="search-ind-trigger">
+          <text class="ind-trigger-text">{{selectedIndustryIndex >= 0 ? industryLabels[selectedIndustryIndex] : '行业'}}</text>
+          <text class="ind-trigger-icon">▾</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 热门标签 -->
+    <view class="hot-section">
+      <view class="hot-label">热门行业</view>
+      <view class="hot-tags">
+        <view wx:for="{{hotTags}}" wx:key="*this" class="hot-tag" data-tag="{{item}}" bindtap="tapTag">{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view wx:if="{{result}}" class="stats-row">
+    <view class="stat-box">
+      <view class="stat-num total">{{result.total}}</view>
+      <view class="stat-desc">标准覆盖</view>
+    </view>
+    <view class="stat-box">
+      <view class="stat-num mandatory">{{result.mandatory.length}}</view>
+      <view class="stat-desc">强制标准</view>
+    </view>
+    <view class="stat-box">
+      <view class="stat-num recommended">{{result.recommended.length}}</view>
+      <view class="stat-desc">推荐标准</view>
+    </view>
+  </view>
+
+  <!-- 类型筛选 -->
+  <view wx:if="{{typeList.length > 1}}" class="section-card filter-card">
+    <scroll-view scroll-x enable-flex class="filter-scroll">
+      <view class="filter-row">
+        <view wx:for="{{typeList}}" wx:key="name"
+          class="filter-chip {{activeType === item.name || (!activeType && item.name === '全部') ? 'active' : ''}}"
+          data-type="{{item.name}}" data-key="{{item.key}}" bindtap="tapType">
+          {{item.name}}<text class="filter-count">({{item.count}})</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 标准列表 -->
+  <view wx:if="{{result}}" class="section-card list-card">
+    <view class="list-head">
+      <text class="list-title">{{activeType || '全部'}}标准</text>
+      <text class="list-badge">{{filteredList.length}} 条</text>
+    </view>
+    <block wx:for="{{pagedList}}" wx:key="code">
+      <view class="std-item" data-code="{{item.code}}" bindtap="openDetail">
+        <view class="std-left">
+          <view class="std-code">{{item.code}}</view>
+          <view class="std-name">{{item.name}}</view>
+        </view>
+        <view class="std-right">
+          <view wx:if="{{item.status}}" class="std-status {{item.status === '现行' ? 'status-active' : item.status === '即将实施' ? 'status-upcoming' : ''}}">{{item.status}}</view>
+          <view class="std-dates">
+            <text wx:if="{{item.pub_date || item.publish_date}}" class="std-date">发布 {{item.pub_date || item.publish_date}}</text>
+            <text wx:if="{{item.impl_date || item.implement_date}}" class="std-date">实施 {{item.impl_date || item.implement_date}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+    <view wx:if="{{pagedList.length === 0}}" class="empty-inline">没有匹配的标准</view>
+  </view>
+
+  <!-- 分页 -->
+  <view wx:if="{{totalPages > 1}}" class="pagination">
+    <view class="page-btn {{page <= 1 ? 'disabled' : ''}}" bindtap="prevPage">
+      <text class="page-arrow">‹</text>
+    </view>
+    <text class="page-info">{{page}} / {{totalPages}}</text>
+    <view class="page-btn {{page >= totalPages ? 'disabled' : ''}}" bindtap="nextPage">
+      <text class="page-arrow" style="transform:rotate(180deg)">‹</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{!result && !loading && !error}}" class="empty-state">
+    <view class="empty-illustration">
+      <view class="empty-circle">
+        <text class="empty-glyph">⌕</text>
+      </view>
+    </view>
+    <view class="empty-text-main">输入或选择行业，查看适用标准</view>
+    <view class="empty-text-sub">覆盖 24 个行业分类</view>
+  </view>
+
+  <!-- 错误 -->
+  <view wx:if="{{error}}" class="error-toast">
+    <text class="error-icon">!</text>
+    <text>{{error}}</text>
+  </view>
+
+  <!-- Loading 蒙层 -->
+  <view wx:if="{{loading}}" class="loading-overlay">
+    <view class="loading-spinner-wrap">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">正在搜索标准…</text>
+    </view>
+  </view>
+</view>

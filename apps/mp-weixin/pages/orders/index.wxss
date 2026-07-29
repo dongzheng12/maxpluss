@@ -1,0 +1,29 @@
+.order-tabs { display: flex; gap: 24rpx; padding: 0 6rpx 10rpx; margin-bottom: 14rpx; overflow-x: auto; white-space: nowrap; }
+.order-tab { position: relative; padding: 12rpx 0 18rpx; color: #5f6b81; font-size: 30rpx; font-weight: 600; }
+.order-tab.active { color: #2b63f6; }
+.order-tab.active::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 6rpx; border-radius: 999rpx; background: #2b63f6; }
+.order-card { padding: 24rpx; margin-bottom: 18rpx; }
+.order-head { margin-bottom: 10rpx; }
+.order-title { font-size: 38rpx; font-weight: 700; }
+.order-status { font-size: 32rpx; }
+.order-status.paid { color: #17a34a; }
+.order-status.pending { color: #f06a00; }
+.order-status.verify { color: #2b63f6; }
+.order-status.failed { color: #e01818; }
+.order-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 20rpx; padding-top: 18rpx; border-top: 1rpx solid #edf0f5; }
+.order-amount { font-size: 50rpx; font-weight: 700; }
+.order-foot-actions { display: flex; align-items: center; gap: 24rpx; }
+.order-invoice { color: #2b63f6; font-size: 30rpx; font-weight: 700; }
+.order-view-report { color: #fff; background: #2b63f6; font-size: 28rpx; font-weight: 700; padding: 8rpx 24rpx; border-radius: 999rpx; }
+.order-pay-btn { color: #fff; background: #17a34a; font-size: 28rpx; font-weight: 700; padding: 8rpx 24rpx; border-radius: 999rpx; }
+.order-cancel-btn { color: #ff4d4f; font-size: 28rpx; font-weight: 600; padding: 8rpx 24rpx; border-radius: 999rpx; border: 2rpx solid #ff4d4f; }
+.order-verify-tag { color: #2b63f6; font-size: 26rpx; background: #edf3ff; padding: 8rpx 20rpx; border-radius: 999rpx; }
+.order-status-tag { font-size: 26rpx; padding: 8rpx 20rpx; border-radius: 999rpx; }
+.order-status-tag.processing { color: #2b63f6; background: #edf3ff; }
+.order-status-tag.issued { color: #17a34a; background: #e6f7ee; }
+.order-status-tag.paid { color: #17a34a; background: #e6f7ee; }
+.order-status-tag.cancelled { color: #8c8c8c; background: #f5f5f5; }
+.order-status-tag.failed { color: #ff4d4f; background: #fff1f0; }
+.order-refund-btn { color: #ff4d4f; font-size: 26rpx; font-weight: 600; padding: 8rpx 20rpx; border-radius: 999rpx; border: 2rpx solid #ff4d4f; }
+.order-refund-hint { font-size: 22rpx; color: #fa8c16; margin-top: 4rpx; }
+.order-refund-hint.expired { color: #999; }

@@ -1,0 +1,57 @@
+.ent-home {
+  padding: 32rpx 24rpx;
+  min-height: 100vh;
+  background: #f5f6f8;
+  box-sizing: border-box;
+}
+.ent-header {
+  padding: 24rpx 8rpx 32rpx;
+}
+.ent-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #1f2937;
+  display: block;
+}
+.ent-role {
+  font-size: 26rpx;
+  color: #8a93a3;
+  margin-top: 8rpx;
+  display: block;
+}
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.entry-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+.entry-icon {
+  font-size: 48rpx;
+  margin-right: 24rpx;
+}
+.entry-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.entry-label {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #1f2937;
+}
+.entry-desc {
+  font-size: 24rpx;
+  color: #8a93a3;
+  margin-top: 6rpx;
+}
+.entry-arrow {
+  font-size: 40rpx;
+  color: #c0c6d0;
+}

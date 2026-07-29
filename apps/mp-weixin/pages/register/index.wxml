@@ -1,0 +1,77 @@
+<view class="container">
+  <!-- 品牌区 -->
+  <view class="brand">
+    <view class="logo-wrap">
+      <image class="logo" src="/assets/logo-smart-standard.png" mode="aspectFit" />
+    </view>
+    <view class="title">标准小智</view>
+    <view class="subtitle">标准智能平台</view>
+  </view>
+
+  <!-- 销售归因提示卡 -->
+  <view wx:if="{{salesCode}}" class="tip-card">
+    <view class="tip-main">
+      你正在通过 <text class="tip-highlight">{{salesName || '专属顾问'}}</text> 的链接注册
+    </view>
+    <view class="tip-gift">注册即获 <text class="tip-highlight">7 天免费试用</text></view>
+  </view>
+
+  <view class="tab-switcher">
+    <view
+      class="tab-item {{activeTab === 'personal' ? 'tab-active' : ''}}"
+      bindtap="switchTab"
+      data-tab="personal"
+    >个人版</view>
+    <view
+      class="tab-item {{activeTab === 'enterprise' ? 'tab-active' : ''}}"
+      bindtap="switchTab"
+      data-tab="enterprise"
+    >企业版</view>
+  </view>
+
+  <block wx:if="{{activeTab === 'personal'}}">
+    <!-- 价值点 -->
+    <view class="benefits">
+      <block wx:for="{{benefits}}" wx:key="*this">
+        <view class="benefit-item">
+          <view class="benefit-icon"></view>
+          <text class="benefit-text">{{item}}</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="agreement-row">
+      <view class="agreement-checkbox {{agreed ? 'checked' : ''}}" bindtap="toggleAgreed"></view>
+      <view class="agreement-text" bindtap="toggleAgreed">
+        <text>我已阅读并同意</text>
+        <text class="agreement-link" catchtap="goTerms">《用户服务协议》</text>
+        <text>及</text>
+        <text class="agreement-link" catchtap="goPrivacy">《隐私政策》</text>
+      </view>
+    </view>
+
+    <!-- CTA -->
+    <button
+      class="auth-btn {{authing ? 'auth-btn-loading' : ''}}"
+      bindtap="handleAuth"
+      loading="{{authing}}"
+      disabled="{{!agreed || authing}}"
+    >
+      {{authing ? '登录中...' : '微信快速登录 / 注册'}}
+    </button>
+  </block>
+
+  <block wx:if="{{activeTab === 'enterprise'}}">
+    <view class="enterprise-card">
+      <view class="enterprise-title">企业版入口</view>
+      <view class="enterprise-desc">已开通企业版的管理员、审核人、员工，可使用手机号和密码登录企业工作台。</view>
+      <button class="auth-btn enterprise-login-btn" bindtap="goEnterpriseLogin">企业账号登录</button>
+      <button class="ghost-btn" bindtap="goEnterpriseApply">申请开通企业版</button>
+    </view>
+  </block>
+
+  <view class="tips-footer">
+    <view class="tip-line">· 微信授权即可登录，安全快捷</view>
+    <view class="tip-line">· 标准小智 · 标准智能平台</view>
+  </view>
+</view>

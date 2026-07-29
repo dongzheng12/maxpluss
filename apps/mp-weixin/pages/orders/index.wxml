@@ -1,0 +1,46 @@
+<view class="page-shell">
+  <view class="order-tabs">
+    <view class="order-tab {{activeTab === 'all' ? 'active' : ''}}" data-tab="all" bindtap="switchTab">全部</view>
+    <view class="order-tab {{activeTab === 'membership' ? 'active' : ''}}" data-tab="membership" bindtap="switchTab">会员订单</view>
+    <view class="order-tab {{activeTab === 'download' ? 'active' : ''}}" data-tab="download" bindtap="switchTab">下载订单</view>
+    <view class="order-tab {{activeTab === 'compare' ? 'active' : ''}}" data-tab="compare" bindtap="switchTab">比对订单</view>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="section-card empty-card">加载中...</view>
+
+  <block wx:elif="{{filtered.length}}">
+    <block wx:for="{{filtered}}" wx:key="orderNo">
+      <view class="section-card order-card">
+        <view class="row-between order-head">
+          <view class="order-title">{{item.title}}</view>
+          <view class="order-status {{item.status === 'PAID' ? 'paid' : item.status === 'PENDING_VERIFY' ? 'verify' : item.status === 'FAILED' ? 'failed' : 'pending'}}">{{item.statusText}}</view>
+        </view>
+        <view class="meta-text">{{item.createdAt}}</view>
+        <view class="order-foot">
+          <view class="order-amount">¥{{item.amount / 100}}</view>
+          <!-- 已支付：发票入口（支付满 7 天后可申请） -->
+          <view wx:if="{{item.status === 'PAID'}}" class="order-foot-actions">
+            <view wx:if="{{item.canInvoice}}" class="order-invoice" bindtap="openInvoice" data-orderno="{{item.orderNo}}">申请发票</view>
+            <view wx:elif="{{item.invoiceCountdown}}" class="order-invoice-hint">{{item.invoiceCountdown}}</view>
+            <view wx:elif="{{item.invoiceStatus === 'REQUESTED'}}" class="order-status-tag processing">发票申请中</view>
+            <view wx:elif="{{item.invoiceStatus === 'ISSUED'}}" class="order-status-tag issued">已开票</view>
+          </view>
+          <!-- 待支付/支付中：支付+取消 -->
+          <view wx:elif="{{item.status === 'PENDING' || item.status === 'PAYING'}}" class="order-foot-actions">
+            <view class="order-pay-btn" bindtap="goPayment" data-order="{{item}}">去支付</view>
+            <view class="order-cancel-btn" bindtap="cancelOrder" data-orderno="{{item.orderNo}}" data-title="{{item.title}}">取消</view>
+          </view>
+          <!-- 待确认凭证 -->
+          <view wx:elif="{{item.status === 'PENDING_VERIFY'}}" class="order-verify-tag">凭证已上传，确认中</view>
+          <!-- 终态标签 -->
+          <view wx:elif="{{item.status === 'CANCELLED'}}" class="order-status-tag cancelled">已取消</view>
+          <view wx:elif="{{item.status === 'FAILED'}}" class="order-status-tag failed">支付失败</view>
+          <view wx:elif="{{item.status === 'REFUNDED'}}" class="order-status-tag failed">已退款</view>
+          <view wx:else class="list-arrow">›</view>
+        </view>
+      </view>
+    </block>
+  </block>
+  <view wx:else class="section-card empty-card">当前订单类型下暂无记录。</view>
+</view>

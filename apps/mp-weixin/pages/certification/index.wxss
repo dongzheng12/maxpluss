@@ -1,0 +1,5 @@
+.coming-soon-card { margin-top: 80rpx; padding: 80rpx 40rpx; text-align: center; }
+.coming-icon { width: 120rpx; height: 120rpx; margin: 0 auto 32rpx; border-radius: 999rpx; background: #ebf9ef; color: #16a34a; font-size: 40rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.coming-title { font-size: 40rpx; font-weight: 700; margin-bottom: 16rpx; }
+.coming-desc { font-size: 32rpx; color: #2b63f6; font-weight: 600; margin-bottom: 12rpx; }
+.coming-sub { font-size: 26rpx; color: #99a3b4; line-height: 1.6; }

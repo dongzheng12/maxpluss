@@ -1,0 +1,25 @@
+/* 页面级 flex 纵向布局（覆盖全局 .page-shell） */
+.page-shell { display: flex; flex-direction: column; min-height: 100vh; }
+
+.loading-state { padding: 120rpx 0; text-align: center; }
+
+/* 双列布局 */
+.sections-layout { display: flex; gap: 12rpx; flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 160rpx; }
+.section-col { flex: 1; display: flex; flex-direction: column; background: #fff; border-radius: 20rpx; overflow: hidden; }
+.col-header { padding: 20rpx 16rpx; background: #f5f6f8; display: flex; align-items: center; justify-content: space-between; }
+.col-title { font-size: 24rpx; font-weight: 700; color: #1f2a44; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 8rpx; }
+.col-toggle { font-size: 22rpx; color: #2b63f6; font-weight: 600; white-space: nowrap; }
+
+.section-list { flex: 1; }
+.section-item { display: flex; align-items: center; gap: 10rpx; padding: 18rpx 16rpx; border-bottom: 1rpx solid #f0f2f5; }
+.section-item.checked { background: #f8fbff; }
+.checkbox-icon { font-size: 34rpx; color: #c0c8d4; flex-shrink: 0; }
+.section-item.checked .checkbox-icon { color: #2b63f6; }
+.section-text { font-size: 26rpx; color: #40506b; line-height: 1.5; }
+
+/* 底部操作栏 */
+.bottom-bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 16rpx 24rpx; padding-bottom: calc(16rpx + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -4rpx 16rpx rgba(0,0,0,0.06); z-index: 100; box-sizing: border-box; }
+.selected-info { font-size: 24rpx; color: #7f8898; text-align: center; margin-bottom: 12rpx; }
+.btn-disabled { opacity: 0.5; pointer-events: none; }
+.empty-hint { padding: 60rpx 20rpx; text-align: center; font-size: 24rpx; color: #999; line-height: 1.6; }
+.error-hint { color: #e65c5c; }

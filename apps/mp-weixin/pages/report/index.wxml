@@ -1,0 +1,417 @@
+<view class="page-shell">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="report-loading">
+    <text>加载报告中...</text>
+  </view>
+
+  <!-- 任务失败 -->
+  <view wx:if="{{!loading && status === 'FAILED'}}" class="section-card report-status-card">
+    <view class="status-icon">✕</view>
+    <view class="status-title">比对任务失败</view>
+    <view class="status-desc">{{errorMessage}}</view>
+    <view class="status-tips">建议重试，或重新发起比对。</view>
+    <view class="report-status-actions">
+      <view class="primary-btn" style="flex:1;" bindtap="retryTask">重试</view>
+      <view class="secondary-btn" style="flex:1;" bindtap="goCompare">返回列表</view>
+    </view>
+  </view>
+
+  <!-- 任务处理中 -->
+  <view wx:if="{{!loading && (status === 'PENDING' || status === 'PROCESSING')}}" class="section-card report-status-card">
+    <view class="status-icon processing">⏳</view>
+    <view class="status-title">报告生成中</view>
+    <view class="status-desc">{{documentName || '文档'}}正在后台处理，通常需要 1-5 分钟...</view>
+    <view class="status-tips">页面会自动刷新，请耐心等待。</view>
+  </view>
+
+  <block wx:if="{{!loading && status !== 'FAILED' && status !== 'PENDING' && status !== 'PROCESSING'}}">
+    <!-- 报告头部 -->
+    <view class="section-card report-head-card">
+      <view class="report-head-title">{{displayDocName || documentName}}</view>
+      <view class="meta-text">任务编号：{{taskNo}}</view>
+      <view class="meta-text">比对模式：{{compareMode === 'library' ? '全库相似度分析' : '1对1比对'}}</view>
+      <view class="risk-badge risk-{{riskLevel}}" wx:if="{{riskLevel}}">{{riskLabel}}</view>
+    </view>
+
+    <!-- 免费风险摘要（始终显示） -->
+    <view class="section-card report-risk-card">
+      <view class="report-risk-title">风险摘要</view>
+      <block wx:for="{{freeRisk}}" wx:key="*this">
+        <view class="risk-item">{{item}}</view>
+      </block>
+      <view wx:if="{{freeRisk.length === 0}}" class="risk-item">暂无风险提示</view>
+    </view>
+
+    <!-- ═══ library 模式免费预览（不依赖 report，始终可渲染）═══ -->
+    <block wx:if="{{compareMode === 'library' && preview && !unlocked}}">
+
+      <!-- 无匹配结果友好提示 -->
+      <view wx:if="{{preview.topSimilarCount === 0 && preview._overallPct < 5}}" class="section-card empty-result-card">
+        <view class="empty-result-icon">ℹ️</view>
+        <view class="empty-result-title">未找到高相似度标准</view>
+        <view class="empty-result-desc">您上传的文档与库中现有标准差异较大，建议：</view>
+        <view class="empty-result-tips">
+          <view>• 确认上传的文档是否为标准类文件</view>
+          <view>• 检查文档内容是否完整</view>
+          <view>• 尝试上传其他相关文档</view>
+        </view>
+      </view>
+
+      <!-- 低质量报告警告 -->
+      <view wx:elif="{{preview._overallPct < 15 && preview.topSimilarCount > 0}}" class="section-card low-quality-alert">
+        <view class="low-quality-text">⚠️ 报告相似度较低，最高综合相似度仅 {{preview._overallPct}}%，报告参考价值可能有限。</view>
+      </view>
+
+      <!-- 预览指标总览 -->
+      <view class="section-card">
+        <view class="report-section-title">评估总览</view>
+        <view class="metrics-grid">
+          <view class="metric-item">
+            <view class="metric-value" style="color:{{preview._overallColor}}">{{preview._overallPct}}%</view>
+            <view class="metric-label">最高综合相似度</view>
+          </view>
+          <view class="metric-item">
+            <view class="metric-value" style="color:{{preview._refIssueColor}}">{{preview.referencesIssueCount}} 项</view>
+            <view class="metric-label">引用规范性问题</view>
+          </view>
+          <view class="metric-item">
+            <view class="metric-value" style="color:#27ae60">{{preview.termsMatched}} 项</view>
+            <view class="metric-label">术语匹配</view>
+          </view>
+          <view class="metric-item">
+            <view class="metric-value" style="color:{{preview._dupColor}}">{{preview.duplicationRate}}%</view>
+            <view class="metric-label">内容重复率</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 预览：Top 3 高相似标准 -->
+      <view class="section-card" wx:if="{{preview.topSimilarPreview.length > 0}}">
+        <view class="report-section-title">高相似度标准（前 {{preview.topSimilarPreview.length}} 条）</view>
+        <view class="similar-item" wx:for="{{preview.topSimilarPreview}}" wx:key="code">
+          <view class="similar-header">
+            <text class="similar-code">{{item.code}}</text>
+            <text class="similar-score">{{item._scorePct}}%</text>
+          </view>
+          <view class="similar-title">{{item.name}}</view>
+        </view>
+        <view wx:if="{{preview.topSimilarCount > 3}}" class="meta-text" style="text-align:center;padding:16rpx 0;">
+          还有 {{preview.topSimilarCount - 3}} 条相似标准，解锁后查看完整分析 →
+        </view>
+      </view>
+
+      <!-- 预览结论 -->
+      <view class="section-card" wx:if="{{preview.conclusions.length > 0}}">
+        <view class="report-section-title">初步分析</view>
+        <view class="conclusion-item" wx:for="{{preview.conclusions}}" wx:key="*this">
+          <text>{{item}}</text>
+        </view>
+      </view>
+
+      <!-- 结构缺失提示 -->
+      <view class="section-card" wx:if="{{preview.structureMissing > 0}}">
+        <view class="meta-text" style="color:#e65100;">文档结构缺少 {{preview.structureMissing}} 项标准必备部分，解锁报告查看详情。</view>
+      </view>
+
+    </block>
+
+    <!-- ═══ 解锁后：分析报告 ═══ -->
+    <block wx:if="{{unlocked && report}}">
+
+      <!-- ── 全库相似度分析报告 ── -->
+      <block wx:if="{{compareMode === 'library'}}">
+
+        <!-- 评估总览 -->
+        <view class="section-card" wx:if="{{report.summary}}">
+          <view class="report-section-title">评估总览</view>
+          <view class="metrics-grid metrics-grid-3">
+            <view class="metric-item">
+              <view class="metric-value" style="color:{{report.summary._overallColor}}">{{report.summary._overallPct}}%</view>
+              <view class="metric-label">最高综合相似度</view>
+            </view>
+            <view class="metric-item">
+              <view class="metric-value">{{report.summary._titlePct}}%</view>
+              <view class="metric-label">题名相似度</view>
+            </view>
+            <view class="metric-item">
+              <view class="metric-value">{{report.summary._contentPct}}%</view>
+              <view class="metric-label">内容相似度</view>
+            </view>
+            <view class="metric-item">
+              <view class="metric-value">{{report.summary._structurePct}}%</view>
+              <view class="metric-label">结构相似度</view>
+            </view>
+            <view class="metric-item">
+              <view class="metric-value">{{report.summary._referencePct}}%</view>
+              <view class="metric-label">引用重叠度</view>
+            </view>
+            <view class="metric-item">
+              <view class="metric-value">{{report.summary._termPct}}%</view>
+              <view class="metric-label">术语重叠度</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 高相似度标准 -->
+        <view class="section-card" wx:if="{{report.top_similar.length > 0}}">
+          <view class="report-section-title">高相似度标准（{{report.top_similar.length}} 条）</view>
+          <view class="similar-item" wx:for="{{report.top_similar}}" wx:key="code">
+            <view class="similar-header">
+              <text class="similar-code">{{item.code}}</text>
+              <view class="score-badge {{item.overall_score >= 60 ? 'score-high' : item.overall_score >= 40 ? 'score-mid' : item.overall_score >= 20 ? 'score-warn' : 'score-low'}}">{{item.overall_score}}%</view>
+            </view>
+            <view class="similar-title">{{item.name}}</view>
+            <!-- 进度条 -->
+            <view class="progress-bar">
+              <view class="progress-fill {{item.overall_score >= 60 ? 'fill-high' : item.overall_score >= 40 ? 'fill-mid' : 'fill-low'}}" style="width:{{item.overall_score}}%"></view>
+            </view>
+            <view class="similar-scores">
+              <text>题名 {{item.title_sim}}%</text>
+              <text>内容 {{item.content_sim}}%</text>
+              <text>结构 {{item.structure_sim}}%</text>
+              <text>引用 {{item.reference_sim}}%</text>
+            </view>
+            <!-- 有效性标签 -->
+            <view wx:if="{{item._statusText}}" class="status-tag status-tag-{{item._statusClass}}">{{item._statusText}}</view>
+            <!-- 匹配章节 -->
+            <view wx:if="{{item.matched_sections.length > 0}}" class="match-detail">
+              <view class="match-label">命中章节：</view>
+              <view wx:for="{{item.matched_sections}}" wx:for-item="sec" wx:key="user_section" class="match-row">
+                <text class="meta-text">{{sec.user_section}} ↔ {{sec.lib_section}} ({{sec._simPct}}%)</text>
+              </view>
+            </view>
+            <!-- 共同引用 -->
+            <view wx:if="{{item.matched_refs.length > 0}}" class="match-detail">
+              <view class="match-label">共同引用：{{item._refsCount}} 条</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 引用文件规范性 -->
+        <view class="section-card" wx:if="{{report.references}}">
+          <view class="report-section-title">引用文件规范性</view>
+          <view class="meta-text">共检测到 {{report.references.total}} 条引用标准，{{report.references.valid}} 条有效</view>
+          <view wx:if="{{report.references.issues.length > 0}}">
+            <view class="issue-item" wx:for="{{report.references.issues}}" wx:key="cited_code">
+              <view class="issue-code-row">
+                <text class="issue-code">{{item.cited_code}}</text>
+                <!-- 「来源 / 元数据 / 主库」标签已删除:暴露内部数据源结构,不符合合规要求 -->
+              </view>
+              <view class="issue-detail">{{item.status}} — {{item.issue}}</view>
+              <view class="meta-text">建议：{{item.replacement}}</view>
+            </view>
+          </view>
+          <view wx:else class="meta-text" style="margin-top:12rpx;">所有引用标准版本均在合理范围内。</view>
+        </view>
+
+        <!-- 术语匹配 -->
+        <view class="section-card" wx:if="{{report.terms && report.terms.details.length > 0}}">
+          <view class="report-section-title">术语匹配（{{report.terms.matched}} 项）</view>
+          <view class="issue-item" wx:for="{{report.terms.details}}" wx:key="term">
+            <view class="issue-code">{{item.term}}</view>
+            <view class="meta-text">匹配标准：{{item._matchText}}</view>
+          </view>
+        </view>
+
+        <!-- 结构完整性 -->
+        <view class="section-card" wx:if="{{report.structure}}">
+          <view class="report-section-title">
+            <text>结构完整性</text>
+            <text class="structure-tag {{report.structure.complete ? 'tag-ok' : 'tag-warn'}}">{{report.structure.complete ? '符合规范' : '需修正'}}</text>
+          </view>
+          <view class="meta-text">标准必备结构覆盖 {{report.structure.required_found}}/{{report.structure.required_total}} 项</view>
+          <view wx:if="{{report.structure.missing.length > 0}}" class="issue-item">
+            <view class="issue-detail" style="color:#fa8c16;">缺少必备章节：{{report.structure._missingText}}</view>
+          </view>
+          <view wx:else class="meta-text" style="margin-top:12rpx;color:#27ae60;">必备章节完整</view>
+
+          <!-- 章节跳号 — 已对外隐藏（误报率高），保留后端字段供内部使用 -->
+
+          <!-- 深度超限 -->
+          <view wx:if="{{report.structure._depthIssues.length > 0}}" class="structure-sub">
+            <view class="structure-sub-title">章节深度超 4 级（{{report.structure._depthIssues.length}} 处）</view>
+            <view class="issue-item" wx:for="{{report.structure._depthIssues}}" wx:key="section">
+              <view class="issue-code">{{item.section}} {{item.title}}</view>
+              <view class="meta-text">深度 {{item.depth}} 级</view>
+            </view>
+          </view>
+
+          <!-- 列项嵌套超限 -->
+          <view wx:if="{{report.structure._listNestingIssues.length > 0}}" class="structure-sub">
+            <view class="structure-sub-title">列项嵌套超限（{{report.structure._listNestingIssues.length}} 处）</view>
+            <view class="issue-item" wx:for="{{report.structure._listNestingIssues}}" wx:key="issue">
+              <view class="issue-detail" style="color:#fa8c16;">{{item.issue}}</view>
+              <view class="meta-text">{{item.suggestion}}</view>
+            </view>
+          </view>
+
+          <!-- 附录标注缺失 -->
+          <view wx:if="{{report.structure._appendixIssues.length > 0}}" class="structure-sub">
+            <view class="structure-sub-title">附录标注缺失（{{report.structure._appendixIssues.length}} 处）</view>
+            <view class="issue-item" wx:for="{{report.structure._appendixIssues}}" wx:key="issue">
+              <view class="issue-detail" style="color:#fa8c16;">{{item.issue}}</view>
+              <view class="meta-text">{{item.suggestion}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 内部章节引用检查 -->
+        <view class="section-card" wx:if="{{report.dangling_sections && report.dangling_sections.checked > 0}}">
+          <view class="report-section-title">内部章节引用检查</view>
+          <view class="meta-text">共扫描到 {{report.dangling_sections.checked}} 处内部章节引用，其中
+            <text style="color:{{report.dangling_sections.dangling_count > 0 ? '#e74c3c' : '#27ae60'}};font-weight:700;">{{report.dangling_sections.dangling_count}} 处</text>
+            指向不存在的章节。
+          </view>
+          <view wx:if="{{report.dangling_sections.dangling && report.dangling_sections.dangling.length > 0}}">
+            <view class="issue-item" wx:for="{{report.dangling_sections.dangling}}" wx:key="target">
+              <view class="issue-code">{{item.target}}</view>
+              <view class="issue-detail">{{item.ref}}</view>
+              <view class="meta-text">所在章节：{{item.in_section}}</view>
+            </view>
+          </view>
+          <view wx:else class="meta-text" style="margin-top:12rpx;color:#27ae60;">所有内部章节引用均可在文档中找到对应章节。</view>
+        </view>
+
+        <!-- 行业标准格局 -->
+        <view class="section-card" wx:if="{{report.industry_landscape && report.industry_landscape.available}}">
+          <view class="report-section-title">行业标准格局</view>
+          <view class="meta-text" style="margin-bottom:16rpx;">ICS {{report.industry_landscape.ics_prefix}}{{report.industry_landscape.ics_name ? ' · ' + report.industry_landscape.ics_name : ''}}（参考统计）</view>
+          <view class="landscape-grid">
+            <view class="landscape-stat">
+              <view class="landscape-value" style="color:#1677ff;">{{report.industry_landscape.active_count}}</view>
+              <view class="landscape-label">现行标准</view>
+            </view>
+            <view class="landscape-stat">
+              <view class="landscape-value" style="color:#bfbfbf;">{{report.industry_landscape.obsolete_count}}</view>
+              <view class="landscape-label">已废止</view>
+            </view>
+            <view class="landscape-stat">
+              <view class="landscape-value" style="color:#52c41a;">{{report.industry_landscape.upcoming_count}}</view>
+              <view class="landscape-label">即将实施</view>
+            </view>
+          </view>
+          <view class="meta-text" style="margin-top:16rpx;">{{report.industry_landscape.insight}}</view>
+        </view>
+
+        <!-- 内容重复率 -->
+        <view class="section-card" wx:if="{{report.duplication}}">
+          <view class="report-section-title">内容重复率</view>
+          <view class="meta-text">估算整体内容重复率：{{report.duplication.estimated_rate}}%</view>
+          <view class="dup-stats">
+            <view class="dup-stat">高相似（>30%）：{{report.duplication.high_sim_count}} 条</view>
+            <view class="dup-stat">中相似（15-30%）：{{report.duplication.medium_sim_count}} 条</view>
+            <view class="dup-stat">低相似（5-15%）：{{report.duplication.low_sim_count}} 条</view>
+          </view>
+        </view>
+
+        <!-- 综合分析（颜色区分） -->
+        <view class="section-card" wx:if="{{report.conclusions.length > 0}}">
+          <view class="report-section-title">综合分析</view>
+          <view wx:for="{{report.conclusions}}" wx:key="*this" class="conclusion-card {{item.indexOf('风险') >= 0 || item.indexOf('问题') >= 0 || item.indexOf('缺') >= 0 ? 'conclusion-warn' : item.indexOf('符合') >= 0 || item.indexOf('通过') >= 0 || item.indexOf('未发现') >= 0 ? 'conclusion-ok' : 'conclusion-info'}}">
+            <text>{{item}}</text>
+          </view>
+        </view>
+
+        <!-- 免责声明 -->
+        <view class="section-card disclaimer-card">
+          <view class="disclaimer-title">免责声明</view>
+          <view class="disclaimer-text">本报告由标准小智 AI 自动生成，基于用户上传内容、公开标准题录信息及自研规则模型输出，仅供检索、研判与写作参考，不构成标准现行有效性、合规性或立项可行性的最终认定；涉及标准状态、替代关系、适用性及相关内容权属的，具体以权威公告、相关标准发布机构及版权权利人的官方信息为准。</view>
+        </view>
+
+      </block>
+
+      <!-- ── 1v1 比对报告（保留原有逻辑）── -->
+      <block wx:if="{{compareMode !== 'library'}}">
+
+        <!-- 总览指标 -->
+        <view class="section-card" wx:if="{{report.summaryMetrics && report.summaryMetrics.length > 0}}">
+          <view class="report-section-title">总览指标</view>
+          <view class="metrics-grid">
+            <view class="metric-item" wx:for="{{report.summaryMetrics}}" wx:key="label">
+              <view class="metric-value" style="color:{{item.accent}}">{{item.value}}</view>
+              <view class="metric-label">{{item.label}}</view>
+              <view class="meta-text">{{item.detail}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 文件对比摘要（1对1） -->
+        <view class="section-card" wx:if="{{pairSummary}}">
+          <view class="report-section-title">文件对比摘要</view>
+          <view class="pair-summary-files">
+            <view class="pair-summary-file">文件 A：{{pairSummary.fileAName}}</view>
+            <view class="pair-summary-file">文件 B：{{pairSummary.fileBName}}</view>
+          </view>
+          <view class="pair-summary-scores">
+            <view class="pair-score-row"><text class="pair-score-label">综合相似度</text><text class="pair-score-value">{{pairSummary.overallSimilarity}}%</text></view>
+            <view class="pair-score-row"><text class="pair-score-label">标题相似度</text><text class="pair-score-value">{{pairSummary.titleSimilarity}}%</text></view>
+            <view class="pair-score-row"><text class="pair-score-label">范围相似度</text><text class="pair-score-value">{{pairSummary.scopeSimilarity}}%</text></view>
+            <view class="pair-score-row"><text class="pair-score-label">正文相似度</text><text class="pair-score-value">{{pairSummary.textSimilarity}}%</text></view>
+          </view>
+        </view>
+
+        <!-- 引用标准风险 -->
+        <view class="section-card" wx:if="{{report.citationIssues && report.citationIssues.length > 0}}">
+          <view class="report-section-title">引用标准风险（{{report.citationIssues.length}} 条）</view>
+          <view class="issue-item" wx:for="{{report.citationIssues}}" wx:key="sourceCode">
+            <view class="issue-code">{{item.sourceCode}}</view>
+            <view class="issue-detail">{{item.validity}} — {{item.result}}</view>
+            <view class="meta-text">建议：{{item.replacement}}</view>
+          </view>
+        </view>
+
+        <!-- 术语问题 -->
+        <view class="section-card" wx:if="{{report.termIssues && report.termIssues.length > 0}}">
+          <view class="report-section-title">术语问题（{{report.termIssues.length}} 条）</view>
+          <view class="issue-item" wx:for="{{report.termIssues}}" wx:key="term">
+            <view class="issue-code">{{item.term}}</view>
+            <view class="issue-detail">{{item.issue}}</view>
+          </view>
+        </view>
+
+        <!-- 段落重复 -->
+        <view class="section-card" wx:if="{{report.duplicateParagraphs && report.duplicateParagraphs.length > 0}}">
+          <view class="report-section-title">段落重复检测（{{report.duplicateParagraphs.length}} 处）</view>
+          <view class="issue-item" wx:for="{{report.duplicateParagraphs}}" wx:key="section">
+            <view class="issue-code">{{item.section}}</view>
+            <view class="issue-detail">相似度 {{item.similarity}}% — {{item.risk}}</view>
+          </view>
+        </view>
+
+        <!-- 结构问题 -->
+        <view class="section-card" wx:if="{{report.hangingSections && report.hangingSections.length > 0}}">
+          <view class="report-section-title">结构问题（{{report.hangingSections.length}} 处）</view>
+          <view class="issue-item" wx:for="{{report.hangingSections}}" wx:key="section">
+            <view class="issue-code">{{item.section}}</view>
+            <view class="issue-detail">{{item.reason}}</view>
+            <view class="meta-text">建议：{{item.action}}</view>
+          </view>
+        </view>
+
+        <!-- 分析参考 -->
+        <view class="section-card" wx:if="{{report.tabs && report.tabs.length > 0}}">
+          <view class="report-section-title">分析参考</view>
+          <view class="tab-section" wx:for="{{report.tabs}}" wx:key="key">
+            <view class="tab-label">{{item.label}}</view>
+            <view class="meta-text">{{item.intro}}</view>
+            <view class="conclusion-item" wx:for="{{item.conclusions}}" wx:for-item="conclusion" wx:key="*this">
+              <text>{{conclusion}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+
+
+    </block>
+
+    <!-- ═══ 未解锁：底部固定解锁栏 ═══ -->
+    <view class="unlock-bar" wx:if="{{!unlocked}}">
+      <view class="unlock-bar-info">
+        <view class="unlock-bar-title">查看完整分析报告</view>
+        <view class="unlock-bar-desc">引用核查 · 行业格局 · 章节断链 · 9 大维度</view>
+      </view>
+      <view class="unlock-bar-btn" bindtap="unlockReport">解锁分析报告（会员权益）</view>
+    </view>
+
+  </block>
+</view>

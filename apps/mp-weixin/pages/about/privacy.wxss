@@ -1,0 +1,5 @@
+.legal-page { padding: 24rpx; }
+.legal-updated { font-size: 24rpx; color: #999; margin-bottom: 32rpx; }
+.legal-section { margin-bottom: 36rpx; }
+.legal-title { font-size: 30rpx; font-weight: 600; color: #1a3f6b; margin-bottom: 12rpx; }
+.legal-text { font-size: 28rpx; color: #555; line-height: 1.8; margin-bottom: 12rpx; }

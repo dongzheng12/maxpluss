@@ -1,0 +1,1866 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 生产已迁 PostgreSQL；本地 vitest 用独立 PG 容器
+// （bxz-pg-test，端口 55432，库 biaozhunxiaozhi_test，配置见 .env.test）。
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id                  String               @id @default(uuid())
+  name                String
+  brand               String?
+  category            String?
+  categoryId          String?
+  barcode             String?              @unique
+  createdAt           DateTime             @default(now()) @db.Timestamptz(3)
+  mappings            ProductMapping[]
+  assessments         Assessment[]
+  reports             Report[]
+  productionStandards ProductionStandard[]
+  categoryRef         Category?            @relation(fields: [categoryId], references: [id])
+}
+
+model Standard {
+  id                  String                 @id @default(uuid())
+  code                String                 @unique
+  title               String
+  type                String?
+  level               String
+  source              String
+  version             String
+  scope               String
+  status              String?
+  publishDate         DateTime?              @db.Timestamptz(3)
+  effectiveDate       DateTime?              @db.Timestamptz(3)
+  clauses             StandardClause[]
+  content             StandardContent?
+  productionStandards ProductionStandard[]
+  sceneBindings       SceneStandardBinding[]
+  createdAt           DateTime               @default(now()) @db.Timestamptz(3)
+}
+
+model StandardClause {
+  id           String     @id @default(uuid())
+  standardId   String
+  key          String
+  requirement  String
+  weight       Float
+  indicator    String
+  indicatorId  String?
+  comparator   String
+  threshold    Float
+  limitType    String?
+  thresholdMin Float?
+  thresholdMax Float?
+  unit         String?
+  scopeText    String?
+  veto         Boolean    @default(false)
+  standard     Standard   @relation(fields: [standardId], references: [id])
+  indicatorRef Indicator? @relation(fields: [indicatorId], references: [id])
+}
+
+model RuleSet {
+  id         String   @id @default(uuid())
+  name       String
+  strategy   String
+  weights    String
+  expression String?
+  version    String?
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model ProductMapping {
+  id          String  @id @default(uuid())
+  productId   String
+  type        String
+  value       String
+  priority    Int
+  standardIds String
+  product     Product @relation(fields: [productId], references: [id])
+}
+
+model Assessment {
+  id          String   @id @default(uuid())
+  productId   String?
+  reportId    String?
+  rulesetId   String?
+  inputType   String
+  inputValue  String?
+  score       Int
+  grade       String?
+  percentile  Int?
+  compliance  String
+  suggestion  String
+  details     String
+  explainJson String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  product     Product? @relation(fields: [productId], references: [id])
+}
+
+model ProductionStandard {
+  id          String       @id @default(uuid())
+  productId   String
+  standardId  String
+  dataSource  String
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  product     Product      @relation(fields: [productId], references: [id])
+  standard    Standard     @relation(fields: [standardId], references: [id])
+  reportItems ReportItem[]
+}
+
+model ReportItem {
+  id                   String             @id @default(uuid())
+  productionStandardId String
+  indicator            String
+  value                Float
+  unit                 String?
+  result               String?
+  productionStandard   ProductionStandard @relation(fields: [productionStandardId], references: [id])
+}
+
+model Category {
+  id        String         @id @default(uuid())
+  name      String
+  parentId  String?
+  createdAt DateTime       @default(now()) @db.Timestamptz(3)
+  products  Product[]
+  baselines PeerBaseline[]
+}
+
+model Indicator {
+  id           String             @id @default(uuid())
+  indicatorId  String?            @unique
+  name         String
+  synonyms     String?
+  defaultUnit  String?
+  dimension    String             @default("quality")
+  createdAt    DateTime           @default(now()) @db.Timestamptz(3)
+  clauses      StandardClause[]
+  measurements Measurement[]
+  baselines    PeerBaseline[]
+  mappings     IndicatorMapping[]
+}
+
+model Report {
+  id           String        @id @default(uuid())
+  productId    String
+  reportNo     String?
+  org          String?
+  date         DateTime?     @db.Timestamptz(3)
+  batchNo      String?
+  sourceType   String
+  fileUrl      String?
+  trustLevel   String?
+  createdAt    DateTime      @default(now()) @db.Timestamptz(3)
+  product      Product       @relation(fields: [productId], references: [id])
+  measurements Measurement[]
+}
+
+model Measurement {
+  id                String     @id @default(uuid())
+  reportId          String
+  indicatorId       String?
+  rawName           String
+  rawValue          Float?
+  rawUnit           String?
+  valueStd          Float?
+  unitStd           String?
+  mappingConfidence Float?
+  createdAt         DateTime   @default(now()) @db.Timestamptz(3)
+  report            Report     @relation(fields: [reportId], references: [id])
+  indicatorRef      Indicator? @relation(fields: [indicatorId], references: [id])
+}
+
+model PeerBaseline {
+  id          String    @id @default(uuid())
+  categoryId  String
+  indicatorId String
+  avg         Float?
+  p50         Float?
+  p75         Float?
+  p90         Float?
+  updatedAt   DateTime? @db.Timestamptz(3)
+  source      String?
+  category    Category  @relation(fields: [categoryId], references: [id])
+  indicator   Indicator @relation(fields: [indicatorId], references: [id])
+}
+
+model IndicatorMapping {
+  id          String    @id @default(uuid())
+  mappingType String
+  rawKey      String
+  indicatorId String
+  rule        String?
+  confidence  Float?
+  updatedAt   DateTime  @default(now()) @db.Timestamptz(3)
+  indicator   Indicator @relation(fields: [indicatorId], references: [id])
+}
+
+model IngestionJob {
+  id         String   @id @default(uuid())
+  sourceType String
+  sourceName String?
+  payloadRef String?
+  status     String
+  progress   Float?
+  errorLog   String?
+  createdBy  String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actor      String?
+  action     String
+  targetType String
+  targetId   String?
+  diffJson   String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model AuditTask {
+  id        String   @id @default(uuid())
+  title     String
+  source    String
+  status    String
+  payload   String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model StandardContent {
+  id         String   @id @default(uuid())
+  standardId String   @unique
+  header     String?
+  toc        String?
+  preface    String?
+  intro      String?
+  sections   String?
+  figures    String?
+  tables     String?
+  references String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  standard   Standard @relation(fields: [standardId], references: [id])
+}
+
+model Scene {
+  id          String                 @id @default(uuid())
+  name        String
+  type        String
+  industry    String?
+  description String?
+  status      String                 @default("启用")
+  createdAt   DateTime               @default(now()) @db.Timestamptz(3)
+  modules     SceneModule[]
+  bindings    SceneStandardBinding[]
+  runs        SceneRun[]
+}
+
+model SceneModule {
+  id         String   @id @default(uuid())
+  sceneId    String
+  moduleType String
+  title      String
+  sortOrder  Int
+  payload    String
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  scene      Scene    @relation(fields: [sceneId], references: [id])
+}
+
+model SceneStandardBinding {
+  id         String   @id @default(uuid())
+  sceneId    String
+  standardId String
+  relation   String
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  scene      Scene    @relation(fields: [sceneId], references: [id])
+  standard   Standard @relation(fields: [standardId], references: [id])
+}
+
+model SceneRun {
+  id          String            @id @default(uuid())
+  sceneId     String
+  userId      String?
+  status      String            @default("PENDING")
+  startedAt   DateTime?         @db.Timestamptz(3)
+  finishedAt  DateTime?         @db.Timestamptz(3)
+  createdAt   DateTime          @default(now()) @db.Timestamptz(3)
+  payload     String?
+  scene       Scene             @relation(fields: [sceneId], references: [id])
+  stepLogs    SceneStepLog[]
+  quizResults SceneQuizResult[]
+}
+
+model SceneStepLog {
+  id         String   @id @default(uuid())
+  sceneRunId String
+  moduleId   String
+  stepKey    String
+  status     String
+  note       String?
+  media      String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  sceneRun   SceneRun @relation(fields: [sceneRunId], references: [id])
+}
+
+model SceneQuizResult {
+  id          String   @id @default(uuid())
+  sceneRunId  String
+  moduleId    String
+  score       Float
+  total       Float
+  durationSec Int?
+  payload     String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  sceneRun    SceneRun @relation(fields: [sceneRunId], references: [id])
+}
+
+model AppUser {
+  id                String           @id
+  phone             String?          @unique
+  email             String?          @unique
+  openId            String?          @unique // 微信小程序 openId
+  passwordHash      String?
+  passwordMustChange Boolean         @default(false) // 企业临时密码登录后必须先修改密码
+  role              String           @default("user") // user | admin | sales
+  enterpriseId      String? // null = 个人/老用户；有值 = 企业成员；二期 SaaS 来源于 JWT
+  enterpriseRole    String? // ADMIN | MANAGER | REVIEWER | EMPLOYEE；null = 非企业角色（与 role 解耦）
+  isBlocked         Boolean          @default(false) // true = 被管理员禁用，登录态命中 requireAuth 时返回 403
+  name              String?
+  organization      String?
+  avatarUrl         String?
+  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
+  firstScanAt       DateTime?        @db.Timestamptz(3) // 首次扫码成功时间（营销自动化：首扫奖励 R15）
+  firstSearchAt     DateTime?        @db.Timestamptz(3) // 首次检索成功时间（营销自动化：首检索后功能引导 R02）
+  lastActiveAt      DateTime?        @db.Timestamptz(3) // 最近一次核心功能活跃时间（营销自动化：沉默唤醒/流失召回）
+  bonusCompareQuota Int              @default(0) // R13 流失召回附赠的全库比对次数（非年度限制外额度）
+  salesCode         String? // 销售归因快照：注册时从 URL / cookie 写入
+  label             UserLabel?
+  notifications     Notification[]
+  memberships       UserMembership[]
+  orders            AppOrder[]
+  bookings          ServiceBooking[]
+  compareTasks      CompareTask[]
+  invoices          InvoiceRequest[]
+  conversations     Conversation[]
+  salesProfile      SalesProfile?
+  userCoupons       UserCoupon[]
+  adminRoles        AdminUserRole[]
+
+  @@index([salesCode])
+  @@index([enterpriseId])
+}
+
+// ────────────────────────────────────────────────────────────
+// 后台 RBAC（管理人员 + 角色权限）
+// ────────────────────────────────────────────────────────────
+
+model AdminRole {
+  id                String          @id @default(cuid())
+  name              String          @unique // 管理员自定义："财务"、"运营"
+  description       String?
+  menuPermissions   Json            @default("[]") // string[] — 允许的菜单路径
+  actionPermissions Json            @default("[]") // string[] — 允许的操作权限 key
+  dataScope         String          @default("SELF") // ALL | SELF | TEAM
+  isSystem          Boolean         @default(false) // true = 内置角色，不可删除
+  status            String          @default("ACTIVE") // ACTIVE | DISABLED
+  createdBy         String // admin userId
+  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(3)
+  userRoles         AdminUserRole[]
+}
+
+model AdminUserRole {
+  id         String    @id @default(cuid())
+  userId     String
+  roleId     String
+  status     String    @default("ACTIVE") // ACTIVE | DISABLED ← 管理人员启停开关
+  assignedBy String // admin userId
+  assignedAt DateTime  @default(now()) @db.Timestamptz(3)
+  user       AppUser   @relation(fields: [userId], references: [id])
+  role       AdminRole @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+model VerificationCode {
+  id        String    @id @default(uuid())
+  target    String // email 地址或手机号
+  type      String // email | phone
+  code      String // 6位数字
+  purpose   String    @default("login") // login | register
+  attempts  Int       @default(0) // 已尝试次数，超5次作废
+  usedAt    DateTime? @db.Timestamptz(3) // 使用时间，非null即已消费
+  expiresAt DateTime  @db.Timestamptz(3) // 过期时间（创建后10分钟）
+  ip        String? // 发送请求IP，用于防刷查询
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([target, type])
+  @@index([ip])
+}
+
+model MembershipPlan {
+  id           String           @id
+  name         String
+  price        Int
+  badge        String?
+  description  String
+  featuresJson String
+  status       String           @default("ACTIVE")
+  createdAt    DateTime         @default(now()) @db.Timestamptz(3)
+  memberships  UserMembership[]
+  orders       AppOrder[]
+}
+
+model UserMembership {
+  id           String         @id @default(uuid())
+  userId       String
+  planId       String
+  status       String // ACTIVE | EXPIRED | REVOKED
+  source       String         @default("PURCHASE") // PURCHASE | SALES_GIFT | SYSTEM | SALES_REFERRAL
+  sourceRef    String? // 关联订单号或赠送码
+  salesCode    String? // 销售归因快照（source=SALES_REFERRAL 时写入，其他 source 留空）
+  startAt      DateTime       @db.Timestamptz(3)
+  endAt        DateTime       @db.Timestamptz(3)
+  benefitsJson String?
+  revokedAt    DateTime?      @db.Timestamptz(3)
+  revokedBy    String?
+  revokeReason String?
+  createdAt    DateTime       @default(now()) @db.Timestamptz(3)
+  plan         MembershipPlan @relation(fields: [planId], references: [id])
+  user         AppUser        @relation(fields: [userId], references: [id])
+}
+
+model SalesGift {
+  id            String    @id @default(uuid())
+  code          String    @unique // 8位赠送码
+  phone         String // 客户手机号
+  email         String // 客户邮箱
+  planId        String // 赠送的权益类型
+  durationDays  Int       @default(365) // 赠送时长（天）
+  status        String    @default("PENDING") // PENDING | CLAIMED | EXPIRED | REVOKED
+  expiresAt     DateTime  @db.Timestamptz(3) // 领取截止日期
+  note          String? // 备注
+  createdBy     String // 发放销售人 ID
+  createdByName String? // 发放销售人姓名
+  claimedAt     DateTime? @db.Timestamptz(3) // 领取时间
+  claimedBy     String? // 领取用户 ID
+  membershipId  String? // 发放的 membership 记录 ID
+  revokedAt     DateTime? @db.Timestamptz(3)
+  revokedBy     String?
+  revokeReason  String?
+  logs          String? // JSON: 操作日志数组
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+}
+
+model AppOrder {
+  id             String          @id @default(uuid())
+  orderNo        String          @unique
+  userId         String?
+  planId         String?
+  productType    String
+  productRef     String?
+  title          String
+  amount         Int
+  status         String          @default("PENDING") // PENDING|PAYING|PENDING_VERIFY|PAID|FAILED|CANCELLED|REFUNDED
+  channel        String?
+  receiptImage   String? // 用户上传的支付凭证图片路径
+  invoiceStatus  String          @default("NOT_REQUESTED")
+  payloadJson    String?
+  createdAt      DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime        @updatedAt @db.Timestamptz(3) // Prisma 自动维护，orderSweeper 用此字段精确筛选超时
+  paidAt         DateTime?       @db.Timestamptz(3)
+  failedAt       DateTime?       @db.Timestamptz(3) // P1: 支付失败时间
+  failReason     String? // FAILED/CANCELLED 原因（sweeper / 微信回调 / 用户取消等写入）
+  refundedAt     DateTime?       @db.Timestamptz(3) // 退款完成时间
+  refundReason   String? // 退款原因（管理员填写）
+  invoicedAt     DateTime?       @db.Timestamptz(3) // 开票时间，发票/退款对称保护：开票后禁退款
+  salesCode      String? // 销售归因快照：订单创建时从 user.salesCode 拷贝
+  // 优惠券（阶段三）：amount 仍是"应付金额"=微信下单金额，下面三字段是审计辅助
+  originalAmount Int? // 原价（分）；老订单 NULL，业务读取用 ?? amount 兜底
+  discountAmount Int             @default(0) // 本单优惠金额（分），无券订单 = 0
+  userCouponId   String? // 本单使用的 UserCoupon.id，无券 = null
+  plan           MembershipPlan? @relation(fields: [planId], references: [id])
+  user           AppUser?        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status, updatedAt])
+  @@index([createdAt])
+  @@index([salesCode])
+  @@index([userCouponId])
+}
+
+// ────────────────────────────────────────────────────────────
+// 优惠券体系（阶段三）
+// 三表分工：
+//   Coupon         — 模板（"这种券长什么样"），管理员维护
+//   UserCoupon     — 用户已领的具体券，6 态状态机 AVAILABLE/LOCKED/USED/EXPIRED/REVOKED
+//   OrderDiscount  — 订单优惠快照（成交后冻结），与 AppOrder 1:1，审计专用
+// 核心不变性：AppOrder.amount = 微信下单 amount.total = 回调 notification.amountCents
+// ────────────────────────────────────────────────────────────
+model Coupon {
+  id              String   @id @default(cuid())
+  code            String   @unique // 模板对外标识，如 NEWUSER7
+  name            String // 展示名称
+  description     String?
+  discountType    String // FIXED | PERCENT
+  discountValue   Int // FIXED:抵扣分；PERCENT:1-99
+  minAmount       Int      @default(0) // 最低门槛（分）
+  maxDiscount     Int? // PERCENT 封顶（分），FIXED 忽略
+  applicableScope String   @default("ALL") // ALL | MEMBERSHIP | MEMBERSHIP_PERSONAL | MEMBERSHIP_PRO | STANDARD
+  validFrom       DateTime @db.Timestamptz(3)
+  validTo         DateTime @db.Timestamptz(3)
+  totalQuota      Int? // null = 无限
+  issuedCount     Int      @default(0)
+  status          String   @default("ACTIVE") // ACTIVE | DISABLED
+  createdBy       String // 管理员 userId
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(3)
+
+  userCoupons UserCoupon[]
+
+  @@index([status, validTo])
+  @@index([code])
+}
+
+model UserCoupon {
+  id            String    @id @default(cuid())
+  userId        String
+  couponId      String
+  status        String    @default("AVAILABLE") // AVAILABLE | LOCKED | USED | EXPIRED | REVOKED
+  source        String // ISSUED_REGISTER | ISSUED_REFERRAL | ISSUED_ADMIN | ISSUED_CAMPAIGN
+  sourceRef     String? // 注册:newUserId / 邀请:inviteeId / 活动:campaignId / 批量:adminBatchId
+  issuedAt      DateTime  @default(now()) @db.Timestamptz(3)
+  expiresAt     DateTime  @db.Timestamptz(3)
+  lockedOrderNo String? // status=LOCKED 时非空
+  lockedAt      DateTime? @db.Timestamptz(3)
+  usedAt        DateTime? @db.Timestamptz(3)
+  usedOrderNo   String?
+  revokedAt     DateTime? @db.Timestamptz(3)
+  revokedBy     String?
+  revokeReason  String?
+
+  coupon Coupon  @relation(fields: [couponId], references: [id])
+  user   AppUser @relation(fields: [userId], references: [id])
+
+  // 关键幂等约束：四元组唯一
+  // - Register: sourceRef=newUserId  → 同一用户只发一次
+  // - Referral: sourceRef=inviteeId → 每个被邀请人独立一张
+  // - Campaign: sourceRef=campaignId → 每个活动 per user 一次
+  // - Admin:    sourceRef=adminBatchId → 每批 per user 一次
+  @@unique([userId, couponId, source, sourceRef])
+  @@index([userId, status])
+  @@index([status, expiresAt])
+  @@index([lockedOrderNo])
+}
+
+model OrderDiscount {
+  id             String   @id @default(cuid())
+  orderNo        String   @unique // 1:1 AppOrder
+  userCouponId   String // 用了哪张券（保留 FK 以追溯）
+  couponSnapshot String // JSON: 领券时 Coupon 全字段快照
+  originalAmount Int // 原价（分）
+  discountAmount Int // 抵扣金额（分）
+  finalAmount    Int // 应付金额（分）= original - discount
+  computedAt     DateTime @default(now()) @db.Timestamptz(3)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([userCouponId])
+}
+
+model ServiceBooking {
+  id           String   @id @default(uuid())
+  bookingNo    String   @unique
+  userId       String?
+  name         String
+  phone        String
+  organization String
+  demandType   String?
+  demandDesc   String?
+  status       String   @default("待联系")
+  source       String   @default("miniapp")
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+  user         AppUser? @relation(fields: [userId], references: [id])
+}
+
+model InvoiceRequest {
+  id           String    @id @default(uuid())
+  invoiceNo    String    @unique
+  userId       String?
+  orderNo      String // 关联订单号
+  type         String    @default("NORMAL") // NORMAL=普通发票, SPECIAL=专用发票
+  titleType    String    @default("COMPANY") // PERSONAL=个人, COMPANY=企业
+  title        String // 发票抬头
+  taxNo        String? // 纳税人识别号
+  bank         String? // 开户银行
+  bankAccount  String? // 银行账号
+  address      String? // 注册地址
+  phone        String? // 注册电话
+  email        String // 接收邮箱
+  amount       Int // 开票金额（分）
+  remark       String?
+  status       String    @default("PENDING") // PENDING=待开, ISSUED=已开, REJECTED=已驳回
+  rejectReason String?
+  issuedAt     DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  user         AppUser?  @relation(fields: [userId], references: [id])
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model CompareTask {
+  id                   String    @id @default(uuid())
+  taskNo               String    @unique
+  userId               String?
+  documentName         String
+  fileType             String?
+  compareMode          String
+  selectedStandardIds  String
+  status               String    @default("PENDING") // PENDING|COMPLETED|FAILED
+  priority             Int       @default(2) // 1=高(全库/扫一扫) 2=低(一对一)
+  summaryJson          String?
+  reportJson           String?
+  intakeJson           String? // 题录信息（标准编号/题名/ICS/CCS/适用范围）
+  errorMessage         String? // P1: 任务失败时的错误原因
+  fullReportUnlockedAt DateTime? @db.Timestamptz(3)
+  exportUnlockedAt     DateTime? @db.Timestamptz(3)
+  // 异步状态机字段（BXZ_TASK_ASYNC_MODE=1 时启用）
+  // processingStage: PENDING_INIT|EXTRACT_A_WAIT|EXTRACT_B_WAIT|REPORTING|null
+  // 对外 status 字段保持 PENDING/PROCESSING/COMPLETED/FAILED 不变
+  processingStage      String?
+  dedupJobId           String?
+  stageStartedAt       DateTime? @db.Timestamptz(3)
+  createdAt            DateTime  @default(now()) @db.Timestamptz(3)
+  finishedAt           DateTime? @db.Timestamptz(3)
+  user                 AppUser?  @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+// ─── 呼叫小智：对话 ────────────────────────────────────────
+
+model Conversation {
+  id        String        @id @default(uuid())
+  userId    String
+  title     String        @default("新对话")
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime      @updatedAt @db.Timestamptz(3)
+  messages  ChatMessage[]
+  user      AppUser       @relation(fields: [userId], references: [id])
+
+  @@index([userId, updatedAt])
+}
+
+model ChatMessage {
+  id             String       @id @default(uuid())
+  conversationId String
+  role           String // "user" | "assistant" | "system"
+  content        String
+  intent         String? // "search" | "compare" | "write" | "scan" | "member" | "task_status" | "chat" | "blocked"
+  metadata       String? // JSON string
+  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId, createdAt])
+}
+
+// ─── 埋点分析 ────────────────────────────────────────
+
+model AnalyticsEvent {
+  id        Int      @id @default(autoincrement())
+  event     String
+  props     String? // JSON string
+  platform  String // pc | mp
+  userId    String?
+  sessionId String?
+  clientTs  BigInt? // 客户端时间戳 ms
+  serverTs  BigInt // 服务端时间戳 ms
+  ip        String?
+  ua        String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([event, serverTs])
+  @@index([userId, serverTs])
+}
+
+// ─── 营销自动化 ─────────────────────────────────────────────
+
+// 用户标签（每日 labelSync job 聚合写入）
+model UserLabel {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  lifecycle     String // NEW | ACTIVATED | PAID | HIGH_ACTIVE | SILENT | CHURNED
+  lastActiveAt  DateTime? @db.Timestamptz(3)
+  weeklyActions Int       @default(0)
+  isPaid        Boolean   @default(false)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(3)
+  appUser       AppUser   @relation(fields: [userId], references: [id])
+
+  @@index([lifecycle])
+}
+
+// 小程序订阅消息配额（一次 wx.requestSubscribeMessage 同意 → quota +1，一次推送 → quota -1）
+model SubscribeQuota {
+  id         String   @id @default(cuid())
+  userId     String
+  templateId String
+  quota      Int      @default(0)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([userId, templateId])
+  @@index([userId])
+}
+
+// 推送日志（规则去重依赖：同一 userId+ruleId+refId 不重复推）
+model PushLog {
+  id         String   @id @default(cuid())
+  userId     String
+  ruleId     String
+  templateId String?
+  status     String // SUCCESS | FAILED | SKIPPED
+  refId      String?
+  sentAt     DateTime @default(now()) @db.Timestamptz(3)
+  errorMsg   String?
+
+  @@index([userId, ruleId, refId])
+  @@index([ruleId, sentAt])
+}
+
+// 裂变邀请码（含缓存的小程序码 base64）
+model ReferralCode {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  code            String    @unique
+  totalInvited    Int       @default(0)
+  qrcodeBase64    String? // 微信 wxacode.getUnlimited 返回图片的 base64，避免每次重复调
+  qrcodeUpdatedAt DateTime? @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+}
+
+// 裂变归因关系：被邀请人一人一生只归属一个邀请人（inviteeId UNIQUE）
+// 两级奖励：注册归因 → 邀请人 +7天；被邀请人首次付费 → 邀请人 +30天
+model Referral {
+  id                     String    @id @default(cuid())
+  inviterId              String // 邀请人 userId
+  inviteeId              String    @unique // 被邀请人 userId（唯一约束保证归属不可覆盖）
+  createdAt              DateTime  @default(now()) @db.Timestamptz(3)
+  registrationRewardedAt DateTime? @db.Timestamptz(3) // 注册奖励发放时间（非 null 视为已发 +7天）
+  paymentRewardedAt      DateTime? @db.Timestamptz(3) // 付费奖励发放时间（非 null 视为已发 +30天）
+
+  @@index([inviterId])
+}
+
+// 延迟推送排程（R01 注册未激活等规则，注册时写入 fireAt=now+24h）
+model ScheduledPush {
+  id        String   @id @default(cuid())
+  userId    String
+  ruleId    String
+  fireAt    DateTime @db.Timestamptz(3)
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([done, fireAt])
+}
+
+// 站内通知中心（push/send 成功时顺手写一条 + PC 端铃铛）
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  type      String // RULE_PUSH | SYSTEM | REWARD
+  link      String? // 点击跳转路径（PC Web 路由或小程序 pages/）
+  readAt    DateTime? @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  appUser   AppUser   @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+}
+
+// 销售专属推广主页（2026-04-24 新增）
+// - 管理员创建 SalesProfile 时同时新建 AppUser(role='sales')
+// - salesCode 由后台生成（8 位大写字母数字，去易混淆 IO01），唯一
+// - 公开落地页 /s/:salesCode 展示 realName/avatar/bio/displayProducts 等
+// - 销售登录后可编辑自己的 profile（除 salesCode 外）
+model SalesProfile {
+  id              String      @id @default(uuid())
+  salesCode       String      @unique // 推广码（8 位）
+  userId          String      @unique // 销售 AppUser id（1:1）
+  realName        String // 销售姓名（必填，对外作为"展示姓名"）
+  companyName     String? // 公司/部门
+  positionTitle   String? // 职位 / 身份标签（如"标准智能平台顾问"）
+  avatar          String? // 头像 URL（/uploads/sales/xxx）
+  bio             String? // 个人介绍
+  wechat          String? // 微信号
+  phone           String? // 联系手机号（可与 AppUser.phone 不同）
+  qrcode          String? // 微信二维码 URL
+  contactVisible  Boolean     @default(true) // 联系方式是否公开（false 时公开页不返回 wechat/phone/qrcode）
+  companyVisible  Boolean     @default(true) // 公司名称是否公开（false 时公开页不返回 companyName）
+  isPublic        Boolean     @default(true) // 销售自己控制的发布开关（false 时公开接口 404）
+  displayProducts String? // JSON: [{"code":"xiaozhi","sort":1}, ...]，最多 4 个
+  status          String      @default("ENABLED") // ENABLED | DISABLED（管理员总开关）
+  visitCount      Int         @default(0) // 公开页访问数（fire-and-forget 自增）
+  wxScheme        String? // 微信 URL Scheme 缓存（永久，lazily 生成，location.href 拉起小程序）
+  deletedAt       DateTime?   @db.Timestamptz(3) // 软删除时间戳（有归因数据的销售删除时设置；列表查询过滤）
+  createdAt       DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime    @updatedAt @db.Timestamptz(3)
+  user            AppUser     @relation(fields: [userId], references: [id])
+  codes           SalesCode[]
+
+  @@index([status])
+  @@index([deletedAt])
+}
+
+// ────────────────────────────────────────────────────────────
+// SalesCode — 销售额外推广码（一个销售可有多条，主码仍存在 SalesProfile.salesCode）
+// 用于销售自己按场景生成不同码（如"展会专用"、"抖音号专用"），便于分渠道归因
+// ────────────────────────────────────────────────────────────
+model SalesCode {
+  id        String       @id @default(cuid())
+  salesCode String       @unique // 8 位大写，与主码空间共享，全局唯一
+  profileId String
+  label     String? // 用途备注，如"展会专用"
+  status    String       @default("ACTIVE") // ACTIVE | DISABLED
+  createdAt DateTime     @default(now()) @db.Timestamptz(3)
+  profile   SalesProfile @relation(fields: [profileId], references: [id])
+
+  @@index([profileId])
+  @@index([status])
+}
+
+// ────────────────────────────────────────────────────────────
+// SalesInvite — 销售邀请码
+// 管理员生成邀请码，销售凭码自助注册（/sales/join?invite=xxx）
+// 一个码注册成功后变 USED，不可重复使用
+// ────────────────────────────────────────────────────────────
+model SalesInvite {
+  id         String    @id @default(cuid())
+  inviteCode String    @unique // 8 位大写字母数字
+  createdBy  String // 创建者（admin userId）
+  status     String    @default("UNUSED") // UNUSED | USED | DISABLED | EXPIRED
+  usedBy     String? // 注册成功的 userId
+  usedAt     DateTime? @db.Timestamptz(3)
+  expiresAt  DateTime? @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@index([status])
+  @@index([createdBy])
+}
+
+// ─── 展示内容管理（CMS 1.0，2026-04-26）─────────────────────────────
+//
+// 用途：把 PC Web 首页 / 小程序首页 / 销售推广页等纯展示文案抽出来放数据库，
+// 后台可改可发布，前端读取失败时 fallback 到本地默认值（不影响业务链路）。
+//
+// 不替代：公告系统（独立）/ 销售产品矩阵（SalesProfile.displayProducts JSON）。
+//
+// group 取值约定（与代码常量对应）：
+//   PC_WEB_HOME / MP_HOME / SALES_PROMOTION_DEFAULT
+//   PRODUCT_ENTRY / FAQ / COMMON_COPY（保留位，第一版未使用）
+// platform 取值：WEB / MP / BOTH
+// type 取值：TEXT / RICH_TEXT / IMAGE / LINK / CARD / ENTRY / FAQ / BANNER / JSON
+model ContentConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  group       String
+  platform    String
+  type        String
+  title       String?
+  subtitle    String?
+  description String?
+  content     String?
+  imageUrl    String?
+  linkUrl     String?
+  linkText    String?
+  extraJson   String?
+  sortOrder   Int      @default(0)
+  enabled     Boolean  @default(true)
+  remark      String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([group, platform, enabled, sortOrder])
+}
+
+// ─── 专家评审投票（P0-1，2026-05-06）──────────────────────────
+//
+// 主单 ExpertVoteRequest + 4 张关联表（附件 / 专家分配 / 投票记录 / 签章日志）
+// 第一版人工流程：腾讯会议号、签章 PDF 全部后台手填手传，无外部 API。
+// 与 AppOrder 关联：productType=EXPERT_VOTE / productRef=requestNo，金额 = 专家数 × SystemSetting 单价快照。
+// 状态机详见 services/api/src/services/expertVote.ts。
+// ────────────────────────────────────────────────────────────
+model ExpertVoteRequest {
+  id        String  @id @default(cuid())
+  requestNo String  @unique // 业务编号 EVR-YYYYMMDDHHmmss-xxxxxx
+  userId    String // 申请人 AppUser.id
+  orderNo   String? @unique // 关联 AppOrder.orderNo（草稿期为 null）
+  status    String  @default("DRAFT") // DRAFT|PAYING|EXPERT_ARRANGING|MEETING_SCHEDULED|VOTING|VOTED|SIGNING|COMPLETED|CANCELLED|REFUNDED
+
+  // 申请人联系信息（提交时必填，DB nullable 兼容旧 DRAFT）
+  contactName  String?
+  contactPhone String?
+
+  // 基础评审信息（PRD §4.1）
+  projectName        String
+  targetName         String
+  projectType        String // 标准评审|专家投票|项目论证|成果评价|技术咨询|其他
+  standardType       String // 国家标准|行业标准|地方标准|团体标准|企业标准|技术规范|其他
+  standardStatus     String // 立项前|已立项|起草中|征求意见后|送审稿|报批前|已发布|复审中
+  industries         String    @default("[]") // JSON 数组
+  keywords           String?
+  draftingOrgs       String?
+  participatingOrgs  String?
+  backgroundDesc     String
+  disputePoints      String?
+  expectedFinishAt   DateTime? @db.Timestamptz(3)
+  confidentialLevel  String    @default("NONE") // NONE|SENSITIVE|STRICT
+  confidentialRemark String?
+
+  // 专家需求（PRD §4.2）
+  expertSourceType          String // PLATFORM|USER_SPECIFIED
+  expertCategories          String  @default("[]") // JSON 数组
+  expertKeywords            String?
+  titleRequirements         String  @default("[\"不限\"]") // JSON 数组
+  orgBackgroundRequirements String  @default("[\"不限\"]") // JSON 数组
+  expertCount               Int // 仅允许 3/5/7/9
+  extraExpertNote           String?
+  userSpecifiedExperts      String?
+
+  // 会议时间（PRD §4.4）
+  desiredDate      DateTime? @db.Timestamptz(3) // 期望日期，必须 >= today + EXPERT_VOTE_MIN_LEAD_DAYS
+  desiredSlot      String? // MORNING|AFTERNOON|EVENING|ANY
+  acceptReschedule Boolean   @default(true)
+  backupTimeNote   String?
+
+  materialRemark String?
+
+  // 金额快照（下单时锁定，单价改了不影响已下单）
+  unitPrice   Int? // 单专家单价（分），DRAFT 时为 null，提交时锁定
+  totalAmount Int? // = unitPrice × expertCount
+
+  // 后台回填会议（P0-1 不暴露管理接口，字段先就位）
+  meetingTitle       String?
+  meetingStartAt     DateTime? @db.Timestamptz(3)
+  meetingEndAt       DateTime? @db.Timestamptz(3)
+  tencentMeetingId   String?
+  tencentMeetingUrl  String?
+  tencentMeetingPwd  String?
+  meetingHost        String?
+  meetingHostContact String?
+  meetingNotes       String?
+  meetingArrangedAt  DateTime? @db.Timestamptz(3)
+  meetingArrangedBy  String?
+
+  // 投票阶段
+  voteStartedAt    DateTime? @db.Timestamptz(3)
+  voteClosedAt     DateTime? @db.Timestamptz(3)
+  voteClosedBy     String?
+  voteResultJson   String?
+  conclusion       String? // PASS|REJECT|PASS_WITH_MOD|NEED_SUPPLEMENT
+  conclusionRemark String?
+
+  // 确认文件交付
+  // - resultPdfPath / resultDocxPath：系统生成的 Word 确认文件（同一路径，名称兼容）
+  // - expertSignatureMaterialPath：路径一专家签字材料上传后的存储位置
+  // - finalDeliverablePath：最终交付文件（路径一系统合成 / 路径二线下上传）
+  // - finalDeliverableHash：最终交付文件 SHA256
+  // - deliveryMode：PLATFORM_GENERATED（路径一）/ OFFLINE_UPLOAD（路径二）
+  // - 旧字段 signedPdfPath / signedPdfHash / signedAt / signedBy 保留作向后兼容（双写过渡）
+  resultPdfPath               String?
+  resultDocxPath              String?
+  expertSignatureMaterialPath String?
+  finalDeliverablePath        String?
+  finalDeliverableHash        String?
+  deliveryMode                String?
+  deliveredBy                 String?
+  signedPdfPath               String?
+  signedPdfHash               String?
+  signedAt                    DateTime? @db.Timestamptz(3)
+  signedBy                    String?
+  signSubject                 String?
+  deliveredAt                 DateTime? @db.Timestamptz(3)
+
+  // 取消 / 退款
+  cancelReason String?
+  cancelledAt  DateTime? @db.Timestamptz(3)
+  cancelledBy  String?
+  closedReason String?
+
+  // 通知记录（人工通知专家后台标记）
+  notifiedAt DateTime? @db.Timestamptz(3)
+  notifiedBy String?
+
+  submittedAt DateTime? @db.Timestamptz(3) // 草稿首次提交（生成订单）时间
+  paidAt      DateTime? @db.Timestamptz(3) // 支付成功时间
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+
+  attachments ExpertVoteAttachment[]
+  experts     ExpertAssignment[]
+  votes       ExpertVoteRecord[]
+  signLogs    ExpertVoteSignLog[]
+
+  @@index([userId, status])
+  @@index([status, updatedAt])
+}
+
+model ExpertVoteAttachment {
+  id           String    @id @default(cuid())
+  requestId    String
+  category     String // MAIN|EXTRA|RESULT_PDF|SIGNED_PDF
+  originalName String
+  storagePath  String
+  size         Int
+  mimeType     String?
+  uploadedBy   String
+  deletedAt    DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+
+  request ExpertVoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, category, deletedAt])
+}
+
+// 专家分配（快照 + 预留 P1 账号体系）
+// 第一版 appUserId 全部 null；P1 接入 AppUser.role='expert' 后回填，无需迁移结构。
+model ExpertAssignment {
+  id            String   @id @default(cuid())
+  requestId     String
+  expertName    String
+  expertOrg     String?
+  expertTitle   String?
+  expertField   String?
+  expertPhone   String?
+  expertEmail   String?
+  confirmStatus String   @default("PENDING") // PENDING|CONFIRMED|REJECTED|REPLACED
+  replacedById  String? // 被替换为哪一条 assignment
+  appUserId     String? // P1 预留：专家账号体系接入后回填
+  note          String?
+  // 行级通知状态：后台逐位标记"已通知"
+  notifiedAt    DateTime? @db.Timestamptz(3)
+  notifiedBy    String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+
+  request ExpertVoteRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  votes   ExpertVoteRecord[]
+
+  @@index([requestId, confirmStatus])
+}
+
+// 专家投票记录
+// submittedByMode: ADMIN_PROXY（第一版后台代录）/ EXPERT_SELF（P1 专家自助）
+// 每个 assignment 仅允许一条记录（@@unique(assignmentId)）
+model ExpertVoteRecord {
+  id                     String   @id @default(cuid())
+  requestId              String
+  assignmentId           String   @unique
+  voteResult             String // PASS|REJECT|PASS_WITH_MOD|ABSTAIN
+  reviewOpinion          String
+  modificationSuggestion String?
+  riskWarning            String?
+  agreeConclusion        String // YES|NO
+  submittedBy            String?
+  submittedByMode        String   @default("ADMIN_PROXY") // ADMIN_PROXY|EXPERT_SELF
+  confirmFlag            Boolean  @default(false)
+  clientIp               String?
+  clientUa               String?
+  submittedAt            DateTime @default(now()) @db.Timestamptz(3)
+
+  request    ExpertVoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  assignment ExpertAssignment  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+}
+
+// 签章操作审计（P0-1 不暴露接口，仅占位字段，后续后台触发时写入）
+model ExpertVoteSignLog {
+  id          String   @id @default(cuid())
+  requestId   String
+  action      String // EXPERT_ASSIGN|EXPERT_CHANGE|MEETING_CHANGE|START_VOTING|VOTING_RESULTS_UPDATED|CLOSE_VOTING|GENERATE_PDF|GENERATE_FINAL_DELIVERABLE|UPLOAD_FINAL_DELIVERABLE|UPLOAD_SIGNATURE_MATERIAL|DOWNLOAD_PDF|UPLOAD_SIGNED|REGENERATE
+  operatorId  String
+  payloadJson String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  request ExpertVoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, action])
+}
+
+// 企业版申请表单（PC Web 登录页 → 企业版 Tab 提交）
+// 无鉴权公开接口写入；Admin 后台跟进；status 仅 pending/contacted/converted
+model EnterpriseApplication {
+  id          String   @id @default(cuid())
+  name        String
+  position    String
+  company     String
+  phone       String
+  requirement String   @default("")
+  status      String   @default("pending") // pending | contacted | converted
+  ipAddress   String? // 审计 + 排查刷量；不参与限流（限流走内存桶）
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([phone])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+// ────────────────────────────────────────────────────────────
+// SaaS 数据底座（一期单租户，二期多企业；详见 必读/02_技术架构.md §三 企业版多租户设计）
+// ────────────────────────────────────────────────────────────
+
+model Enterprise {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique // 企业唯一码，二期用于邀请注册
+  status    String   @default("ACTIVE") // ACTIVE | DISABLED
+  plan      String   @default("BASIC") // 二期套餐字段，预留
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt        @db.Timestamptz(3)
+
+  plans     StandardExecutionPlan[]
+
+  @@index([status])
+}
+
+model EnterpriseApiKey {
+  id          String    @id @default(cuid())
+  enterpriseId String
+  name        String
+  keyHash     String    @unique
+  scopes      Json      @default("[]")
+  lastUsedAt  DateTime? @db.Timestamptz(3)
+  expiresAt   DateTime? @db.Timestamptz(3)
+  isActive    Boolean   @default(true)
+  createdBy   String
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  revokedAt   DateTime? @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, isActive])
+}
+
+model EnterpriseWebhook {
+  id          String   @id @default(cuid())
+  enterpriseId String
+  url         String
+  events      Json     @default("[]")
+  secret      String
+  isActive    Boolean  @default(true)
+  createdBy   String
+  lastTriggeredAt DateTime? @db.Timestamptz(3)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, isActive])
+}
+
+model EnterpriseWebhookDelivery {
+  id          String   @id @default(cuid())
+  enterpriseId String
+  webhookId   String
+  event       String
+  payload     Json
+  status      String   @default("PENDING") // PENDING | SUCCESS | FAILED
+  attempts    Int      @default(0)
+  responseStatus Int?
+  lastError   String?
+  sentAt      DateTime? @db.Timestamptz(3)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, webhookId])
+  @@index([enterpriseId, event])
+  @@index([enterpriseId, status])
+}
+
+model EnterpriseApiAccessLog {
+  id          String   @id @default(cuid())
+  enterpriseId String
+  apiKeyId    String
+  keyName     String
+  method      String
+  path        String
+  statusCode  Int
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, apiKeyId])
+  @@index([enterpriseId, createdAt])
+}
+
+// ────────────────────────────────────────────────────────────
+// standard-execution 业务表（实际 18 张含 Plan/TaskItem/QuizBank/QuizResult/Risk；详见 必读/02_技术架构.md §四 SE 模块核心模型）
+// 一期单租户：enterpriseId 默认 'DEFAULT'，所有查询必须按 enterpriseId 隔离
+// ────────────────────────────────────────────────────────────
+
+model StandardExecutionSource {
+  id           String   @id @default(cuid())
+  enterpriseId String
+  title        String
+  sourceType   String   // PRODUCT_STANDARD | TECH_STANDARD | INTERNAL_POLICY | CHECKLIST | CUSTOM
+  sourceNo     String?
+  version      String?
+  rawText      String?
+  fileUrl      String?
+  ownershipTier String?  @default("R") // R=Restricted public standard; O=Owned/authorized enterprise document
+  parentSourceId String?
+  isLatestVersion Boolean @default(true)
+  versionChangeSummary Json?
+  status       String   @default("ACTIVE") // ACTIVE | DISABLED
+  createdBy    String
+  updatedBy    String?
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt        @db.Timestamptz(3)
+
+  requirements StandardExecutionRequirement[]
+  plans        StandardExecutionPlan[]
+  declarations StandardExecutionSourceDeclaration[]
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, sourceType])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, ownershipTier])
+  @@index([enterpriseId, parentSourceId])
+  @@index([enterpriseId, isLatestVersion])
+}
+
+model StandardExecutionSourceDeclaration {
+  id              String   @id @default(cuid())
+  enterpriseId    String
+  sourceId        String
+  ownershipTier   String   @default("O")
+  declarationText String
+  declaredBy      String
+  declaredAt      DateTime @default(now()) @db.Timestamptz(3)
+  ipAddress       String?
+  userAgent       String?
+
+  source StandardExecutionSource @relation(fields: [sourceId], references: [id])
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, sourceId])
+  @@index([enterpriseId, declaredBy])
+}
+
+model StandardExecutionRequirement {
+  id                  String   @id @default(cuid())
+  enterpriseId        String
+  sourceId            String
+  clauseNo            String?
+  title               String
+  requirementText     String
+  applicableDeptIds   Json?
+  archiveTags         Json?
+  generateMode        String   @default("MANUAL") // MANUAL | RULE | AI_STUB
+  status              String   @default("REVIEW_PENDING") // DRAFT | REVIEW_PENDING | ACTIVE | DISABLED | ARCHIVED
+  // P0-5: AI 解析生成的可执行字段（解析时落库；批量生成任务时 recommendedTaskType 被继承）
+  recommendedTaskType  String?  // 推荐任务类型 TRAINING|QUALIFICATION_MATERIAL|...
+  executionDescription String?  // 可落地执行描述
+  submitRequirement    String?  // 执行人需提交什么才算完成
+  requiredMaterials    Json?    // 需提交材料清单（string[]）
+  parseMode            String?  // OCR_AI | RULE | AI_STUB，记录本条要求项来自哪种解析路径
+  degradedReason       String?  // AI_NOT_CONFIGURED | AI_FAILED | AI_INVALID_JSON | RAWTEXT_EMPTY
+  industryTemplateId     String? // C1: 从行业模板导入时记录模板来源
+  industryTemplateItemId String? // C1: 从行业模板导入时记录条目来源
+  requiresReview      Boolean  @default(false) // C3: 来源版本更新影响后需人工复核
+  createdBy           String
+  updatedBy           String?
+  createdAt           DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime @updatedAt        @db.Timestamptz(3)
+
+  source     StandardExecutionSource     @relation(fields: [sourceId], references: [id])
+  tasks      StandardExecutionTask[]
+  taskItems  StandardExecutionTaskItem[]
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, sourceId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, industryTemplateId])
+  @@index([enterpriseId, requiresReview])
+}
+
+model SEIndustryTemplate {
+  id                String   @id @default(cuid())
+  industryCategory  String // MANUFACTURING | FOOD_SAFETY | MEDICAL_DEVICE | SECURITY | GENERAL | OTHER
+  title             String
+  sourceNo          String?
+  version           String?
+  description       String?
+  status            String   @default("DRAFT") // DRAFT | PUBLISHED | OFFLINE
+  controlPointCount Int      @default(0)
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  items SEIndustryTemplateItem[]
+
+  @@index([industryCategory])
+  @@index([status])
+  @@index([industryCategory, status])
+}
+
+model SEIndustryTemplateItem {
+  id                   String   @id @default(cuid())
+  templateId           String
+  clauseNo             String?
+  title                String
+  requirementText      String
+  applicableDeptIds    Json?
+  archiveTags          Json?
+  recommendedTaskType  String?
+  executionDescription String?
+  submitRequirement    String?
+  requiredMaterials    Json?
+  sortOrder            Int      @default(0)
+  createdAt            DateTime @default(now()) @db.Timestamptz(3)
+
+  template SEIndustryTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+}
+
+model StandardExecutionTask {
+  id                String    @id @default(cuid())
+  enterpriseId      String
+  requirementId     String?
+  planId            String?   // nullable FK → StandardExecutionPlan; null = 未关联计划
+  title             String
+  description       String?
+  taskType          String?   // TRAINING | QUALIFICATION_MATERIAL | ONBOARDING_ACCESS | INSPECTION_FILL | RECTIFICATION | ARCHIVE_MATERIAL | legacy templates
+  // 任务类型结构化配置：
+  // - INSPECTION_FILL → checklistSchema: { items: [{ id, name, judgeType: 'TEXT'|'BOOL'|'NUMBER_RANGE', min?, max?, unit? }] }
+  // - PARAMETER       → parametersSchema: { items: [{ id, name, standard, unit, method? }] }
+  // - TRAINING        → learningMaterials: { items: [{ type: 'file'|'link', url, name }] }
+  //                   → quizBankId (可选) 关联题库
+  checklistSchema   Json?
+  parametersSchema  Json?
+  learningMaterials Json?
+  basisSnapshots    Json?     // B-lite: 任务创建时锁定执行依据/来源快照；展示优先读快照，老数据 fallback FK
+  quizBankId        String?   // 关联题库（仅 TRAINING 类型使用）
+  submitRequirement String?
+  deadlineAt        DateTime? @db.Timestamptz(3)
+  deadlineMode      String    @default("FIXED") // FIXED | AFTER_APPROVAL_DAYS
+  deadlineDaysAfterApproval Int?
+  reviewerId        String?
+  status            String    @default("DRAFT") // DRAFT | PENDING_APPROVAL | PUBLISHED | IN_PROGRESS | COMPLETED | OVERDUE | CANCELLED
+  submittedForApprovalAt DateTime? @db.Timestamptz(3)
+  approvedAt        DateTime? @db.Timestamptz(3)
+  publishedAt       DateTime? @db.Timestamptz(3)
+  completedAt       DateTime? @db.Timestamptz(3)
+  cancelledAt       DateTime? @db.Timestamptz(3)
+  deletedAt         DateTime? @db.Timestamptz(3) // 软删除：非 null = 已删（仅 DRAFT 可删）；所有列表/详情查询过滤 deletedAt:null
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt        @db.Timestamptz(3)
+
+  requirement StandardExecutionRequirement?  @relation(fields: [requirementId], references: [id])
+  plan        StandardExecutionPlan?         @relation(fields: [planId], references: [id])
+  quizBank    SEQuestionBank?                @relation(fields: [quizBankId], references: [id])
+  assignees   StandardExecutionTaskAssignee[]
+  submissions StandardExecutionSubmission[]
+  reviewLogs  StandardExecutionReviewLog[]
+  approvalLogs StandardExecutionTaskApprovalLog[]
+  records     StandardExecutionRecord[]
+  items       StandardExecutionTaskItem[]
+  quizResults SEQuizResult[]
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, requirementId])
+  @@index([enterpriseId, planId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, deadlineAt])
+  @@index([enterpriseId, reviewerId])
+  @@index([enterpriseId, quizBankId])
+  @@index([enterpriseId, submittedForApprovalAt])
+}
+
+model StandardExecutionTaskAssignee {
+  id           String    @id @default(cuid())
+  enterpriseId String
+  taskId       String
+  assigneeId   String
+  departmentId String?
+  reviewerId   String?
+  status       String    @default("PENDING") // PENDING | IN_PROGRESS | PENDING_REVIEW | REJECTED | COMPLETED | OVERDUE
+  submittedAt  DateTime? @db.Timestamptz(3)
+  reviewedAt   DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt        @db.Timestamptz(3)
+
+  task StandardExecutionTask @relation(fields: [taskId], references: [id])
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, taskId])
+  @@index([enterpriseId, assigneeId])
+  @@index([enterpriseId, departmentId])
+  @@index([enterpriseId, status])
+}
+
+model StandardExecutionSubmission {
+  id                 String    @id @default(cuid())
+  enterpriseId       String
+  taskId             String
+  assigneeId         String
+  submitText         String
+  submitDataJson     Json?
+  status             String    @default("SUBMITTED") // SUBMITTED | APPROVED | REJECTED
+  version            Int       @default(1)
+  isLatest           Boolean   @default(true)
+  parentSubmissionId String?
+  submittedAt        DateTime  @default(now()) @db.Timestamptz(3)
+  reviewedAt         DateTime? @db.Timestamptz(3)
+  reviewerId         String?
+  reviewComment      String?
+  createdAt          DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt        @db.Timestamptz(3)
+
+  task        StandardExecutionTask         @relation(fields: [taskId], references: [id])
+  reviewLogs  StandardExecutionReviewLog[]
+  records     StandardExecutionRecord[]
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, taskId])
+  @@index([enterpriseId, assigneeId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, isLatest])
+}
+
+// 多态附件：bizType ∈ {SOURCE, SUBMISSION, PACKAGE}。
+// 不在 DB 层建 FK（bizId 指向多张父表，无法用单 FK 表达），由路由层在写入前校验 bizId 在对应父表存在。
+model StandardExecutionAttachment {
+  id           String   @id @default(cuid())
+  enterpriseId String
+  bizType      String   // SOURCE | SUBMISSION | PACKAGE
+  bizId        String
+  fileName     String
+  fileUrl      String
+  fileSize     Int?
+  mimeType     String?
+  uploadedBy   String
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, bizType, bizId])
+}
+
+model StandardExecutionReviewLog {
+  id           String   @id @default(cuid())
+  enterpriseId String
+  submissionId String
+  taskId       String
+  action       String   // APPROVE | REJECT
+  fromStatus   String
+  toStatus     String
+  reviewerId   String
+  comment      String?
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+
+  submission StandardExecutionSubmission @relation(fields: [submissionId], references: [id])
+  task       StandardExecutionTask       @relation(fields: [taskId], references: [id])
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, submissionId])
+  @@index([enterpriseId, taskId])
+  @@index([enterpriseId, reviewerId])
+}
+
+model StandardExecutionTaskApprovalLog {
+  id         String   @id @default(cuid())
+  enterpriseId String
+  taskId     String
+  action     String   // SUBMIT_APPROVAL | APPROVE | REJECT
+  fromStatus String?
+  toStatus   String?
+  reviewerId String
+  comment    String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  task StandardExecutionTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, taskId])
+  @@index([enterpriseId, reviewerId])
+  @@index([enterpriseId, action])
+}
+
+model StandardExecutionRecord {
+  id            String    @id @default(cuid())
+  enterpriseId  String
+  sourceId      String
+  requirementId String
+  taskId        String
+  submissionId  String
+  taskItemId    String?
+  assigneeId    String
+  departmentId  String?
+  recordType    String?
+  title         String
+  summary       String?
+  recordDate    DateTime  @default(now()) @db.Timestamptz(3)
+  validUntil    DateTime? @db.Timestamptz(3)
+  status        String    @default("VALID") // VALID | EXPIRED | VOID
+  createdFrom   String    @default("REVIEW_APPROVE")
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt        @db.Timestamptz(3)
+
+  submission   StandardExecutionSubmission    @relation(fields: [submissionId], references: [id])
+  task         StandardExecutionTask          @relation(fields: [taskId], references: [id])
+  taskItem     StandardExecutionTaskItem?     @relation(fields: [taskItemId], references: [id])
+  packageItems StandardExecutionPackageItem[]
+
+  @@unique([submissionId, taskItemId])
+  @@index([enterpriseId])
+  @@index([enterpriseId, sourceId])
+  @@index([enterpriseId, requirementId])
+  @@index([enterpriseId, taskId])
+  @@index([enterpriseId, assigneeId])
+  @@index([enterpriseId, departmentId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, recordDate])
+}
+
+model SERequirementMapping {
+  id                  String   @id @default(cuid())
+  enterpriseId        String
+  sourceRequirementId String
+  targetRequirementId String
+  mappingType         String   @default("REFERENCE") // EQUIVALENT | PARTIAL | REFERENCE
+  createdBy           String
+  createdAt           DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([enterpriseId, sourceRequirementId, targetRequirementId])
+  @@index([enterpriseId])
+  @@index([enterpriseId, sourceRequirementId])
+  @@index([enterpriseId, targetRequirementId])
+}
+
+model SERecordCoverage {
+  id            String   @id @default(cuid())
+  enterpriseId  String
+  recordId      String
+  requirementId String
+  coverageType  String   @default("REUSE") // DIRECT | REUSE
+  createdBy     String
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([enterpriseId, recordId, requirementId])
+  @@index([enterpriseId])
+  @@index([enterpriseId, recordId])
+  @@index([enterpriseId, requirementId])
+}
+
+model SEVectorIndexItem {
+  id           String    @id @default(cuid())
+  enterpriseId String
+  collection   String    // standard_clauses | requirement_points | execution_records
+  targetType   String    // SOURCE_CLAUSE | REQUIREMENT | RECORD
+  targetId     String
+  chunkIndex   Int       @default(0)
+  contentHash  String
+  pointId      String    @unique
+  status       String    @default("PENDING") // PENDING | INDEXED | FAILED
+  errorMessage String?
+  indexedAt    DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@unique([collection, targetId, chunkIndex])
+  @@index([enterpriseId])
+  @@index([collection, status])
+  @@index([targetType, targetId])
+}
+
+model SEParseJob {
+  id           String    @id @default(cuid())
+  enterpriseId String
+  sourceId     String
+  status       String    @default("QUEUED") // QUEUED | RUNNING | DONE | FAILED
+  progress     Int       @default(0)
+  step         String?
+  result       Json?
+  errorMessage String?
+  createdBy    String
+  startedAt    DateTime? @db.Timestamptz(3)
+  finishedAt   DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, sourceId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, createdAt])
+}
+
+// ── 题库 ────────────────────────────────────────────────────────────────────
+model SEQuestionBank {
+  id           String    @id @default(cuid())
+  enterpriseId String
+  title        String
+  description  String?
+  // questions: Array<{ id, type:'single'|'multi', text, opts:string[], answer:number[], score:number, exp?:string }>
+  questions    Json      @default("[]")
+  createdBy    String
+  deletedAt    DateTime? @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt        @db.Timestamptz(3)
+
+  tasks   StandardExecutionTask[]
+  results SEQuizResult[]
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, deletedAt])
+}
+
+// ── 员工答题结果 ─────────────────────────────────────────────────────────────
+model SEQuizResult {
+  id           String   @id @default(cuid())
+  enterpriseId String
+  taskId       String
+  quizBankId   String
+  assigneeId   String
+  score        Int      // 实际得分
+  totalScore   Int      // 满分
+  correctCount Int
+  wrongCount   Int
+  timeUsedSec  Int      // 答题用时（秒）
+  answers      Json     // Array<{ questionId, selected:number[], correct:boolean }>
+  passed       Boolean  @default(false)
+  submittedAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  task     StandardExecutionTask @relation(fields: [taskId], references: [id])
+  quizBank SEQuestionBank        @relation(fields: [quizBankId], references: [id])
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, taskId])
+  @@index([enterpriseId, assigneeId])
+  @@index([taskId, assigneeId])
+}
+
+model StandardExecutionPackage {
+  id               String    @id @default(cuid())
+  enterpriseId     String
+  title            String
+  packageScene     String    // CUSTOMER_AUDIT | INTERNAL_CHECK | CERTIFICATION | REGULATORY | TRAINING_ARCHIVE | OTHER
+  description      String?
+  dateFrom         DateTime? @db.Timestamptz(3)
+  dateTo           DateTime? @db.Timestamptz(3)
+  status           String    @default("DRAFT") // DRAFT | READY | VOID
+  format           String    @default("FOLDER") // FOLDER | legacy ZIP | PDF | DOCX
+  hasInvalidRecord Boolean   @default(false)
+  generationStatus String    @default("IDLE") // IDLE | GENERATING | READY | FAILED
+  generationBatchId String?
+  generationOptions Json?
+  outputDir        String?
+  outputManifest   Json?
+  generationError  String?
+  generatedAt      DateTime? @db.Timestamptz(3)
+  fileUrl          String?
+  createdBy        String
+  createdAt        DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt        @db.Timestamptz(3)
+
+  items StandardExecutionPackageItem[]
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, packageScene])
+}
+
+model StandardExecutionPackageItem {
+  id            String   @id @default(cuid())
+  enterpriseId  String
+  packageId     String
+  recordId      String
+  requirementId String
+  taskId        String
+  submissionId  String
+  sortNo        Int      @default(0)
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+
+  package StandardExecutionPackage @relation(fields: [packageId], references: [id])
+  record  StandardExecutionRecord  @relation(fields: [recordId], references: [id])
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, packageId])
+  @@index([enterpriseId, recordId])
+}
+
+model StandardExecutionRisk {
+  id           String    @id @default(cuid())
+  enterpriseId String
+  riskType     String    // REQUIREMENT_NO_TASK | TASK_OVERDUE | ASSIGNEE_NOT_SUBMITTED | REVIEW_PENDING
+  riskLevel    String    // HIGH | MEDIUM | LOW
+  title        String
+  description  String?
+  relatedType  String?
+  relatedId    String?
+  status       String    @default("UNHANDLED") // UNHANDLED | HANDLED | IGNORED
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  handledAt    DateTime? @db.Timestamptz(3)
+  handledBy    String?
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, riskType])
+  @@index([enterpriseId, status])
+}
+
+// ────────────────────────────────────────────────────────────
+// standard-execution 执行计划 + 任务明细（Step 1 架构升级）
+// ────────────────────────────────────────────────────────────
+
+model StandardExecutionPlan {
+  id           String    @id @default(cuid())
+  enterpriseId String
+  sourceId     String
+  complianceCycleId String?
+  title        String
+  roundNumber  Int       @default(1)
+  scheduledAt  DateTime? @db.Timestamptz(3)
+  frequency    String?   // daily | weekly | monthly | quarterly | yearly
+  startAt      DateTime? @db.Timestamptz(3)
+  endAt        DateTime? @db.Timestamptz(3)
+  nextRunAt    DateTime? @db.Timestamptz(3)
+  lastRunAt    DateTime? @db.Timestamptz(3)
+  defaultReviewerId String?
+  defaultAssigneeIds Json?
+  defaultTaskType String?
+  defaultDeadlineMode String @default("AFTER_APPROVAL_DAYS")
+  defaultDeadlineDaysAfterApproval Int? @default(7)
+  status       String    @default("DRAFT") // DRAFT | ACTIVE | COMPLETED | CANCELLED
+  createdBy    String
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt        @db.Timestamptz(3)
+
+  enterprise Enterprise              @relation(fields: [enterpriseId], references: [id])
+  source     StandardExecutionSource @relation(fields: [sourceId], references: [id])
+  tasks      StandardExecutionTask[]
+  runs       StandardExecutionPlanRun[]
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, sourceId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, nextRunAt])
+  @@index([enterpriseId, complianceCycleId])
+}
+
+model SEComplianceCycleTemplate {
+  id             String   @id @default(cuid())
+  enterpriseId   String
+  title          String
+  cycleType      String   // ANNUAL | QUARTERLY | MONTHLY | CUSTOM
+  requirementIds Json
+  taskConfig     Json?
+  status         String   @default("ACTIVE") // ACTIVE | DISABLED
+  createdBy      String
+  updatedBy      String?
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt        @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, cycleType])
+}
+
+model SEComplianceCycle {
+  id                String    @id @default(cuid())
+  enterpriseId      String
+  templateId        String
+  planId            String?
+  title             String
+  cycleType         String    // ANNUAL | QUARTERLY | MONTHLY | CUSTOM
+  requirementIds    Json
+  taskConfig        Json?
+  startDate         DateTime  @db.Timestamptz(3)
+  endDate           DateTime  @db.Timestamptz(3)
+  status            String    @default("PLANNING") // PLANNING | ACTIVE | COMPLETED
+  reportStatus      String    @default("IDLE") // IDLE | READY | FAILED
+  reportFileUrl     String?
+  reportGeneratedAt DateTime? @db.Timestamptz(3)
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt        @db.Timestamptz(3)
+
+  @@index([enterpriseId])
+  @@index([enterpriseId, templateId])
+  @@index([enterpriseId, status])
+  @@index([enterpriseId, planId])
+}
+
+model StandardExecutionPlanRun {
+  id           String   @id @default(cuid())
+  enterpriseId String
+  planId       String
+  runDate      DateTime @db.Timestamptz(3)
+  status       String   @default("CREATED") // CREATED | SKIPPED | FAILED
+  createdTaskIds Json?
+  errorMessage String?
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+
+  plan StandardExecutionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, runDate])
+  @@index([enterpriseId])
+  @@index([enterpriseId, planId])
+  @@index([enterpriseId, runDate])
+}
+
+model StandardExecutionTaskItem {
+  id            String    @id @default(cuid())
+  taskId        String
+  requirementId String
+  status        String    @default("PENDING") // PENDING | DONE | SKIPPED
+  note          String?
+  fileUrls      Json?     // string[] JSON；空时 null，业务层 ?? []
+  completedAt   DateTime? @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt        @db.Timestamptz(3)
+
+  task        StandardExecutionTask        @relation(fields: [taskId], references: [id])
+  requirement StandardExecutionRequirement @relation(fields: [requirementId], references: [id])
+  records     StandardExecutionRecord[]
+  progresses  StandardExecutionTaskItemProgress[]
+
+  @@index([taskId])
+  @@index([requirementId])
+}
+
+model StandardExecutionTaskItemProgress {
+  id            String    @id @default(cuid())
+  enterpriseId  String
+  taskId        String
+  taskItemId    String
+  requirementId String
+  assigneeId    String
+  status        String    @default("PENDING") // PENDING | DONE | SKIPPED
+  note          String?
+  fileUrls      Json?
+  completedAt   DateTime? @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt        @db.Timestamptz(3)
+
+  taskItem StandardExecutionTaskItem @relation(fields: [taskItemId], references: [id])
+
+  @@unique([taskItemId, assigneeId])
+  @@index([enterpriseId])
+  @@index([enterpriseId, taskId])
+  @@index([enterpriseId, assigneeId])
+  @@index([enterpriseId, taskItemId])
+}

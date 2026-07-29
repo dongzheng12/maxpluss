@@ -1,0 +1,269 @@
+/* 企业版 Layout 样式 — 视觉对齐 demo v16 (view-dashboard 风格) */
+.shell {
+  --bg: #F5F7FA;
+  --sidebar-bg: #FFFFFF;
+  --card-bg: #FFFFFF;
+  --card-border: #E2E8F0;
+  --text: #1A202C;
+  --text-muted: #4A5568;
+  --text-dim: #718096;
+  --blue: #3B7BF6;
+  --blue-dim: rgba(59, 123, 246, 0.08);
+  --red: #DC2626;
+  --sidebar-w: 220px;
+  --header-h: 56px;
+  --radius: 8px;
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  overflow-y: auto;
+}
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.logoMark {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.logoSub {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+
+.logoText {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.sidebarCompany {
+  padding: 10px 16px 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.sidebarCompany strong {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.sidebarNav {
+  flex: 1;
+  padding: 8px 0;
+}
+
+.navSectionLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 12px 16px 4px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+}
+
+.navItem:hover {
+  background: var(--blue-dim);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.navItemActive {
+  background: var(--blue-dim);
+  color: var(--blue);
+  border-left-color: var(--blue);
+  font-weight: 500;
+}
+
+.navIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebarFooter {
+  padding: 12px 16px;
+  border-top: 1px solid var(--card-border);
+}
+
+.logoutBtn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.logoutBtn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: var(--header-h);
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  min-width: 0;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.topbarTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.topbarSub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-left: 4px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbarSpacer {
+  flex: 1;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--blue-dim);
+  border: 1px solid var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--blue);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.pageContent {
+  padding: 24px;
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.bypassBanner {
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #D97706;
+  margin: 16px 24px 0;
+}
+
+/* 移动端简化 */
+@media (max-width: 768px) {
+  .shell {
+    --sidebar-w: 196px;
+  }
+}
+
+/* ── 侧边栏折叠 ── */
+.sidebar { transition: width 0.2s ease; }
+.main { transition: margin-left 0.2s ease; }
+.logoTextWrap { flex: 1; min-width: 0; }
+.collapseToggle {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.collapseToggle:hover { color: var(--blue); }
+.shell.collapsed .sidebar { width: 56px; }
+.shell.collapsed .main { margin-left: 56px; }
+.shell.collapsed .logoText,
+.shell.collapsed .logoSub,
+.shell.collapsed .sidebarCompany,
+.shell.collapsed .navSectionLabel,
+.shell.collapsed .navLabel { display: none; }
+.shell.collapsed .sidebarLogo { justify-content: center; padding: 16px 6px; }
+.shell.collapsed .navItem { justify-content: center; padding: 9px 0; }
+.shell.collapsed .logoutBtn { padding: 7px 0; font-size: 0; }
+.shell.collapsed .logoutBtn::after { content: '退'; font-size: 13px; }

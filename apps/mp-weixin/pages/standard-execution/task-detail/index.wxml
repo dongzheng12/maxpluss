@@ -1,0 +1,120 @@
+<wxs src="../../../utils/filters.wxs" module="filters" />
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中...</view>
+
+  <view class="error" wx:if="{{error}}">{{error}}</view>
+
+  <block wx:if="{{detail && !loading}}">
+    <view class="banner-overdue" wx:if="{{detail.isOverdue}}">⚠ 该任务已逾期</view>
+
+    <view class="card">
+      <view class="task-title">{{detail.task.title}}</view>
+      <view class="assignee-status status-{{detail.myAssignee.status}}">
+        当前状态：{{filters.statusLabel(detail.myAssignee.status)}}
+      </view>
+      <view class="mode-tags" wx:if="{{submitModeTags.length > 0}}">
+        <text wx:for="{{submitModeTags}}" wx:key="mode" class="mode-tag">{{item.label}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">任务完整字段</view>
+      <view wx:for="{{fieldRows}}" wx:key="key" class="field-row {{item.multiline ? 'field-row-block' : ''}}">
+        <text class="meta-label">{{item.label}}</text>
+        <text class="meta-value {{item.multiline ? 'field-value-block' : ''}}">{{item.value}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">生命周期留痕</view>
+      <view wx:for="{{lifecycleRows}}" wx:key="key" class="timeline-lite-row">
+        <text class="timeline-lite-dot"></text>
+        <text class="timeline-lite-label">{{item.label}}</text>
+        <text class="timeline-lite-value">{{item.value}}</text>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{detail.requirement}}">
+      <view class="section-title" bindtap="toggleReq">
+        关联控制点 <text class="toggle">{{reqExpanded ? '收起 ▲' : '展开原文 ▼'}}</text>
+      </view>
+      <view class="text-block">
+        <text class="clause-no" wx:if="{{detail.requirement.clauseNo}}">[{{detail.requirement.clauseNo}}] </text>
+        {{detail.requirement.title}}
+      </view>
+      <view class="meta-row">
+        <text class="meta-label">标准来源</text>
+        <text class="meta-value">{{detail.requirement.source.title}}</text>
+      </view>
+      <view class="meta-row">
+        <text class="meta-label">推荐任务类型</text>
+        <text class="meta-value">{{filters.taskTypeLabel(detail.task.taskType)}}</text>
+      </view>
+      <view wx:if="{{reqExpanded}}" class="text-block muted" style="margin-top:12rpx">{{detail.requirement.requirementText}}</view>
+    </view>
+
+    <!-- 新模型：逐要求项展示提交格式 -->
+    <view class="card" wx:if="{{requirementRows && requirementRows.length > 0}}">
+      <view class="section-title">任务要求项（{{requirementRows.length}}）</view>
+      <view wx:for="{{requirementRows}}" wx:key="id" class="requirement-row">
+        <view class="requirement-title">
+          <text class="req-index">#{{index + 1}}</text>
+          <text class="clause-no" wx:if="{{item.clauseNo}}">[{{item.clauseNo}}] </text>{{item.title}}
+          <text wx:if="{{item.required}}" class="required">*</text>
+          <text class="sub-status sub-status-{{item.status}}" style="margin-left:8rpx">{{filters.taskItemStatusLabel(item.status)}}</text>
+        </view>
+        <view wx:if="{{item.description}}" class="requirement-desc">{{item.description}}</view>
+        <view class="mode-tags inline-tags">
+          <text wx:for="{{item.submitTags}}" wx:for-item="tag" wx:key="mode" class="mode-tag">{{tag.label}}</text>
+        </view>
+        <view class="hint-line">{{item.hint}}</view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{detail.mySubmissions && detail.mySubmissions.length > 0}}">
+      <view class="section-title">我的提交历史（{{detail.mySubmissions.length}} 条）</view>
+      <view class="timeline">
+        <view
+          wx:for="{{detail.mySubmissions}}"
+          wx:key="id"
+          class="timeline-item"
+        >
+          <view class="timeline-header" data-id="{{item.id}}" bindtap="toggleSubmission">
+            <view class="timeline-dot status-dot-{{item.status}}"></view>
+            <view class="timeline-summary">
+              <text class="version-badge {{item.isLatest ? 'latest' : ''}}">v{{item.version}}{{item.isLatest ? ' (最新)' : ''}}</text>
+              <text class="sub-status sub-status-{{item.status}}">{{filters.submissionStatusLabel(item.status)}}</text>
+              <text class="submit-time">{{item.submittedAt}}</text>
+            </view>
+            <text class="toggle">{{expanded[item.id] ? '收起' : '展开'}}</text>
+          </view>
+          <view class="timeline-body" wx:if="{{expanded[item.id]}}">
+            <view class="muted small">提交内容：</view>
+            <view class="text-block">{{item.submitText}}</view>
+            <view wx:if="{{item.reviewComment}}" class="reject-comment">
+              <text class="muted small">审核备注：</text>
+              <view class="text-block">{{item.reviewComment}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-bar">
+      <block wx:if="{{detail.myAssignee.status === 'PENDING' || detail.myAssignee.status === 'IN_PROGRESS'}}">
+        <button type="primary" bindtap="goSubmit">去提交</button>
+      </block>
+      <block wx:elif="{{detail.myAssignee.status === 'REJECTED'}}">
+        <button type="warn" bindtap="goSubmit">重新提交</button>
+      </block>
+      <button
+        wx:elif="{{detail.myAssignee.status === 'PENDING_REVIEW'}}"
+        disabled
+      >等待审核</button>
+      <button
+        wx:elif="{{detail.myAssignee.status === 'COMPLETED'}}"
+        bindtap="goRecords"
+      >查看证据</button>
+    </view>
+  </block>
+</view>
