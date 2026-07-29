@@ -1,6 +1,6 @@
 import { nodeApi } from './client'
 
-/* ---- Dashboard stats ---- */
+/* ---- Dashboard stats   ---- */
 export async function getDashboardStats() {
   // aggregate from multiple sources
   const [orders, bookings, tasks] = await Promise.all([
